@@ -1,0 +1,6 @@
+*.a
+*.cmake
+Makefile
+CMakeFiles
+CMakefiles
+dependencies/glad/CMakeFiles
