@@ -1,4 +1,4 @@
-#include "window.hpp"
+#include "core/window.hpp"
 
 using namespace window;
 

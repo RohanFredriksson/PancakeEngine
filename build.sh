@@ -2,4 +2,3 @@
 cd build
 cmake ..
 make
-pancake

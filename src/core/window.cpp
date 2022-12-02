@@ -5,7 +5,7 @@
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
 
-#include "window.hpp"
+#include "core/window.hpp"
 
 namespace window {
 

@@ -18,14 +18,8 @@ endif()
 
 include_directories(include)
 
-set(SOURCE_DIR src)
-set(SOURCE
-    ${SOURCE}
-    src/main.cpp
-    src/window.cpp
-)
-
-add_executable(${PROJECT_NAME} ${SOURCE})
+file(GLOB_RECURSE source_files src/*.cpp)
+add_executable(${PROJECT_NAME} ${source_files})
 
 target_include_directories(${PROJECT_NAME} PUBLIC glad)
 target_include_directories(${PROJECT_NAME} PUBLIC glfw)
