@@ -18,6 +18,9 @@ Scene::~Scene() {
 
 void Scene::addNewComponents() {
 
+    // For each entity, check their new component list.
+    // If there are components in this list, 
+    // try and add them to the renderer and physics system.
     for (Entity* e : this->entities) {
         for (Component* c : e->getNewComponents()) {
             //this->renderer->add(c);
