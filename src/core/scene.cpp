@@ -2,12 +2,18 @@
 #include <string>
 #include <vector>
 
-using namespace scene;
+Scene::Scene(string name) {
+    this->name = name;
+}
 
-void update(float dt) {
+Scene::~Scene() {
 
 }
 
-void render() {
+void Scene::update(float dt) {
+
+}
+
+void Scene::render() {
 
 }

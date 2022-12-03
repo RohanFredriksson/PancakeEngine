@@ -1,32 +1,27 @@
+#pragma once
+
 #include <string>
 #include <vector>
-
-#pragma once
 
 using std::string;
 using std::vector;
 
-namespace scene {
+class Scene {
 
-    class Scene {
+    private:
 
-        private:
+        string name;
+        //vector<Entity> entities;
+        //Camera camera;
+        //Renderer renderer;
+        //World physics;
 
-            string name;
-            //vector<Entity> entities;
-            //Camera camera;
-            //Renderer renderer;
-            //World physics;
+    public:
 
-        public:
+        Scene(std::string name);
+        ~Scene();
 
-            Scene(string name) {
-                this->name = name;
-            }
+        void update(float dt);
+        void render();
 
-            void update(float dt);
-            void render();
-
-    };
-
-}
+};

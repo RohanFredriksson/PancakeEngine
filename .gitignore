@@ -1,5 +1,8 @@
 *.a
+*.exe
 *.cmake
+build
+pancake
 Makefile
 CMakeFiles
 CMakefiles
