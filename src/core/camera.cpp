@@ -55,21 +55,21 @@ float Camera::getZoom() {
 }
 
 void Camera::setPosition(vec2 position) {
-
+    this->position = position;
 }
 
 void Camera::setProjectionSize(vec2 projectionSize) {
-
+    this->projectionSize = projectionSize;
 }
 
 void Camera::setZoom(float zoom) {
-
+    this->zoom = zoom;
 }
 
 void Camera::addPosition(vec2 position) {
-
+    this->position += position;
 }
 
 void Camera::addZoom(float zoom) {
-
+    this->zoom += zoom;
 }
