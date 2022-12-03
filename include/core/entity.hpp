@@ -27,8 +27,11 @@ class Entity {
 
         void update(float dt);
         void kill();
-
+    
         bool isDead();
+
+        vector<Component*> getNewComponents();
+        void clearNewComponents();
 
 };
 

@@ -57,3 +57,11 @@ void Entity::kill() {
 bool Entity::isDead() {
     return this->dead;
 }
+
+vector<Component*> Entity::getNewComponents() {
+    return this->newComponents;
+}
+
+void Entity::clearNewComponents() {
+    this->newComponents.clear();
+}
