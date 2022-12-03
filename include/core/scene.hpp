@@ -2,6 +2,7 @@
 
 #include <string>
 #include <vector>
+#include <core/camera.hpp>
 
 using std::string;
 using std::vector;
@@ -12,13 +13,13 @@ class Scene {
 
         string name;
         //vector<Entity> entities;
-        //Camera camera;
+        Camera* camera;
         //Renderer renderer;
         //World physics;
 
     public:
 
-        Scene(std::string name);
+        Scene(string name);
         ~Scene();
 
         void update(float dt);
