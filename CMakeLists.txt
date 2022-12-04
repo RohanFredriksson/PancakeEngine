@@ -17,6 +17,7 @@ else()
 endif()
 
 include_directories(include)
+include_directories(dependencies)
 
 file(GLOB_RECURSE source_files src/*.cpp)
 add_executable(${PROJECT_NAME} ${source_files})
