@@ -1,19 +1,19 @@
 #pragma once
 
 #include <string>
-#include <vector>
+#include <map>
 #include <core/camera.hpp>
 #include <core/entity.hpp>
 
 using std::string;
-using std::vector;
+using std::map;
 
 class Scene {
 
     private:
 
         string name;
-        vector<Entity*> entities;
+        map<int, Entity*> entities;
         Camera* camera;
         //Renderer renderer;
         //World physics;

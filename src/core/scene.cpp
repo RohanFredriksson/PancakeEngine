@@ -1,8 +1,9 @@
-#include "core/scene.hpp"
+#include <stdio.h>
 #include <string>
 #include <vector>
 #include <deque>
 #include <glm/glm.hpp>
+#include "core/scene.hpp"
 
 using std::deque;
 using glm::vec2;
@@ -21,6 +22,16 @@ void Scene::addNewComponents() {
     // For each entity, check their new component list.
     // If there are components in this list, 
     // try and add them to the renderer and physics system.
+    for (auto const& x : this->entities) {
+        Entity* e = x.second;
+        for (Component* c : e->getNewComponents()) {
+            //this->renderer->add(c);
+            //this->physics->add(c);
+        }
+        e->clearNewComponents();
+    }
+
+    /*
     for (Entity* e : this->entities) {
         for (Component* c : e->getNewComponents()) {
             //this->renderer->add(c);
@@ -28,6 +39,7 @@ void Scene::addNewComponents() {
         }
         e->clearNewComponents();
     }
+    */
     
 }
 
@@ -41,9 +53,9 @@ void Scene::update(float dt) {
     // this->physics->update(dt);
 
     // Update all the entities.
-    deque<int> deadIndices;
-    int index = 0;
-    for (Entity* e : this->entities) {
+    deque<int> deadIds;
+    for (auto const& x : this->entities) {
+        Entity* e = x.second;
         
         // If the component is not dead, update it.
         if (e->isDead()) {
@@ -52,19 +64,19 @@ void Scene::update(float dt) {
         
         // If the component is dead, add its index a clear list.
         else {
-            deadIndices.push_front(index);
+            deadIds.push_front(e->getId());
         }
 
-        index++;
     }
 
     // Delete all dead elements
-    for (int i : deadIndices) {
-        Entity* e = this->entities[i];
+    for (int i : deadIds) {
+        auto search = this->entities.find(i);
+        Entity* e = search->second;
         delete e;
-        this->entities.erase(this->entities.begin() + i);
+        this->entities.erase(i);
     }
-    deadIndices.clear();    
+    deadIds.clear();    
 
 }
 
