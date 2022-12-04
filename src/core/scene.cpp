@@ -14,7 +14,16 @@ Scene::Scene(string name) {
 }
 
 Scene::~Scene() {
+    
+    // Delete the camera.
     delete this->camera;
+
+    // Delete all entities and their components.
+    for (auto const& x : this->entities) {
+        Entity* e = x.second;
+        delete e;
+    }
+
 }
 
 void Scene::addNewComponents() {
@@ -25,21 +34,15 @@ void Scene::addNewComponents() {
     for (auto const& x : this->entities) {
         Entity* e = x.second;
         for (Component* c : e->getNewComponents()) {
+            
             //this->renderer->add(c);
             //this->physics->add(c);
-        }
-        e->clearNewComponents();
-    }
 
-    /*
-    for (Entity* e : this->entities) {
-        for (Component* c : e->getNewComponents()) {
-            //this->renderer->add(c);
-            //this->physics->add(c);
+            // Add the component to the map for quick lookups.
+            this->components[c->getId()] = c;
         }
         e->clearNewComponents();
     }
-    */
     
 }
 
@@ -71,10 +74,20 @@ void Scene::update(float dt) {
 
     // Delete all dead elements
     for (int i : deadIds) {
+        
+        // Find the entity using its id.
         auto search = this->entities.find(i);
         Entity* e = search->second;
+
+        // Remove all components associated with the entity from the map.
+        for (Component* c : e->getComponents()) {
+            this->components.erase(c->getId());
+        }
+
+        // Delete the entity.
         delete e;
         this->entities.erase(i);
+
     }
     deadIds.clear();    
 

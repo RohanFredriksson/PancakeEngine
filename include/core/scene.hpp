@@ -1,19 +1,20 @@
 #pragma once
 
 #include <string>
-#include <map>
+#include <unordered_map>
 #include <core/camera.hpp>
 #include <core/entity.hpp>
 
 using std::string;
-using std::map;
+using std::unordered_map;
 
 class Scene {
 
     private:
 
         string name;
-        map<int, Entity*> entities;
+        unordered_map<int, Entity*> entities;
+        unordered_map<int, Component*> components;
         Camera* camera;
         //Renderer renderer;
         //World physics;
