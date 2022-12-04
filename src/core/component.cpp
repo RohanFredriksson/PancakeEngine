@@ -2,6 +2,15 @@
 
 Component::Component() {
     
+    this->id = -1;
+    this->entity = NULL;
+    
+    this->positionOffset.x = 0.0f;
+    this->positionOffset.y = 0.0f;
+    this->sizeScale.x = 1.0f;
+    this->sizeScale.y = 1.0f;
+    this->rotationOffset = 0.0f;
+
 }
 
 Component::~Component() {

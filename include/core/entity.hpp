@@ -67,7 +67,7 @@ class Component {
         Component();
         ~Component();
 
-        void update(float dt);
+        virtual void update(float dt);
         void kill();
         
         // Getters
