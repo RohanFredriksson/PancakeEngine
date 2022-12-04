@@ -14,27 +14,24 @@ class Shader {
     private:
 
         unsigned int program;
-        bool beginUsed;
         string vertex;
         string fragment;
-
-        void compile();
-
+        
     public:
 
         Shader(string vertex, string fragment);
         ~Shader();
 
-        void use();
-        void detach();
+        void bind();
+        void unbind();
 
-        void uploadInt(string name, int value;)
+        void uploadInt(string name, int value);
         void uploadFloat(string name, float value);
         void uploadVec2(string name, vec2 vector);
         void uploadVec3(string name, vec3 vector);
         void uploadVec4(string name, vec4 vector);
         void uploadMat4(string name, mat4 matrix);
         void uploadTexture(string name, int slot);
-        void uploadIntArray(string name, int* array);
+        void uploadIntArray(string name, int num, int* array);
 
 };
