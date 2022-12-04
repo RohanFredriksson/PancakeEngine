@@ -54,12 +54,56 @@ void Entity::kill() {
     this->dead = true;
 }
 
-bool Entity::isDead() {
-    return this->dead;
+int Entity::getId() {
+    return this->id;
+}
+
+vector<Component*> Entity::getComponents() {
+    return this->components;
 }
 
 vector<Component*> Entity::getNewComponents() {
     return this->newComponents;
+}
+
+vec2 Entity::getPosition() {
+    return this->position;
+}
+
+vec2 Entity::getSize() {
+    return this->size;
+}
+
+float Entity::getRotation() {
+    return this->rotation;
+}
+
+bool Entity::isDead() {
+    return this->dead;
+}
+
+void Entity::setPosition(vec2 position) {
+    this->position = position;
+}
+
+void Entity::setSize(vec2 size) {
+    this->size = size;
+}
+
+void Entity::setRotation(float rotation) {
+    this->rotation = rotation;
+}
+
+void Entity::addPosition(vec2 position) {
+    this->position += position;
+}
+
+void Entity::addSize(vec2 size) {
+    this->size += size;
+}
+
+void Entity::addRotation(float rotation) {
+    this->rotation += rotation;
 }
 
 void Entity::clearNewComponents() {
