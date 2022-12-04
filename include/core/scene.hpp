@@ -4,6 +4,7 @@
 #include <unordered_map>
 #include <core/camera.hpp>
 #include <core/entity.hpp>
+#include <core/component.hpp>
 
 using std::string;
 using std::unordered_map;

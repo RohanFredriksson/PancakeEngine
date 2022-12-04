@@ -1,3 +1,4 @@
+#include "core/component.hpp"
 #include "core/entity.hpp"
 
 Component::Component() {

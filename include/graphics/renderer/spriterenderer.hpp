@@ -1,7 +1,7 @@
 #pragma once
 
 #include <glm/glm.hpp>
-#include "core/entity.hpp"
+#include "core/component.hpp"
 #include "graphics/primitives/sprite.hpp"
 
 using glm::vec2;

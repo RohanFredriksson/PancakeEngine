@@ -1,5 +1,6 @@
 #include <deque>
 #include "core/entity.hpp"
+#include "core/component.hpp"
 
 using std::deque;
 
