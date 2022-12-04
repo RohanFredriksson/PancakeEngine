@@ -48,8 +48,35 @@ void SpriteRenderer::update(float dt) {
 
 }
 
+Sprite* SpriteRenderer::getSprite() {
+    return this->sprite;
+}
+
+vec4 SpriteRenderer::getColour() {
+    return this->colour;
+}
+
+int SpriteRenderer::getZIndex() {
+    return this->zIndex;
+}
+
 bool SpriteRenderer::isDirty() {
     return this->dirty;
+}
+
+void SpriteRenderer::setSprite(Sprite* sprite) {
+    this->sprite = sprite;
+    this->dirty = true;
+}
+
+void SpriteRenderer::setColour(vec4 colour) {
+    this->colour = colour;
+    this->dirty = true;
+}
+
+void SpriteRenderer::setZIndex(int zIndex) {
+    this->zIndex = zIndex;
+    this->dirty = true;
 }
 
 void SpriteRenderer::setClean() {

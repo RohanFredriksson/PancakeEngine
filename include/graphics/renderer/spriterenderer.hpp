@@ -29,7 +29,16 @@ class SpriteRenderer : public Component {
         SpriteRenderer(Sprite* sprite, vec4 colour, int zIndex);
         void update(float dt) override;
         
+        // Getters
+        Sprite* getSprite();
+        vec4 getColour();
+        int getZIndex();
         bool isDirty();
+        
+        // Setters
+        void setSprite(Sprite* sprite);
+        void setColour(vec4 colour);
+        void setZIndex(int zIndex);
         void setClean();
 
 };
