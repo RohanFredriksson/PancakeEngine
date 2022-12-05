@@ -1,6 +1,6 @@
 #include "core/window.hpp"
 
-using namespace window;
+using namespace Window;
 
 int main() {
     run();

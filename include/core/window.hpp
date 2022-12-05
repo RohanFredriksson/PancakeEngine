@@ -2,7 +2,7 @@
 
 #include "core/scene.hpp"
 
-namespace window {
+namespace Window {
     void run();
     Scene* getScene();
 }

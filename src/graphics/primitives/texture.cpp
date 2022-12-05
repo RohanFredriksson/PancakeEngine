@@ -23,7 +23,7 @@ void Texture::init(string name, unsigned char* image, int width, int height, int
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
         if (channels == 3) {glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, image);}
-        else if (channels == 4) {glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, width, 0, GL_RGBA, GL_UNSIGNED_BYTE, image);}
+        else if (channels == 4) {glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, image);}
         else {printf("ERROR::TEXTURE::INVALID_IMAGE_CHANNELS '%d'\n", channels);}
 
     }

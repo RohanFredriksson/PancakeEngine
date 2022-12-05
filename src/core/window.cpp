@@ -8,11 +8,16 @@
 #include "core/window.hpp"
 #include "graphics/primitives/shader.hpp"
 
-namespace window {
+namespace {
 
     GLFWwindow* window;
     Scene* scene;
     Shader* shader;
+    float aspectRatio;
+
+}
+
+namespace Window {
 
     bool init() {
 
@@ -31,7 +36,7 @@ namespace window {
         glfwWindowHint(GLFW_FOCUS_ON_SHOW, GLFW_TRUE);
 
         // Create the window
-        window = glfwCreateWindow(1366, 768, "Pancake", NULL, NULL);
+        window = glfwCreateWindow(800, 800, "Pancake", NULL, NULL);
         if (window == NULL) {
             printf("ERROR::WINDOW::GLFW_WINDOW_CREATION_FAILED\n");
             return false;

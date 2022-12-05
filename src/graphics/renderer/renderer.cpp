@@ -296,7 +296,7 @@ void RenderBatch::render() {
     // Use shader
     boundShader->bind();
 
-    Camera* camera = window::getScene()->getCamera();
+    Camera* camera = Window::getScene()->getCamera();
 
     mat4 view = camera->getView();
     mat4 projection = camera->getProjection();
