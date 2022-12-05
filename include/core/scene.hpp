@@ -30,4 +30,6 @@ class Scene {
         void update(float dt);
         void render();
 
+        Camera* getCamera();
+
 };

@@ -86,4 +86,8 @@ namespace window {
         exit();
     }
 
+    Scene* getScene() {
+        return NULL;
+    }
+
 }

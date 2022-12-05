@@ -49,3 +49,5 @@ class Component {
         void addRotationOffset(float offset);
 
 };
+
+#include "core/entity.hpp"

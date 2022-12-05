@@ -44,8 +44,10 @@ class RenderBatch {
     public:
 
         RenderBatch(Renderer* renderer, int zIndex);
+        ~RenderBatch();
 
-        void generateIndices(int* elements);
+        static void generateIndices(int* elements);
+        static void loadElementIndices(int* elements, int index);
         void loadVertexProperties(int index);
 
         void render();
@@ -53,7 +55,6 @@ class RenderBatch {
         void removeSprite(SpriteRenderer* sprite);
 
         void addTexture(Texture* texture);
-        void removeTexture(Texture* texture);
         void removeTextureIfNotUsed(Texture* texture);
 
         bool hasRoom();

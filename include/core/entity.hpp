@@ -50,3 +50,5 @@ class Entity {
         void clearNewComponents();
 
 };
+
+#include "core/component.hpp"

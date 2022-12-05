@@ -96,3 +96,7 @@ void Scene::update(float dt) {
 void Scene::render() {
     //this->renderer->render();
 }
+
+Camera* Scene::getCamera() {
+    return this->camera;
+}
