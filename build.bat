@@ -12,3 +12,5 @@ del posix /s /f /q > nul
 type nul > windows
 cmake .. -G "MinGW Makefiles"
 mingw32-make
+echo Y | rmdir assets /s > nul
+echo d | xcopy ..\assets assets /E > nul

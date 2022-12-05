@@ -6,11 +6,13 @@
 #include <glm/glm.hpp>
 
 #include "core/window.hpp"
+#include "graphics/primitives/shader.hpp"
 
 namespace window {
 
     GLFWwindow* window;
     Scene* scene;
+    Shader* shader;
 
     bool init() {
 
@@ -52,6 +54,7 @@ namespace window {
         glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
 
         scene = new Scene("Title");
+        shader = new Shader("assets/shaders/default.vert", "assets/shaders/default.frag");
 
         return true;
     }
