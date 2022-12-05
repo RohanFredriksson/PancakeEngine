@@ -87,7 +87,7 @@ void Scene::update(float dt) {
         Entity* e = x.second;
         
         // If the component is not dead, update it.
-        if (e->isDead()) {
+        if (!e->isDead()) {
             e->update(dt);
         } 
         

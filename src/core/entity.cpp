@@ -36,7 +36,7 @@ void Entity::update(float dt) {
     for (Component* c : this->components) {
         
         // If the component is not dead, update it.
-        if (c->isDead()) {
+        if (!c->isDead()) {
             c->update(dt);
         } 
         

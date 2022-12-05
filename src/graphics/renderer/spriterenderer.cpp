@@ -1,4 +1,6 @@
 #include "graphics/renderer/spriterenderer.hpp"
+#include "core/window.hpp"
+#include "core/scene.hpp"
 
 SpriteRenderer::SpriteRenderer(Sprite* sprite, vec4 colour, int zIndex) : Component() {
     
@@ -12,6 +14,10 @@ SpriteRenderer::SpriteRenderer(Sprite* sprite, vec4 colour, int zIndex) : Compon
 
     this->dirty = true;
 
+}
+
+SpriteRenderer::~SpriteRenderer() {
+    Window::getScene()->getRenderer()->remove(this);
 }
 
 void SpriteRenderer::update(float dt) {

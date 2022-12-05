@@ -27,6 +27,8 @@ class SpriteRenderer : public Component {
     public:
 
         SpriteRenderer(Sprite* sprite, vec4 colour, int zIndex);
+        ~SpriteRenderer();
+
         void update(float dt) override;
         
         // Getters
