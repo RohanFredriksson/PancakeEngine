@@ -37,6 +37,7 @@ mat4 Camera::getView() {
     vec3 cameraUp(0.0f, 1.0f, 0.0f);
 
     this->view = glm::lookAt(cameraPosition, cameraFront, cameraUp);
+    this->inverseView = glm::inverse(this->view);
     return this->view;
 
 }

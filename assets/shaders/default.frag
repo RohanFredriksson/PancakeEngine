@@ -11,8 +11,6 @@ out vec4 colour;
 
 void main()
 {
-    colour = vec4(1.0, 0.0, 0.0, 1.0);
-    /*
     switch (int(fTexId)) {
         case 0:
             colour = fColour;
@@ -39,5 +37,4 @@ void main()
             colour = fColour * texture(uTextures[7], fTexCoords);
             break;
     }
-    */
 }

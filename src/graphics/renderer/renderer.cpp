@@ -113,7 +113,7 @@ RenderBatch::RenderBatch(Renderer* renderer, int zIndex) {
     // Generate and bind a Vertex Array Object
     glGenVertexArrays(1, &this->vao);
     glBindVertexArray(this->vao);
-
+    
     // Allocate space for vertices
     glGenBuffers(1, &this->vbo);
     glBindBuffer(GL_ARRAY_BUFFER, this->vbo);
@@ -168,14 +168,14 @@ void RenderBatch::loadElementIndices(int* elements, int index) {
     int offset = 4 * index;
 
     // Triangle 1
-    elements[offsetArrayIndex] = offset + 3;
-    elements[offsetArrayIndex+1] = offset + 2;
-    elements[offsetArrayIndex+2] = offset + 0;
+    elements[offsetArrayIndex + 0] = offset + 3;
+    elements[offsetArrayIndex + 1] = offset + 2;
+    elements[offsetArrayIndex + 2] = offset + 0;
 
     // Triangle 2
-    elements[offsetArrayIndex+3] = offset + 0;
-    elements[offsetArrayIndex+4] = offset + 2;
-    elements[offsetArrayIndex+5] = offset + 1;
+    elements[offsetArrayIndex + 3] = offset + 0;
+    elements[offsetArrayIndex + 4] = offset + 2;
+    elements[offsetArrayIndex + 5] = offset + 1;
 
 }
 
@@ -238,7 +238,7 @@ void RenderBatch::loadVertexProperties(int index) {
         }
 
         // Load Position
-        this->vertices[offset] = currentPos.x;
+        this->vertices[offset + 0] = currentPos.x;
         this->vertices[offset + 1] = currentPos.y;
 
         // Load Colour

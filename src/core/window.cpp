@@ -71,12 +71,12 @@ namespace window {
             glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
             glClear(GL_COLOR_BUFFER_BIT);
 
-            glfwSwapBuffers(window);
-
             scene->update(dt);
-            
+
             Renderer::bindShader(shader);
             scene->render();
+
+            glfwSwapBuffers(window);
 
             endTime = (float)glfwGetTime();
             dt = endTime - beginTime;
