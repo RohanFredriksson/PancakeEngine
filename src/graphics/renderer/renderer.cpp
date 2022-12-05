@@ -40,19 +40,59 @@ Renderer::Renderer() {
 }
 
 Renderer::~Renderer() {
-
+    for (RenderBatch* current : this->batches) {
+        delete current;
+    }
 }
 
 void Renderer::render() {
-
+    for (RenderBatch* current : this->batches) {
+        current->render();
+    }
 }
 
 void Renderer::add(SpriteRenderer* sprite) {
 
+    // Try and put the sprite in any of the preexisting batches.
+    for (RenderBatch* current : this->batches) {
+        if (current->hasRoom() && current->getZIndex() == sprite->getZIndex()) {
+            if (sprite->getSprite()->getTexture() == NULL || current->hasTexture(sprite->getSprite()->getTexture()) || current->hasTextureRoom()) {
+                current->addSprite(sprite);
+                return;
+            }
+        }
+    }
+
+    // Create a new render batch.
+    RenderBatch* batch = new RenderBatch(this, sprite->getZIndex());
+
+    // Insert to maintain sortedness.
+    if (this->batches.size() == 0) {this->batches.push_back(batch);}
+    else if (this->batches[0]->getZIndex() >= sprite->getZIndex()) {this->batches.push_front(batch);}
+    else if (this->batches[this->batches.size()-1]->getZIndex() <= sprite->getZIndex()) {this->batches.push_back(batch);}
+    else {
+
+        // This can be sped up with binary search.
+        for (int i = 1; i < this->batches.size(); i++) {
+
+            RenderBatch* previous = this->batches[i-1];
+            RenderBatch* current = this->batches[i];
+
+            if (previous->getZIndex() < sprite->getZIndex() && current->getZIndex() >= sprite->getZIndex()) {
+                this->batches.insert(this->batches.begin() + i, batch);
+                return;
+            }
+
+        }
+
+    }
+
 }
 
 void Renderer::remove(SpriteRenderer* sprite) {
-
+    for (RenderBatch* current : this->batches) {
+        current->removeSprite(sprite);
+    }
 }
 
 void Renderer::bindShader(Shader* shader) {
@@ -362,4 +402,8 @@ bool RenderBatch::hasTexture(Texture* texture) {
         if (current == texture) {return true;}
     }
     return false;
+}
+
+int RenderBatch::getZIndex() {
+    return this->zIndex;
 }

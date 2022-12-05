@@ -1,10 +1,12 @@
 #pragma once
 
+#include <deque>
 #include <vector>
 #include "graphics/primitives/texture.hpp"
 #include "graphics/primitives/shader.hpp"
 #include "graphics/renderer/spriterenderer.hpp"
 
+using std::deque;
 using std::vector;
 
 class RenderBatch;
@@ -13,7 +15,7 @@ class Renderer {
 
     private:
 
-        vector<RenderBatch*> batches;
+        deque<RenderBatch*> batches;
 
     public:
 
@@ -60,5 +62,7 @@ class RenderBatch {
         bool hasRoom();
         bool hasTextureRoom();
         bool hasTexture(Texture* texture);
+
+        int getZIndex();
 
 };
