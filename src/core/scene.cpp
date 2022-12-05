@@ -11,12 +11,14 @@ using glm::vec2;
 Scene::Scene(string name) {
     this->name = name;
     this->camera = new Camera(vec2(0.0f, 0.0f), vec2(12.0f, 12.0f), 1.0f);
+    this->renderer = new Renderer();
 }
 
 Scene::~Scene() {
     
-    // Delete the camera.
+    // Delete all scene elements.
     delete this->camera;
+    delete this->renderer;
 
     // Delete all entities and their components.
     for (auto const& x : this->entities) {

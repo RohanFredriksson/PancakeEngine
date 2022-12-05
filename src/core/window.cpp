@@ -10,6 +10,7 @@
 namespace window {
 
     GLFWwindow* window;
+    Scene* scene;
 
     bool init() {
 
@@ -50,6 +51,8 @@ namespace window {
         glEnable(GL_BLEND);
         glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
 
+        scene = new Scene("Title");
+
         return true;
     }
 
@@ -62,10 +65,13 @@ namespace window {
         while (!glfwWindowShouldClose(window)) {
 
             glfwPollEvents();
-            glClearColor(0.0f, 1.0f, 1.0f, 1.0f);
+            glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
             glClear(GL_COLOR_BUFFER_BIT);
 
             glfwSwapBuffers(window);
+
+            scene->update(dt);
+            scene->render();
 
             endTime = (float)glfwGetTime();
             dt = endTime - beginTime;

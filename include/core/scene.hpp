@@ -5,6 +5,7 @@
 #include <core/camera.hpp>
 #include <core/entity.hpp>
 #include <core/component.hpp>
+#include <graphics/renderer/renderer.hpp>
 
 using std::string;
 using std::unordered_map;
@@ -17,8 +18,8 @@ class Scene {
         unordered_map<int, Entity*> entities;
         unordered_map<int, Component*> components;
         Camera* camera;
-        //Renderer renderer;
-        //World physics;
+        Renderer* renderer;
+        //World* physics;
 
         void addNewComponents();
         
