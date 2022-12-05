@@ -107,6 +107,12 @@ void Entity::addRotation(float rotation) {
     this->rotation += rotation;
 }
 
+void Entity::addComponent(Component* component) {
+    component->setEntity(this);
+    this->components.push_back(component);
+    this->newComponents.push_back(component);
+}
+
 void Entity::clearNewComponents() {
     this->newComponents.clear();
 }

@@ -62,6 +62,10 @@ bool Component::isDead() {
     return this->dead;
 }
 
+void Component::setEntity(Entity* entity) {
+    this->entity = entity;
+}
+
 void Component::setPositionOffset(vec2 offset) {
     this->positionOffset = offset;
 }

@@ -17,6 +17,8 @@ class Shader {
         string vertex;
         string fragment;
         
+        static char* loadSource(const char * filename);
+        
     public:
 
         Shader(string vertex, string fragment);

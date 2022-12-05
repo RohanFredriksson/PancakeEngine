@@ -32,5 +32,8 @@ class Scene {
         void render();
 
         Camera* getCamera();
+        Renderer* getRenderer();
+
+        void addEntity(Entity* entity);
 
 };

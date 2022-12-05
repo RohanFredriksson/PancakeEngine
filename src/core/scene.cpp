@@ -6,12 +6,24 @@
 #include "core/scene.hpp"
 
 using std::deque;
+using std::pair;
 using glm::vec2;
 
+using glm::vec4;
+
 Scene::Scene(string name) {
+
     this->name = name;
     this->camera = new Camera(vec2(0.0f, 0.0f), vec2(12.0f, 12.0f), 1.0f);
     this->renderer = new Renderer();
+
+    Entity* e = new Entity(vec2(0.0f, 0.0f), vec2(1.0f, 1.0f), 0.0f);
+    Texture* t = new Texture("assets/textures/faces.png");
+    Sprite* s = new Sprite("faces", t);    
+    SpriteRenderer* sr = new SpriteRenderer(s, vec4(1.0f, 1.0f, 1.0f, 1.0f), 0);
+    e->addComponent(sr);
+    this->addEntity(e);
+
 }
 
 Scene::~Scene() {
@@ -37,8 +49,8 @@ void Scene::addNewComponents() {
         Entity* e = x.second;
         for (Component* c : e->getNewComponents()) {
             
-            //this->renderer->add(c);
-            //this->physics->add(c);
+            // If the component is of the correct subclass, add it to its specific system.
+            if (dynamic_cast<SpriteRenderer*>(c) != nullptr) {this->renderer->add((SpriteRenderer*) c);}
 
             // Add the component to the map for quick lookups.
             this->components[c->getId()] = c;
@@ -96,9 +108,18 @@ void Scene::update(float dt) {
 }
 
 void Scene::render() {
-    //this->renderer->render();
+    this->renderer->render();
 }
 
 Camera* Scene::getCamera() {
     return this->camera;
+}
+
+Renderer* Scene::getRenderer() {
+    return this->renderer;
+}
+
+void Scene::addEntity(Entity* entity) {
+    pair<int, Entity*> p(entity->getId(), entity);
+    this->entities.insert(p);
 }

@@ -74,6 +74,8 @@ namespace window {
             glfwSwapBuffers(window);
 
             scene->update(dt);
+            
+            Renderer::bindShader(shader);
             scene->render();
 
             endTime = (float)glfwGetTime();
@@ -96,7 +98,7 @@ namespace window {
     }
 
     Scene* getScene() {
-        return NULL;
+        return scene;
     }
 
 }

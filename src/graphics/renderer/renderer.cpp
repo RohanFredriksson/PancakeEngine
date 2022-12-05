@@ -65,6 +65,7 @@ void Renderer::add(SpriteRenderer* sprite) {
 
     // Create a new render batch.
     RenderBatch* batch = new RenderBatch(this, sprite->getZIndex());
+    batch->addSprite(sprite);
 
     // Insert to maintain sortedness.
     if (this->batches.size() == 0) {this->batches.push_back(batch);}
@@ -317,7 +318,7 @@ void RenderBatch::render() {
         glActiveTexture(GL_TEXTURE0 + i + 1);
         this->textures[i]->unbind();
     }
-   boundShader->unbind();
+    boundShader->unbind();
 
 }
 
@@ -335,7 +336,7 @@ void RenderBatch::addSprite(SpriteRenderer* sprite) {
         this->addTexture(sprite->getSprite()->getTexture());
     }
 
-    // Add propertiesto local vertices array.
+    // Add properties to local vertices array.
     this->loadVertexProperties(index);
 
 }

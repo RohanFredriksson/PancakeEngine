@@ -39,6 +39,7 @@ class Component {
         bool isDead();
 
         // Setters
+        void setEntity(Entity* entity);
         void setPositionOffset(vec2 offset);
         void setSizeScale(vec2 scale);
         void setRotationOffset(float offset);

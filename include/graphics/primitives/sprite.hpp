@@ -16,9 +16,12 @@ class Sprite {
         string name;
         Texture* texture;
         vec2 texCoords[4];
+        
+        void init(string name, Texture* texture, vec2 texCoords[4]);
 
     public:
 
+        Sprite(string name, Texture* texture);
         Sprite(string name, Texture* texture, vec2 texCoords[4]);
 
         string getName();

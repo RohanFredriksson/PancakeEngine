@@ -25,8 +25,8 @@ class Renderer {
         void render();
         void add(SpriteRenderer* sprite);
         void remove(SpriteRenderer* sprite);
-        void bindShader(Shader* shader);
-        Shader* getBoundShader(Shader* shader);
+        static void bindShader(Shader* shader);
+        static Shader* getBoundShader(Shader* shader);
 
 };
 

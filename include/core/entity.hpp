@@ -27,8 +27,8 @@ class Entity {
 
         void update(float dt);
         void kill();
-    
-        // Getters
+
+        // Getter Methods.
         int getId();
         vector<Component*> getComponents();
         vector<Component*> getNewComponents();
@@ -37,16 +37,18 @@ class Entity {
         float getRotation();
         bool isDead();
 
-        // Setters
+        // Setter Methods.
         void setPosition(vec2 position);
         void setSize(vec2 size);
         void setRotation(float rotation);
 
-        // Adders
+        // Adder Methods.
         void addPosition(vec2 position);
         void addSize(vec2 size);
         void addRotation(float rotation);
 
+        // Component Methods
+        void addComponent(Component* component);
         void clearNewComponents();
 
 };
