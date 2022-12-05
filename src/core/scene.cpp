@@ -17,10 +17,22 @@ Scene::Scene(string name) {
     this->camera = new Camera(vec2(0.0f, 0.0f), vec2(12.0f, 12.0f), 1.0f);
     this->renderer = new Renderer();
 
-    Entity* e = new Entity(vec2(0.0f, 0.0f), vec2(1.0f, 1.0f), 0.0f);
-    Texture* t = new Texture("assets/textures/faces.png");
-    Sprite* s = new Sprite("faces", t);    
-    SpriteRenderer* sr = new SpriteRenderer(s, vec4(1.0f, 1.0f, 1.0f, 1.0f), 0);
+    Entity* e;
+    Texture* t;
+    Sprite* s;
+    SpriteRenderer* sr;
+
+    e = new Entity(vec2(0.0f, 0.0f), vec2(1.0f, 1.0f), 0.0f);
+    t = new Texture("assets/textures/faces.png");
+    s = new Sprite("faces", t);    
+    sr = new SpriteRenderer(s, vec4(1.0f, 1.0f, 1.0f, 1.0f), 0);
+    e->addComponent(sr);
+    this->addEntity(e);
+
+    e = new Entity(vec2(1.0f, 1.0f), vec2(1.0f, 1.0f), 0.0f);
+    t = new Texture("assets/textures/faces.png");
+    s = new Sprite("faces", t);    
+    sr = new SpriteRenderer(s, vec4(1.0f, 0.0f, 1.0f, 1.0f), 0);
     e->addComponent(sr);
     this->addEntity(e);
 

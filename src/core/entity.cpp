@@ -4,12 +4,19 @@
 
 using std::deque;
 
+namespace {
+    int nextId = 0;
+}
+
 Entity::Entity(vec2 position, vec2 size, float rotation) {
-    this->id = -1;
+    
+    this->id = nextId;
     this->position = position;
     this->size = size;
     this->rotation = rotation;
     this->dead = false;
+
+    nextId++;
 }
 
 Entity::~Entity() {

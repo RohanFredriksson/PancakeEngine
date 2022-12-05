@@ -1,9 +1,13 @@
 #include "core/component.hpp"
 #include "core/entity.hpp"
 
+namespace {
+    int nextId = 0;
+}
+
 Component::Component() {
     
-    this->id = -1;
+    this->id = nextId;
     this->entity = NULL;
     
     this->positionOffset.x = 0.0f;
@@ -11,6 +15,8 @@ Component::Component() {
     this->sizeScale.x = 1.0f;
     this->sizeScale.y = 1.0f;
     this->rotationOffset = 0.0f;
+
+    nextId++;
 
 }
 
@@ -39,7 +45,7 @@ vec2 Component::getPosition() {
 }
 
 vec2 Component::getSize() {
-    return this->entity->getSize() + this->sizeScale;
+    return this->entity->getSize() * this->sizeScale;
 }
 
 float Component::getRotation() {
