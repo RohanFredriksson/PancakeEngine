@@ -17,10 +17,6 @@ namespace {
     int width = 800;
     int height = 800;
 
-}
-
-namespace Window {
-
     bool init() {
 
         // Initialise GLFW
@@ -73,6 +69,15 @@ namespace Window {
         return true;
     }
 
+    void update(float dt) {
+        scene->update(dt);
+    }
+
+    void render() {
+        Renderer::bindShader(shader);
+        scene->render();
+    }
+
     void loop() {
 
         float beginTime = (float)glfwGetTime();
@@ -85,10 +90,8 @@ namespace Window {
             glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
             glClear(GL_COLOR_BUFFER_BIT);
 
-            scene->update(dt);
-
-            Renderer::bindShader(shader);
-            scene->render();
+            update(dt);
+            render();
 
             glfwSwapBuffers(window);
 
@@ -104,6 +107,10 @@ namespace Window {
         glfwDestroyWindow(window);
         glfwTerminate();
     }
+
+}
+
+namespace Window {
 
     void run() {
         if (!init()) {return;}
