@@ -3,10 +3,8 @@
 Rigidbody::Rigidbody() : Component() {
 
     this->collider = NULL;
-    this->forceAccum.x = 0;
-    this->forceAccum.y = 0;
-    this->velocity.x = 0;
-    this->velocity.y = 0;
+    this->forceAccum = glm::vec2(0.0f, 0.0f);
+    this->velocity = glm::vec2(0.0f, 0.0f);
     this->cor = 0;
     this->mass = 0;
     this->sensor = false;

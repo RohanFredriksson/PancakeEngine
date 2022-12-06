@@ -10,10 +10,8 @@ Component::Component() {
     this->id = nextId;
     this->entity = NULL;
     
-    this->positionOffset.x = 0.0f;
-    this->positionOffset.y = 0.0f;
-    this->sizeScale.x = 1.0f;
-    this->sizeScale.y = 1.0f;
+    this->positionOffset = glm::vec2(0.0f, 0.0f);
+    this->sizeScale = glm::vec2(1.0f, 1.0f);
     this->rotationOffset = 0.0f;
 
     nextId++;
