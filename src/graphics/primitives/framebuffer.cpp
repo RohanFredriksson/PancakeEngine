@@ -1,15 +1,14 @@
 #include <stdio.h>
-#include <glad/glad.h>
 #include "graphics/primitives/framebuffer.hpp"
 
-FrameBuffer::FrameBuffer(int width, int height) {
-    
+void FrameBuffer::init(GLint internal, int width, int height, GLenum format, GLenum type) {
+
     // Generate the framebuffer.
     glGenFramebuffers(1, &this->fbo);
     glBindFramebuffer(GL_FRAMEBUFFER, this->fbo);
 
     // Initialise the texture to render the data to, and attach it to the framebuffer.
-    this->texture = new Texture(GL_RGB, width, height, GL_RGB, GL_UNSIGNED_BYTE);
+    this->texture = new Texture(internal, width, height, format, type);
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, this->texture->getId(), 0);
 
     // Create a renderbuffer.
@@ -27,6 +26,14 @@ FrameBuffer::FrameBuffer(int width, int height) {
 
 }
 
+FrameBuffer::FrameBuffer(int width, int height) {
+    this->init(GL_RGB, width, height, GL_RGB, GL_UNSIGNED_BYTE);
+}
+
+FrameBuffer::FrameBuffer(GLint internal, int width, int height, GLenum format, GLenum type) {
+    this->init(internal, width, height, format, type);
+}
+
 FrameBuffer::~FrameBuffer() {
     delete this->texture;
 }
@@ -37,4 +44,8 @@ void FrameBuffer::bind() {
 
 void FrameBuffer::unbind() {
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
+}
+
+Texture* FrameBuffer::getTexture() {
+    return this->texture;
 }
