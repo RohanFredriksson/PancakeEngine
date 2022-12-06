@@ -42,4 +42,4 @@ class Rigidbody : public Component {
 
 };
 
-//#include "physics/primitives/collider.hpp"
+#include "physics/primitives/collider.hpp"
