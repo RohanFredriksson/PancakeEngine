@@ -34,6 +34,24 @@ void Texture::init(string name, unsigned char* image, int width, int height, int
 
 }
 
+void Texture::generate(GLint internal, int width, int height, GLenum format, GLenum type) {
+
+    // Store the string.
+    this->name = "Generated";
+
+    // Generate texture on GPU
+    glGenTextures(1, &this->id);
+    glBindTexture(GL_TEXTURE_2D, this->id);
+
+    // Set texture parameters
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexImage2D(GL_TEXTURE_2D, 0, internal, width, height, 0, format, type, 0);
+
+}
+
 Texture::Texture(string filename) {
 
     int width;
@@ -54,6 +72,10 @@ Texture::Texture(string filename) {
 
 Texture::Texture(string name, unsigned char* image, int width, int height, int channels) {
     this->init(name, image, width, height, channels);
+}
+
+Texture::Texture(GLint internal, int width, int height, GLenum format, GLenum type) {
+    this->generate(internal, width, height, format, type);
 }
 
 Texture::~Texture() {

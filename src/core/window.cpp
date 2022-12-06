@@ -142,5 +142,4 @@ namespace Window {
         height = h;
     }
 
-
 }
