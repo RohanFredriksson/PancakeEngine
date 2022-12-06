@@ -73,6 +73,10 @@ void Rigidbody::physicsUpdate(float dt) {
 
 }
 
+void Rigidbody::addVelocity(vec2 velocity) {
+    this->velocity += velocity;
+}
+
 void Rigidbody::addForce(vec2 force) {
     this->forceAccum += force;
 }

@@ -37,6 +37,7 @@ class Rigidbody : public Component {
 
         void clearAccumulators();
         void physicsUpdate(float dt);
+        void addVelocity(vec2 velocity);
         void addForce(vec2 force);
         void zeroForces();
         bool hasInfiniteMass();

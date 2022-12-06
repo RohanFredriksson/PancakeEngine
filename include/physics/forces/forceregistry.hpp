@@ -22,12 +22,9 @@ class ForceRegistration {
 class ForceRegistry {
 
     private:
-        vector<ForceRegistration*> registry;
+        vector<ForceRegistration> registry;
 
     public:
-
-        ForceRegistry();
-        ~ForceRegistry();
 
         void add(ForceGenerator* generator, Rigidbody* rigidbody);
         void remove(ForceGenerator* generator, Rigidbody* rigidbody);
