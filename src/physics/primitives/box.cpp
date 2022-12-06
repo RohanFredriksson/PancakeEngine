@@ -5,10 +5,6 @@ Box::Box(vec2 size) : Collider()  {
     this->halfSize = size * 0.5f;
 }
 
-Box::~Box() {
-    
-}
-
 vec2 Box::getSize() {
     return this->size;
 }

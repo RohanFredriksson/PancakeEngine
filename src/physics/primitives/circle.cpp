@@ -4,10 +4,6 @@ Circle::Circle(float radius) : Collider() {
     this->radius = radius;
 }
 
-Circle::~Circle() {
-
-}
-
 float Circle::getRadius() {
     return this->radius;
 }

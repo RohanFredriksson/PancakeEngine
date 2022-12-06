@@ -4,10 +4,6 @@ Collider::Collider() : Component() {
     this->rigidbody = NULL;
 }
 
-Collider::~Collider() {
-
-}
-
 Rigidbody* Collider::getRigidbody() {
     return this->rigidbody;
 }
