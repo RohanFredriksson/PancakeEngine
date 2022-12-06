@@ -77,6 +77,10 @@ void Rigidbody::addForce(vec2 force) {
     this->forceAccum += force;
 }
 
+void Rigidbody::zeroForces() {
+    this->forceAccum = glm::vec2(0.0f, 0.0f);
+}
+
 bool Rigidbody::hasInfiniteMass() {
     return this->mass == 0.0f;
 }
