@@ -3,6 +3,8 @@
 #include <glm/geometric.hpp>
 #include "physics/world.hpp"
 
+#include <stdio.h>
+
 namespace {
     
     const int IMPULSE_ITERATIONS =  6;
@@ -27,7 +29,6 @@ namespace {
             float j = numerator / (a->hasInfiniteMass() ? 1.0f / b->getMass() : 1.0f / a->getMass());
             
             vec2 impulse = relativeNormal * j;
-
             if (a->hasInfiniteMass()) {
 
                 vec2 btmp = impulse * (1.0f / b->getMass());
@@ -41,7 +42,8 @@ namespace {
 
             else {
 
-                vec2 atmp = impulse * (1.0f / a->getMass());
+                vec2 atmp = impulse * (-1.0f / a->getMass());
+                printf("%f\n", atmp.y);
                 a->addVelocity(atmp);
 
                 // For static objects, move them outside of the obstacles, so they dont eventually sink through.

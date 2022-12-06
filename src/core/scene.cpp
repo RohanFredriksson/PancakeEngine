@@ -5,6 +5,9 @@
 #include <glm/glm.hpp>
 #include "core/scene.hpp"
 
+#include "physics/primitives/box.hpp"
+#include "physics/primitives/circle.hpp"
+
 using std::deque;
 using std::pair;
 using glm::vec2;
@@ -16,25 +19,55 @@ Scene::Scene(string name) {
     this->name = name;
     this->camera = new Camera(vec2(0.0f, 0.0f), vec2(12.0f, 12.0f), 1.0f);
     this->renderer = new Renderer();
+    this->physics = new World(1.0f / 60.0f, vec2(0.0f, -10.0f));
 
-    Entity* e;
-    Texture* t;
-    Sprite* s;
-    SpriteRenderer* sr;
+    Entity* entity;
+    Texture* texture;
+    Sprite* sprite;
+    SpriteRenderer* spriterenderer;
+    Box* box;
+    Circle* circle;
+    Rigidbody* rigidbody;
 
-    e = new Entity(vec2(0.0f, 0.0f), vec2(1.0f, 1.0f), 0.0f);
-    t = new Texture("assets/textures/faces.png");
-    s = new Sprite("faces", t);    
-    sr = new SpriteRenderer(s, vec4(1.0f, 1.0f, 1.0f, 1.0f), 0);
-    e->addComponent(sr);
-    this->addEntity(e);
+    entity = new Entity(vec2(0.0f, 0.0f), vec2(5.0f, 1.0f), 0.0f);
 
-    e = new Entity(vec2(1.0f, 1.0f), vec2(1.0f, 1.0f), 0.0f);
-    t = new Texture("assets/textures/faces.png");
-    s = new Sprite("faces", t);    
-    sr = new SpriteRenderer(s, vec4(1.0f, 0.0f, 1.0f, 1.0f), 0);
-    e->addComponent(sr);
-    this->addEntity(e);
+    texture = new Texture("assets/textures/armaan.png");
+    sprite = new Sprite("armaan", texture);
+    spriterenderer = new SpriteRenderer(sprite, vec4(1.0f, 1.0f, 1.0f, 1.0f), 0);
+
+    rigidbody = new Rigidbody();
+    box = new Box(vec2(5.0f, 1.0f));
+
+    rigidbody->setCollider(box);
+    rigidbody->setMass(0.0f);
+
+    box->setRigidbody(rigidbody);
+
+    entity->addComponent(spriterenderer);
+    entity->addComponent(rigidbody);
+    entity->addComponent(box);
+    this->addEntity(entity);
+
+    entity = new Entity(vec2(-4.0f, 0.0f), vec2(1.0f, 1.0f), 0.0f);
+
+    texture = new Texture("assets/textures/ainsley.png");
+    sprite = new Sprite("ainsley", texture);
+    spriterenderer = new SpriteRenderer(sprite, vec4(1.0f, 1.0f, 1.0f, 1.0f), 0);
+
+    rigidbody = new Rigidbody();
+    circle = new Circle(0.5f);
+    
+    rigidbody->setCollider(circle);
+    rigidbody->setVelocity(vec2(1.0f, 10.0f));
+    rigidbody->setMass(1.0f);
+    rigidbody->setCor(0.75f);
+
+    circle->setRigidbody(rigidbody);
+
+    entity->addComponent(spriterenderer);
+    entity->addComponent(rigidbody);
+    entity->addComponent(circle);
+    this->addEntity(entity);
 
 }
 
@@ -43,6 +76,7 @@ Scene::~Scene() {
     // Delete all scene elements.
     delete this->camera;
     delete this->renderer;
+    delete this->physics;
 
     // Delete all entities and their components.
     for (auto const& x : this->entities) {
@@ -63,6 +97,7 @@ void Scene::addNewComponents() {
             
             // If the component is of the correct subclass, add it to its specific system.
             if (dynamic_cast<SpriteRenderer*>(c) != nullptr) {this->renderer->add((SpriteRenderer*) c);}
+            if (dynamic_cast<Rigidbody*>(c) != nullptr) {this->physics->add((Rigidbody*) c);}
 
             // Add the component to the map for quick lookups.
             this->components[c->getId()] = c;
@@ -79,13 +114,13 @@ void Scene::update(float dt) {
 
     // Adjust the projection and step the physics engine.
     this->camera->adjustProjection();
-    // this->physics->update(dt);
+    this->physics->update(dt);
 
     // Update all the entities.
     deque<int> deadIds;
     for (auto const& x : this->entities) {
         Entity* e = x.second;
-        
+
         // If the component is not dead, update it.
         if (!e->isDead()) {
             e->update(dt);
@@ -121,6 +156,7 @@ void Scene::update(float dt) {
 
 void Scene::render() {
     this->renderer->render();
+    this->physics->render();
 }
 
 Camera* Scene::getCamera() {
@@ -129,6 +165,10 @@ Camera* Scene::getCamera() {
 
 Renderer* Scene::getRenderer() {
     return this->renderer;
+}
+
+World* Scene::getPhysics() {
+    return this->physics;
 }
 
 void Scene::addEntity(Entity* entity) {

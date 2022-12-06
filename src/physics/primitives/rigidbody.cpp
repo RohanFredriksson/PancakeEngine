@@ -1,18 +1,19 @@
 #include "physics/primitives/rigidbody.hpp"
+#include "core/window.hpp"
 
 Rigidbody::Rigidbody() : Component() {
 
     this->collider = NULL;
     this->forceAccum = glm::vec2(0.0f, 0.0f);
     this->velocity = glm::vec2(0.0f, 0.0f);
-    this->cor = 0;
-    this->mass = 0;
+    this->cor = 1.0f;
+    this->mass = 0.0f;
     this->sensor = false;
 
 }
 
 Rigidbody::~Rigidbody() {
-    //Window::getScene()->getWorld()->remove(this);
+    Window::getScene()->getPhysics()->remove(this);
 }
 
 Collider* Rigidbody::getCollider() {
@@ -68,8 +69,11 @@ void Rigidbody::physicsUpdate(float dt) {
     // Calculate linear velocity
     this->velocity += this->forceAccum * (dt / this->mass);
 
+    printf("(%f, %f)\n", this->velocity.x, this->velocity.y);
+
     // Update the entity's position.
     this->getEntity()->addPosition(this->velocity * dt);
+    this->clearAccumulators();
 
 }
 

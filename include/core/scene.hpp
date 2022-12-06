@@ -6,6 +6,7 @@
 #include <core/entity.hpp>
 #include <core/component.hpp>
 #include <graphics/renderer/renderer.hpp>
+#include <physics/world.hpp>
 
 using std::string;
 using std::unordered_map;
@@ -19,7 +20,7 @@ class Scene {
         unordered_map<int, Component*> components;
         Camera* camera;
         Renderer* renderer;
-        //World* physics;
+        World* physics;
 
         void addNewComponents();
         
@@ -33,6 +34,7 @@ class Scene {
 
         Camera* getCamera();
         Renderer* getRenderer();
+        World* getPhysics();
 
         void addEntity(Entity* entity);
 

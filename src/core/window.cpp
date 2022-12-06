@@ -128,8 +128,10 @@ namespace {
 
             glfwPollEvents();
 
-            update(dt);
-            render();
+            if (dt > 0) {
+                update(dt);
+                render();
+            }
 
             MouseListener::endFrame();
             Window::readPixel(0, 0);
