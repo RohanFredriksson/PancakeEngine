@@ -1,7 +1,7 @@
 #include "physics/primitives/collider.hpp"
 
 Collider::Collider() : Component() {
-
+    this->rigidbody = NULL;
 }
 
 Collider::~Collider() {
