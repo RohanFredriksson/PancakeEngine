@@ -69,8 +69,6 @@ void Rigidbody::physicsUpdate(float dt) {
     // Calculate linear velocity
     this->velocity += this->forceAccum * (dt / this->mass);
 
-    printf("(%f, %f)\n", this->velocity.x, this->velocity.y);
-
     // Update the entity's position.
     this->getEntity()->addPosition(this->velocity * dt);
     this->clearAccumulators();

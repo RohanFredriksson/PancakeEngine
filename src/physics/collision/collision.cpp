@@ -6,6 +6,8 @@
 #include "physics/primitives/circle.hpp"
 #include "physics/primitives/box.hpp"
 
+#include <stdio.h>
+
 namespace {
 
     CollisionManifold* findCollisionFeaturesCircleAndCircle(Circle* a, Circle* b) {
@@ -228,7 +230,8 @@ namespace {
         // Colliding with the top left corner of the box.
         if (glm::dot(vec2(cPos.x - bMin.x, cPos.y - bMax.y), vec2(cPos.x - bMin.x, cPos.y - bMax.y)) < cRadius * cRadius) {
 
-            vec2 difference = glm::normalize(vec2(bMin.x, bMax.y) - cPos);
+            vec2 difference = vec2(bMin.x, bMax.y) - cPos;
+            normal = glm::normalize(difference);
             vec2 depthVector = ((normal * cRadius) - difference) * 0.5f;            
             depth = glm::length(depthVector);
             contactPoint = vec2(bMin.x, bMax.y) + depthVector;
@@ -239,7 +242,8 @@ namespace {
         // Colliding with the top right corner of the box.
         if (glm::dot(vec2(cPos.x - bMax.x, cPos.y - bMax.y), vec2(cPos.x - bMax.x, cPos.y - bMax.y)) < cRadius * cRadius) {
 
-            vec2 difference = glm::normalize(vec2(bMax.x, bMax.y) - cPos);
+            vec2 difference = vec2(bMax.x, bMax.y) - cPos;
+            normal = glm::normalize(difference);
             vec2 depthVector = ((normal * cRadius) - difference) * 0.5f;            
             depth = glm::length(depthVector);
             contactPoint = vec2(bMax.x, bMax.y) + depthVector;
@@ -250,7 +254,8 @@ namespace {
         // Colliding with the bottom left corner of the box.
         if (glm::dot(vec2(cPos.x - bMin.x, cPos.y - bMin.y), vec2(cPos.x - bMin.x, cPos.y - bMin.y)) < cRadius * cRadius) {
 
-            vec2 difference = glm::normalize(vec2(bMin.x, bMin.y) - cPos);
+            vec2 difference = vec2(bMin.x, bMin.y) - cPos;
+            normal = glm::normalize(difference);
             vec2 depthVector = ((normal * cRadius) - difference) * 0.5f;            
             depth = glm::length(depthVector);
             contactPoint = vec2(bMin.x, bMin.y) + depthVector;
@@ -261,7 +266,8 @@ namespace {
         // Colliding with the bottom right corner of the box.
         if (glm::dot(vec2(cPos.x - bMax.x, cPos.y - bMin.y), vec2(cPos.x - bMax.x, cPos.y - bMin.y)) < cRadius * cRadius) {
 
-            vec2 difference = glm::normalize(vec2(bMax.x, bMin.y) - cPos);
+            vec2 difference = vec2(bMax.x, bMin.y) - cPos;
+            normal = glm::normalize(difference);
             vec2 depthVector = ((normal * cRadius) - difference) * 0.5f;            
             depth = glm::length(depthVector);
             contactPoint = vec2(bMax.x, bMin.y) + depthVector;

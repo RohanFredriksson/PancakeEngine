@@ -43,7 +43,6 @@ namespace {
             else {
 
                 vec2 atmp = impulse * (-1.0f / a->getMass());
-                printf("%f\n", atmp.y);
                 a->addVelocity(atmp);
 
                 // For static objects, move them outside of the obstacles, so they dont eventually sink through.
