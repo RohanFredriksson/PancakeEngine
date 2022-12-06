@@ -3,7 +3,7 @@
 #include <glad/glad.h>
 #include "graphics/primitives/texture.hpp"
 
-class FrameBuffer {
+class Framebuffer {
 
     private:
 
@@ -14,9 +14,9 @@ class FrameBuffer {
 
     public:
 
-        FrameBuffer(int width, int height);
-        FrameBuffer(GLint internal, int width, int height, GLenum format, GLenum type);
-        ~FrameBuffer();
+        Framebuffer(int width, int height);
+        Framebuffer(GLint internal, int width, int height, GLenum format, GLenum type);
+        ~Framebuffer();
 
         void bind();
         void unbind();

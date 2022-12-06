@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include "graphics/primitives/framebuffer.hpp"
 
-void FrameBuffer::init(GLint internal, int width, int height, GLenum format, GLenum type) {
+void Framebuffer::init(GLint internal, int width, int height, GLenum format, GLenum type) {
 
     // Generate the framebuffer.
     glGenFramebuffers(1, &this->fbo);
@@ -26,26 +26,26 @@ void FrameBuffer::init(GLint internal, int width, int height, GLenum format, GLe
 
 }
 
-FrameBuffer::FrameBuffer(int width, int height) {
+Framebuffer::Framebuffer(int width, int height) {
     this->init(GL_RGB, width, height, GL_RGB, GL_UNSIGNED_BYTE);
 }
 
-FrameBuffer::FrameBuffer(GLint internal, int width, int height, GLenum format, GLenum type) {
+Framebuffer::Framebuffer(GLint internal, int width, int height, GLenum format, GLenum type) {
     this->init(internal, width, height, format, type);
 }
 
-FrameBuffer::~FrameBuffer() {
+Framebuffer::~Framebuffer() {
     delete this->texture;
 }
 
-void FrameBuffer::bind() {
+void Framebuffer::bind() {
     glBindFramebuffer(GL_FRAMEBUFFER, this->fbo);
 }
 
-void FrameBuffer::unbind() {
+void Framebuffer::unbind() {
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
-Texture* FrameBuffer::getTexture() {
+Texture* Framebuffer::getTexture() {
     return this->texture;
 }

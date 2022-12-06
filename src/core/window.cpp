@@ -8,14 +8,17 @@
 #include "core/window.hpp"
 #include "core/listener.hpp"
 #include "graphics/primitives/shader.hpp"
+#include "graphics/primitives/framebuffer.hpp"
 
 namespace {
 
     GLFWwindow* window;
-    Scene* scene;
-    Shader* shader;
     int width = 800;
     int height = 800;
+    Scene* scene;
+    Shader* defaultShader;
+    Shader* entityShader;
+    Framebuffer* entityTexture;
 
     bool init() {
 
@@ -63,19 +66,49 @@ namespace {
         glEnable(GL_BLEND);
         glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
 
-        scene = new Scene("Title");
-        shader = new Shader("assets/shaders/default.vert", "assets/shaders/default.frag");
+        defaultShader = new Shader("assets/shaders/default.vert", "assets/shaders/default.frag");
+        entityShader = new Shader("assets/shaders/default.vert", "assets/shaders/entity.frag");
+        entityTexture = new Framebuffer(GL_RGB32F, width, height, GL_RGB, GL_FLOAT);
 
+        scene = new Scene("Title");
         return true;
     }
 
     void update(float dt) {
+        
         scene->update(dt);
+
+        if (MouseListener::isMouseDragging()) {
+            if (MouseListener::getDx() != 0) {scene->getCamera()->addPosition(vec2(-MouseListener::getWorldDx(), 0.0f));}
+            if (MouseListener::getDy() != 0) {scene->getCamera()->addPosition(vec2(0.0f, MouseListener::getWorldDy()));}
+        }
+
+        if (MouseListener::isMouseButtonBeginDown(GLFW_MOUSE_BUTTON_LEFT)) {
+            printf("%d\n", Window::readPixel(MouseListener::getX(), MouseListener::getY()));
+        }
+
     }
 
     void render() {
-        Renderer::bindShader(shader);
+
+        // Render the scene to the entity picking texture.
+        glDisable(GL_BLEND);
+        entityTexture->bind();
+        glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+        glClear(GL_COLOR_BUFFER_BIT);
+        Renderer::bindShader(entityShader);
         scene->render();
+        entityTexture->unbind();
+        glEnable(GL_BLEND);
+
+        // Render the scene to the window.
+        glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+        glClear(GL_COLOR_BUFFER_BIT);
+        Renderer::bindShader(defaultShader);
+        scene->render();
+
+        glfwSwapBuffers(window);
+
     }
 
     void loop() {
@@ -87,13 +120,15 @@ namespace {
         while (!glfwWindowShouldClose(window)) {
 
             glfwPollEvents();
-            glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-            glClear(GL_COLOR_BUFFER_BIT);
+            //glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+            //glClear(GL_COLOR_BUFFER_BIT);
 
             update(dt);
             render();
 
-            glfwSwapBuffers(window);
+            
+            MouseListener::endFrame();
+            Window::readPixel(0, 0);
 
             endTime = (float)glfwGetTime();
             dt = endTime - beginTime;
@@ -140,6 +175,26 @@ namespace Window {
 
     void setHeight(int h) {
         height = h;
+    }
+
+    void resetFramebuffers() {
+        delete entityTexture;
+        entityTexture = new Framebuffer(GL_RGB32F, width, height, GL_RGB, GL_FLOAT);
+    }
+
+    int readPixel(int x, int y) {
+
+        // Create a buffer to store pixel data.
+        float pixel;
+
+        // Bind the framebuffer and read the corresponding pixel.
+        entityTexture->bind();
+        glReadPixels(x, height-y-1, 1, 1, GL_RED, GL_FLOAT, &pixel);
+        entityTexture->unbind();
+
+        // Return the value of this pixel.
+        return (int)pixel - 1;
+
     }
 
 }

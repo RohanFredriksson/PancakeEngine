@@ -58,7 +58,7 @@ void WindowListener::resizeCallback(GLFWwindow* window, int screenWidth, int scr
 
     Window::setWidth(screenWidth);
     Window::setHeight(screenHeight);
-    //Window_ResetFramebuffers();
+    Window::resetFramebuffers();
     Window::getScene()->getCamera()->adjustProjection();
     glViewport(0, 0, screenWidth, screenHeight);
 

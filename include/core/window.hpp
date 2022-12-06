@@ -13,5 +13,7 @@ namespace Window {
 
     void setWidth(int w);
     void setHeight(int h);
+    void resetFramebuffers();
+    int readPixel(int x, int y);
 
 }
