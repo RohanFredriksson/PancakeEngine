@@ -24,5 +24,7 @@ class Texture {
 
         void bind();
         void unbind();
+        
+        unsigned int getId();
 
 };

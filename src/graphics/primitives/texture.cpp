@@ -89,3 +89,7 @@ void Texture::bind() {
 void Texture::unbind() {
     glBindTexture(GL_TEXTURE_2D, 0);
 }
+
+unsigned int Texture::getId() {
+    return this->id;
+}
