@@ -9,6 +9,7 @@
 #include "core/listener.hpp"
 #include "graphics/primitives/shader.hpp"
 #include "graphics/primitives/framebuffer.hpp"
+#include "graphics/renderer/debugdraw.hpp"
 
 namespace {
 
@@ -70,6 +71,8 @@ namespace {
         entityShader = new Shader("assets/shaders/default.vert", "assets/shaders/entity.frag");
         entityTexture = new Framebuffer(GL_RGB32F, width, height, GL_RGB, GL_FLOAT);
 
+        DebugDraw::init();
+
         scene = new Scene("Title");
         return true;
     }
@@ -106,6 +109,10 @@ namespace {
         glClear(GL_COLOR_BUFFER_BIT);
         Renderer::bindShader(defaultShader);
         scene->render();
+
+        // Debug draw
+        DebugDraw::drawLine(vec2(0.0f, 0.0f), vec2(1.0f, 1.0f), glm::vec3(0.0f, 1.0f, 0.0f), 1);
+        DebugDraw::render();
 
         glfwSwapBuffers(window);
 
