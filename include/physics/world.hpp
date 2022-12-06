@@ -16,7 +16,7 @@ class World {
         vector<Rigidbody*> rigidbodies;
         vector<Rigidbody*> bodies1;
         vector<Rigidbody*> bodies2;
-        vector<CollisionManifold> collisions;
+        vector<CollisionManifold*> collisions;
         float timeStep;
         float time;
 

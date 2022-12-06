@@ -8,7 +8,7 @@
 
 namespace {
 
-    CollisionManifold findCollisionFeaturesCircleAndCircle(Circle* a, Circle* b) {
+    CollisionManifold* findCollisionFeaturesCircleAndCircle(Circle* a, Circle* b) {
 
         vec2 aPosition = a->getPosition();
         vec2 bPosition = b->getPosition();
@@ -16,20 +16,20 @@ namespace {
         // Determine if the two circles are colliding.
         float sumRadii = a->getRadius() + b->getRadius();
         vec2 distance = bPosition - aPosition;
-        if (glm::dot(distance, distance) - (sumRadii * sumRadii) > 0) {return CollisionManifold();}
+        if (glm::dot(distance, distance) - (sumRadii * sumRadii) > 0) {return NULL;}
 
         // Find the depth and normal of the collision
         float depth = fabsf(glm::length(distance) - sumRadii) * 0.5f;
         vec2 normal = glm::normalize(distance);
 
-        // Find the contact point of the collision/
+        // Find the contact point of the collision
         float distanceToPoint = a->getRadius() - depth;
         vec2 contactPoint = distanceToPoint * normal + aPosition;
 
-        return CollisionManifold(normal, contactPoint, depth);
+        return new CollisionManifold(normal, contactPoint, depth);
     }
 
-    CollisionManifold findCollisionFeaturesBoxAndBox(Box* a, Box* b) {
+    CollisionManifold* findCollisionFeaturesBoxAndBox(Box* a, Box* b) {
 
         vec2 aMin = a->getMin();
         vec2 bMin = b->getMin();
@@ -37,7 +37,7 @@ namespace {
         vec2 bMax = b->getMax();
 
         bool colliding = aMax.x > bMin.x && bMax.x > aMin.x && aMax.y > bMin.y && bMax.y > aMin.y;
-        if (!colliding) {return CollisionManifold();}
+        if (!colliding) {return NULL;}
 
         float xDepths[2];
         float yDepths[2];
@@ -161,10 +161,10 @@ namespace {
 
         }
 
-        return CollisionManifold(normal, contactPoint, depth);
+        return new CollisionManifold(normal, contactPoint, depth);
     }
 
-    CollisionManifold findCollisionFeaturesCircleAndBox(Circle* c, Box* b, bool flip) {
+    CollisionManifold* findCollisionFeaturesCircleAndBox(Circle* c, Box* b, bool flip) {
 
         vec2 cPos = c->getPosition();
         float cRadius = c->getRadius();
@@ -186,7 +186,7 @@ namespace {
             contactPoint.x = cPos.x;
             contactPoint.y = bMax.y - depth;
 
-            return CollisionManifold(normal, contactPoint, depth);
+            return new CollisionManifold(normal, contactPoint, depth);
         }
 
         // Colliding with the bottom face of the box.
@@ -198,7 +198,7 @@ namespace {
             contactPoint.x = cPos.x;
             contactPoint.y = bMin.y + depth;
 
-            return CollisionManifold(normal, contactPoint, depth);
+            return new CollisionManifold(normal, contactPoint, depth);
         }
 
         // Colliding with the right face of the box
@@ -210,7 +210,7 @@ namespace {
             contactPoint.x = cPos.y;
             contactPoint.y = bMax.x - depth;
 
-            return CollisionManifold(normal, contactPoint, depth);
+            return new CollisionManifold(normal, contactPoint, depth);
         }
 
         // Colliding with the left face of the box.
@@ -222,7 +222,7 @@ namespace {
             contactPoint.x = cPos.y;
             contactPoint.y = bMin.x + depth;
 
-            return CollisionManifold(normal, contactPoint, depth);
+            return new CollisionManifold(normal, contactPoint, depth);
         }
 
         // Colliding with the top left corner of the box.
@@ -233,7 +233,7 @@ namespace {
             depth = glm::length(depthVector);
             contactPoint = vec2(bMin.x, bMax.y) + depthVector;
 
-            return CollisionManifold(normal, contactPoint, depth);
+            return new CollisionManifold(normal, contactPoint, depth);
         }
 
         // Colliding with the top right corner of the box.
@@ -244,7 +244,7 @@ namespace {
             depth = glm::length(depthVector);
             contactPoint = vec2(bMax.x, bMax.y) + depthVector;
 
-            return CollisionManifold(normal, contactPoint, depth);
+            return new CollisionManifold(normal, contactPoint, depth);
         }
 
         // Colliding with the bottom left corner of the box.
@@ -255,7 +255,7 @@ namespace {
             depth = glm::length(depthVector);
             contactPoint = vec2(bMin.x, bMin.y) + depthVector;
 
-            return CollisionManifold(normal, contactPoint, depth);
+            return new CollisionManifold(normal, contactPoint, depth);
         }
 
         // Colliding with the bottom right corner of the box.
@@ -266,22 +266,22 @@ namespace {
             depth = glm::length(depthVector);
             contactPoint = vec2(bMax.x, bMin.y) + depthVector;
 
-            return CollisionManifold(normal, contactPoint, depth);
+            return new CollisionManifold(normal, contactPoint, depth);
         }
-        return CollisionManifold();
+        return NULL;
     }
 
 }
 
 namespace Collision {
     
-    CollisionManifold findCollisionFeatures(Collider* c1, Collider* c2) {
+    CollisionManifold* findCollisionFeatures(Collider* c1, Collider* c2) {
 
         if (dynamic_cast<Circle*>(c1) != nullptr && dynamic_cast<Circle*>(c2) != nullptr) {return findCollisionFeaturesCircleAndCircle((Circle*) c1, (Circle*) c2);}
         if (dynamic_cast<Circle*>(c1) != nullptr && dynamic_cast<Box*>(c2) != nullptr) {return findCollisionFeaturesCircleAndBox((Circle*) c1, (Box*) c2, false);}
         if (dynamic_cast<Box*>(c1) != nullptr && dynamic_cast<Circle*>(c2) != nullptr) {return findCollisionFeaturesCircleAndBox((Circle*) c2, (Box*) c1, true);}
 
-        return CollisionManifold();
+        return NULL;
     }
 
 }

@@ -7,7 +7,7 @@ namespace {
     
     const int IMPULSE_ITERATIONS =  6;
 
-    void applyImpulse(Rigidbody* a, Rigidbody* b, CollisionManifold m) {
+    void applyImpulse(Rigidbody* a, Rigidbody* b, CollisionManifold* m) {
 
         // Check for infinite mass objects.
         if (a->hasInfiniteMass() && b->hasInfiniteMass()) {return;}
@@ -17,7 +17,7 @@ namespace {
 
             // Relative velocity
             vec2 relativeVelocity = b->getVelocity() - a->getVelocity();
-            vec2 relativeNormal = glm::normalize(m.normal);
+            vec2 relativeNormal = glm::normalize(m->normal);
 
             // If moving away do nothing.
             if (glm::dot(relativeVelocity, relativeNormal) > 0.0f) {return;}
@@ -34,7 +34,7 @@ namespace {
                 b->addVelocity(btmp);
 
                 // For static objects, move them outside of the obstacles, so they dont eventually sink through.
-                btmp = m.normal * 2.0f * m.depth;
+                btmp = m->normal * 2.0f * m->depth;
                 b->getEntity()->addPosition(btmp);
 
             }
@@ -45,7 +45,7 @@ namespace {
                 a->addVelocity(atmp);
 
                 // For static objects, move them outside of the obstacles, so they dont eventually sink through.
-                atmp = m.normal * -2.0f * m.depth;
+                atmp = m->normal * -2.0f * m->depth;
                 a->getEntity()->addPosition(atmp);
 
             }
@@ -62,7 +62,7 @@ namespace {
 
             // Relative velocity
             vec2 relativeVelocity = b->getVelocity() - a->getVelocity();
-            vec2 relativeNormal = glm::normalize(m.normal);
+            vec2 relativeNormal = glm::normalize(m->normal);
 
             // If moving away do nothing.
             if (glm::dot(relativeVelocity, relativeNormal) > 0.0f) {return;}
@@ -93,6 +93,7 @@ World::World(float timeStep, vec2 gravity) {
 
 World::~World() {
     delete this->gravity;
+    this->clearCollisionLists();
 }
 
 void World::update(float dt) {
@@ -125,27 +126,33 @@ void World::fixedUpdate() {
             Collider* c1 = r1->getCollider();
             Collider* c2 = r2->getCollider();
 
-            CollisionManifold result;
+            CollisionManifold* result = NULL;
             if (c1 != NULL && c2 != NULL && !(r1->hasInfiniteMass() && r2->hasInfiniteMass())) {
                 result = Collision::findCollisionFeatures(c1, c2);
             }
 
-            if (result.colliding) {
+            if (result != NULL) {
+            
+                if (result->colliding) {
 
-                // Execute on collision
-                //c1->getEntity()->collision(c2->getEntity, result.contactPoint, result.normal);
-                //c2->getEntity()->collision(c1->getEntity, result.contactPoint, result.normal);
+                    // Execute on collision
+                    //c1->getEntity()->collision(c2->getEntity, result.contactPoint, result.normal);
+                    //c2->getEntity()->collision(c1->getEntity, result.contactPoint, result.normal);
 
-                // If neither object is a trigger, do the collision.
-                if (!r1->isSensor() && !r2->isSensor()) {
+                    // If neither object is a trigger, do the collision.
+                    if (!r1->isSensor() && !r2->isSensor()) {
 
-                    this->bodies1.push_back(r1);
-                    this->bodies2.push_back(r2);
-                    this->collisions.push_back(result);
+                        this->bodies1.push_back(r1);
+                        this->bodies2.push_back(r2);
+                        this->collisions.push_back(result);
 
+                    }
+
+                } else {
+                    delete result;
                 }
 
-            }
+            } 
 
         }
 
@@ -167,9 +174,16 @@ void World::fixedUpdate() {
 }
 
 void World::clearCollisionLists() {
+    
+    int n = this->collisions.size();
+    for (int i = 0; i < n; i++) {
+        delete this->collisions[i];
+    }
     this->collisions.clear();
+
     this->bodies1.clear();
     this->bodies2.clear();
+
 }
 
 void World::render() {
