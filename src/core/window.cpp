@@ -6,6 +6,7 @@
 #include <glm/glm.hpp>
 
 #include "core/window.hpp"
+#include "core/listener.hpp"
 #include "graphics/primitives/shader.hpp"
 
 namespace {
@@ -13,7 +14,8 @@ namespace {
     GLFWwindow* window;
     Scene* scene;
     Shader* shader;
-    float aspectRatio;
+    int width = 800;
+    int height = 800;
 
 }
 
@@ -36,11 +38,18 @@ namespace Window {
         glfwWindowHint(GLFW_FOCUS_ON_SHOW, GLFW_TRUE);
 
         // Create the window
-        window = glfwCreateWindow(800, 800, "Pancake", NULL, NULL);
+        window = glfwCreateWindow(width, height, "Pancake", NULL, NULL);
         if (window == NULL) {
             printf("ERROR::WINDOW::GLFW_WINDOW_CREATION_FAILED\n");
             return false;
         }
+
+        // Manage callbacks
+        glfwSetKeyCallback(window, KeyListener::keyCallback);
+        glfwSetWindowSizeCallback(window, WindowListener::resizeCallback);
+        glfwSetCursorPosCallback(window, MouseListener::mousePosCallback);
+        glfwSetMouseButtonCallback(window, MouseListener::mouseButtonCallback);
+        glfwSetScrollCallback(window, MouseListener::mouseScrollCallback);
 
         // Make the OpenGl context current
         glfwMakeContextCurrent(window);
@@ -102,8 +111,29 @@ namespace Window {
         exit();
     }
 
+    int getWidth() {
+        return width;
+    }
+
+    int getHeight() {
+        return height;
+    }
+
+    float getAspectRatio() {
+        return (float) width / (float) height;
+    }
+
     Scene* getScene() {
         return scene;
     }
+
+    void setWidth(int w) {
+        width = w;
+    }
+
+    void setHeight(int h) {
+        height = h;
+    }
+
 
 }

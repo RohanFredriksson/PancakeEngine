@@ -1,4 +1,5 @@
 #include "core/camera.hpp"
+#include "core/window.hpp"
 #include <glm/gtx/transform.hpp>
 
 using glm::vec3;
@@ -14,6 +15,7 @@ Camera::Camera(vec2 position, vec2 projectionSize, float zoom) {
 }
 
 void Camera::adjustProjection() {
+    this->projectionSize.x = this->projectionSize.y * Window::getAspectRatio();
     this->projection = glm::ortho(0.0f, this->projectionSize.x / this->zoom, 0.0f, this->projectionSize.y / this->zoom, 0.0f, 100.0f);
     this->inverseProjection = glm::inverse(this->projection);
 }
