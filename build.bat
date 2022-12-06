@@ -1,4 +1,5 @@
 @echo off
+git submodule update --init --recursive
 if not exist "build" mkdir build
 cd build
 if exist posix (

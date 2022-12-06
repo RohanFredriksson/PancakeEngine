@@ -133,6 +133,10 @@ namespace DebugDraw {
     void destroy() {
         delete shader;
         free(vertices);
+        int n = lines.size();
+        for (int i = 0; i < n; i++) {
+            delete lines[i];
+        }
     }
 
     void drawLine(vec2 from, vec2 to, vec3 colour, int lifetime) {
