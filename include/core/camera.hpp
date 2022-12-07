@@ -37,5 +37,6 @@ class Camera {
 
         void addPosition(vec2 position);
         void addZoom(float zoom);
+        void scaleZoom(float scale);
 
 };

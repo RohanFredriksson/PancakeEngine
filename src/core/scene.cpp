@@ -40,6 +40,7 @@ Scene::Scene(string name) {
 
     rigidbody->setCollider(box);
     rigidbody->setMass(0.0f);
+    rigidbody->setCor(1.0f);
 
     box->setRigidbody(rigidbody);
 

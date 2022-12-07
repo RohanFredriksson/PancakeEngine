@@ -37,7 +37,7 @@ namespace {
                 b->addVelocity(btmp);
 
                 // For static objects, move them outside of the obstacles, so they dont eventually sink through.
-                btmp = m->normal * 2.0f * m->depth;
+                btmp = m->normal * 0.5f * m->depth; // I don't know why 0.5f works.
                 b->getEntity()->addPosition(btmp);
 
             }
@@ -48,7 +48,7 @@ namespace {
                 a->addVelocity(atmp);
 
                 // For static objects, move them outside of the obstacles, so they dont eventually sink through.
-                atmp = m->normal * -2.0f * m->depth;
+                atmp = m->normal * -0.5f * m->depth; // I don't know why 0.5f works.
                 a->getEntity()->addPosition(atmp);
 
             }

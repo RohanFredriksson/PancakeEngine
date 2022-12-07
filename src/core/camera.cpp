@@ -76,3 +76,7 @@ void Camera::addPosition(vec2 position) {
 void Camera::addZoom(float zoom) {
     this->zoom += zoom;
 }
+
+void Camera::scaleZoom(float scale) {
+    this->zoom *= scale;
+}
