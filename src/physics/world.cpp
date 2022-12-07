@@ -239,7 +239,7 @@ RaycastResult World::raycast(Ray* ray) {
     int n = this->rigidbodies.size();
     for (int i = 0; i < n; i++) {
         RaycastResult current = Raycast::raycast(this->rigidbodies[i], ray);
-        if (current.distance < bestDistance) {
+        if (current.hit != NULL && current.distance < bestDistance) {
             bestDistance = current.distance;
             best = current;
             hit = true;
