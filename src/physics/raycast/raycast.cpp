@@ -26,7 +26,7 @@ RaycastResult::RaycastResult() {
 
 namespace {
 
-    RaycastResult RaycastBox(Box* box, Ray* ray) {
+    RaycastResult raycastBox(Box* box, Ray* ray) {
 
         vec2 unitVector = glm::normalize(ray->direction);
         vec2 min = box->getMin();
@@ -47,7 +47,7 @@ namespace {
 
     }
 
-    RaycastResult RaycastCircle(Circle* circle, Ray* ray) {
+    RaycastResult raycastCircle(Circle* circle, Ray* ray) {
 
         vec2 position = circle->getPosition();
         vec2 originToCircle = position - ray->origin;
@@ -74,17 +74,17 @@ namespace {
 
 namespace Raycast {
 
-    RaycastResult Raycast(Rigidbody* rigidbody, Ray* ray) {
+    RaycastResult raycast(Rigidbody* rigidbody, Ray* ray) {
 
         Collider* collider = rigidbody->getCollider();
         if (collider == NULL) {return RaycastResult();}
 
         if (dynamic_cast<Box*>(collider) != nullptr) {
-            return RaycastBox((Box*) collider, ray);
+            return raycastBox((Box*) collider, ray);
         }
 
         else if (dynamic_cast<Circle*>(collider) != nullptr) {
-            return RaycastCircle((Circle*) collider, ray);
+            return raycastCircle((Circle*) collider, ray);
         }
 
         return RaycastResult();

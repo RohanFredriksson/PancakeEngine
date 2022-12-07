@@ -1,3 +1,4 @@
+#include <limits.h>
 #include <algorithm>
 #include <glm/glm.hpp>
 #include <glm/geometric.hpp>
@@ -227,4 +228,25 @@ void World::remove(Rigidbody* rigidbody) {
             return;
         }
     }
+}
+
+RaycastResult World::raycast(Ray* ray) {
+
+    bool hit = false;
+    RaycastResult best;
+    float bestDistance = FLT_MAX;
+
+    int n = this->rigidbodies.size();
+    for (int i = 0; i < n; i++) {
+        RaycastResult current = Raycast::raycast(this->rigidbodies[i], ray);
+        if (current.distance < bestDistance) {
+            bestDistance = current.distance;
+            best = current;
+            hit = true;
+        }
+    }
+
+    if (hit) {return RaycastResult();}
+    return best;
+
 }

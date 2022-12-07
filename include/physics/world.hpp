@@ -4,6 +4,7 @@
 #include "physics/forces/forceregistry.hpp"
 #include "physics/collision/collision.hpp"
 #include "physics/forces/gravity.hpp"
+#include "physics/raycast/raycast.hpp"
 
 using std::vector;
 
@@ -32,5 +33,6 @@ class World {
         void render();
         void add(Rigidbody* rigidbody);
         void remove(Rigidbody* rigidbody);
+        RaycastResult raycast(Ray* ray);
 
 };

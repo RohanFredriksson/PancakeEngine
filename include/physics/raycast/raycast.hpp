@@ -31,5 +31,5 @@ class RaycastResult {
 };
 
 namespace Raycast {
-    RaycastResult Raycast(Rigidbody* rigidbody, Ray* ray);
+    RaycastResult raycast(Rigidbody* rigidbody, Ray* ray);
 }
