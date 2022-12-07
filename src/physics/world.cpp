@@ -2,8 +2,10 @@
 #include <glm/glm.hpp>
 #include <glm/geometric.hpp>
 #include "physics/world.hpp"
+#include "graphics/renderer/debugdraw.hpp"
 
-#include <stdio.h>
+#include "physics/primitives/box.hpp"
+#include "physics/primitives/circle.hpp"
 
 namespace {
     
@@ -188,6 +190,26 @@ void World::clearCollisionLists() {
 }
 
 void World::render() {
+
+    int n = this->rigidbodies.size();
+    for (int i = 0; i < n; i++) {
+
+        Rigidbody* rigidbody = this->rigidbodies[i];
+        Collider* collider = rigidbody->getCollider();
+        if (collider == NULL) {continue;}
+    
+        vec2 position = rigidbody->getPosition();
+        if (dynamic_cast<Box*>(collider) != nullptr) {
+            Box* box = (Box*) collider;
+            DebugDraw::drawBox(position, box->getSize(), /*box->getRotation()*/ 0.0f, vec3(0.0f, 1.0f, 0.0f), 1);
+        }
+
+        else if (dynamic_cast<Circle*>(collider) != nullptr) {
+            Circle* circle = (Circle*) collider;
+            DebugDraw::drawCircle(position, circle->getRadius(), vec3(0.0f, 1.0f, 0.0f), 1);
+        }
+
+    }
 
 }
 

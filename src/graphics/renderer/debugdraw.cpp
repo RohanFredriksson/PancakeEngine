@@ -5,7 +5,7 @@
 #include "graphics/renderer/debugdraw.hpp"
 #include "core/window.hpp"
 
-#include <stdio.h>
+using std::vector;
 
 namespace {
 
@@ -36,6 +36,24 @@ namespace {
     Shader* shader;
     unsigned int vao;
     unsigned int vbo;
+
+    vec2 rotate(vec2 vector, float degrees, vec2 origin) {
+
+        float x = vector.x - origin.x;
+        float y = vector.y - origin.y;
+
+        float cos = cosf(degrees * (M_PI / 180));
+        float sin = sinf(degrees * (M_PI / 180));
+
+        float xPrime = (x * cos) - (y * sin);
+        float yPrime = (x * sin) + (y * cos);
+        
+        xPrime += origin.x;
+        yPrime += origin.y;
+
+        return glm::vec2(xPrime, yPrime);
+
+    }
 
 }
 
@@ -143,11 +161,10 @@ namespace DebugDraw {
 
         if (lines.size() >= MAX_LINES) {return;}
 
-        /*
         Camera* camera = Window::getScene()->getCamera();
         
-        vec2 pMin = (camera->getProjectionSize() * (0.5f / camera->getZoom())) - camera->getPosition();
-        vec2 pMax = (camera->getProjectionSize() * (0.5f / camera->getZoom())) + camera->getPosition();
+        vec2 pMin = camera->getPosition() - (camera->getProjectionSize() * (0.5f / camera->getZoom()));
+        vec2 pMax = camera->getPosition() + (camera->getProjectionSize() * (0.5f / camera->getZoom()));
 
         vec2 lMin = glm::vec2(std::min(from.x, to.x), std::min(from.y, to.y));
         vec2 lMax = glm::vec2(std::max(from.x, to.x), std::max(from.y, to.y));
@@ -156,7 +173,6 @@ namespace DebugDraw {
         if (!inView) {
             return;
         }
-        */
 
         Line* line = new Line(from, to, colour, lifetime);
         lines.push_back(line);
@@ -165,9 +181,41 @@ namespace DebugDraw {
 
     void drawBox(vec2 centre, vec2 dimensions, float rotation, vec3 colour, int lifetime) {
 
+        vec2 min = centre - dimensions * 0.5f;
+        vec2 max = centre + dimensions * 0.5f;
+
+        vec2 vertices[4];
+        vertices[0] = glm::vec2(min.x, min.y);
+        vertices[1] = glm::vec2(min.x, max.y);
+        vertices[2] = glm::vec2(max.x, max.y);
+        vertices[3] = glm::vec2(max.x, min.y);
+
+        if (rotation != 0.0f) {
+            for (int i = 0; i < 4; i++) {
+                vertices[i] = rotate(vertices[i], rotation, centre);
+            }
+        }
+
+        drawLine(vertices[0], vertices[1], colour, lifetime);
+        drawLine(vertices[0], vertices[3], colour, lifetime);
+        drawLine(vertices[1], vertices[2], colour, lifetime);
+        drawLine(vertices[2], vertices[3], colour, lifetime);
+
     }
 
     void drawCircle(vec2 centre, float radius, vec3 colour, int lifetime) {
+
+        vector<vec2> points;
+        int increment = 360 / CIRCLE_POINTS;
+        int currentAngle = 0;
+
+        for (int i = 0; i < CIRCLE_POINTS; i++) {
+            vec2 point = rotate(glm::vec2(0, radius), currentAngle, glm::vec2(0, 0)) + centre;
+            points.push_back(point);
+            if (i > 0) {drawLine(points[i - 1], points[i], colour, lifetime);}
+            currentAngle += increment;
+        }
+        drawLine(points[CIRCLE_POINTS - 1], points[0], colour, lifetime);
 
     }
 
