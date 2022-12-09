@@ -21,11 +21,16 @@ class Sprite {
 
     public:
 
+        Sprite(string name, vec2 texCoords[4]);
         Sprite(string name, Texture* texture);
         Sprite(string name, Texture* texture, vec2 texCoords[4]);
 
         string getName();
         Texture* getTexture();
         vec2* getTexCoords();
+
+        void setName(string name);
+        void setTexture(Texture* texture);
+        void setTexCoords(vec2 texCoords[4]);
 
 };

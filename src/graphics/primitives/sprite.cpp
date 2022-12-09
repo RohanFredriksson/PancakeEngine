@@ -12,6 +12,10 @@ void Sprite::init(string name, Texture* texture, vec2 texCoords[4]) {
 
 }
 
+Sprite::Sprite(string name, vec2 texCoords[4]) {
+    this->init(name, NULL, texCoords);
+}
+
 Sprite::Sprite(string name, Texture* texture) {
 
     vec2 texCoords[4];
@@ -38,4 +42,19 @@ Texture* Sprite::getTexture() {
 
 vec2* Sprite::getTexCoords() {
     return this->texCoords;
+}
+
+void Sprite::setName(string name) {
+    this->name = name;
+}
+
+void Sprite::setTexture(Texture* texture) {
+    this->texture = texture;
+}
+
+void Sprite::setTexCoords(vec2 texCoords[4]) {
+    this->texCoords[0] = texCoords[0];
+    this->texCoords[1] = texCoords[1];
+    this->texCoords[2] = texCoords[2];
+    this->texCoords[3] = texCoords[3];
 }
