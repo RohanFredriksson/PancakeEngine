@@ -4,6 +4,7 @@
 #include <string>
 #include <glm/glm.hpp>
 #include "core/component.hpp"
+#include "graphics/primitives/font.hpp"
 #include "graphics/primitives/sprite.hpp"
 
 using std::string;
@@ -15,14 +16,14 @@ class TextRenderer : public Component {
     private:
 
         string text;
-        //Font* font;
+        Font* font;
         vec4 colour;
         int zIndex;
 
         vector<Component*> components;
 
         string lastText;
-        //Font* lastFont;
+        Font* lastFont;
         vec4 lastColour;
         vec2 lastPosition;
         vec2 lastSize;
@@ -33,20 +34,21 @@ class TextRenderer : public Component {
 
     public:
 
-        TextRenderer(string text, /*Font* font,*/ vec4 colour, int zIndex);
+        TextRenderer(string text, Font* font, vec4 colour, int zIndex);
         ~TextRenderer();
 
         void update(float dt) override;
         
         // Getters
         string getText();
-        //Font* getFont();
+        Font* getFont();
         vec4 getColour();
         int getZIndex();
         bool isDirty();
         
         // Setters
         void setText(string text);
+        void setFont(Font* font);
         void setColour(vec4 colour);
         void setZIndex(int zIndex);
         void setClean();
