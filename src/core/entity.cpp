@@ -39,9 +39,7 @@ void Entity::update(float dt) {
 
         // If the component is not dead, update it.
         if (!c->isDead()) {
-            printf("A\n");
-            c->update(dt); // <-- THIS LINE FAILS WHEN USING NEW OBJECTS FROM THE TEXT RENDERER.
-            printf("AA\n");
+            c->update(dt);
         } 
         
         // If the component is dead, add its index a clear list.

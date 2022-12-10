@@ -109,7 +109,7 @@ void TextRenderer::update(float dt) {
         }
 
     }
-
+    this->dirty = false;
 }
 
 string TextRenderer::getText() {
