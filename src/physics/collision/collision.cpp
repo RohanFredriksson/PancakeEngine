@@ -187,6 +187,7 @@ namespace {
             normal.y = -1.0f;
             contactPoint.x = cPos.x;
             contactPoint.y = bMax.y - depth;
+            if (flip) {normal = -normal;}
 
             return new CollisionManifold(normal, contactPoint, depth);
         }
@@ -199,6 +200,7 @@ namespace {
             normal.y = 1.0f;
             contactPoint.x = cPos.x;
             contactPoint.y = bMin.y + depth;
+            if (flip) {normal = -normal;}
 
             return new CollisionManifold(normal, contactPoint, depth);
         }
@@ -211,6 +213,7 @@ namespace {
             normal.y = 0.0f;
             contactPoint.x = cPos.y;
             contactPoint.y = bMax.x - depth;
+            if (flip) {normal = -normal;}
 
             return new CollisionManifold(normal, contactPoint, depth);
         }
@@ -223,6 +226,7 @@ namespace {
             normal.y = 0.0f;
             contactPoint.x = cPos.y;
             contactPoint.y = bMin.x + depth;
+            if (flip) {normal = -normal;}
 
             return new CollisionManifold(normal, contactPoint, depth);
         }
@@ -235,6 +239,7 @@ namespace {
             vec2 depthVector = ((normal * cRadius) - difference) * 0.5f;            
             depth = glm::length(depthVector);
             contactPoint = vec2(bMin.x, bMax.y) + depthVector;
+            if (flip) {normal = -normal;}
 
             return new CollisionManifold(normal, contactPoint, depth);
         }
@@ -247,6 +252,7 @@ namespace {
             vec2 depthVector = ((normal * cRadius) - difference) * 0.5f;            
             depth = glm::length(depthVector);
             contactPoint = vec2(bMax.x, bMax.y) + depthVector;
+            if (flip) {normal = -normal;}
 
             return new CollisionManifold(normal, contactPoint, depth);
         }
@@ -259,6 +265,7 @@ namespace {
             vec2 depthVector = ((normal * cRadius) - difference) * 0.5f;            
             depth = glm::length(depthVector);
             contactPoint = vec2(bMin.x, bMin.y) + depthVector;
+            if (flip) {normal = -normal;}
 
             return new CollisionManifold(normal, contactPoint, depth);
         }
@@ -271,6 +278,7 @@ namespace {
             vec2 depthVector = ((normal * cRadius) - difference) * 0.5f;            
             depth = glm::length(depthVector);
             contactPoint = vec2(bMax.x, bMin.y) + depthVector;
+            if (flip) {normal = -normal;}
 
             return new CollisionManifold(normal, contactPoint, depth);
         }

@@ -74,7 +74,6 @@ Scene::Scene(string name) {
     entity->addComponent(circle);
     this->addEntity(entity);
 
-    /* UNCOMMENTING THIS CAUSES PHYSICS ENGINE BUGS.
     entity = new Entity(vec2(-4.0f, 1.0f), vec2(1.0f, 1.0f), 0.0f);
 
     font = new Font("assets/fonts/Pixellari.ttf", 64);
@@ -82,7 +81,6 @@ Scene::Scene(string name) {
     
     entity->addComponent(textrenderer);
     this->addEntity(entity);
-    */
 
 }
 
