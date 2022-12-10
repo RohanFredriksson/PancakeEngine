@@ -22,6 +22,7 @@ class Component {
     public:
 
         Component();
+        virtual ~Component();
 
         virtual void update(float dt);
         void kill();

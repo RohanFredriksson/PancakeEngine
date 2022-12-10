@@ -35,7 +35,7 @@ class TextRenderer : public Component {
     public:
 
         TextRenderer(string text, Font* font, vec4 colour, int zIndex);
-        ~TextRenderer();
+        ~TextRenderer() override;
 
         void update(float dt) override;
         
