@@ -28,16 +28,20 @@ Entity::~Entity() {
 
 }
 
+#include <stdio.h>
+
 void Entity::update(float dt) {
 
     // Update all the components.
     deque<int> deadIndices;
     int index = 0;
     for (Component* c : this->components) {
-        
+
         // If the component is not dead, update it.
         if (!c->isDead()) {
-            c->update(dt);
+            printf("A\n");
+            c->update(dt); // <-- THIS LINE FAILS WHEN USING NEW OBJECTS FROM THE TEXT RENDERER.
+            printf("AA\n");
         } 
         
         // If the component is dead, add its index a clear list.
