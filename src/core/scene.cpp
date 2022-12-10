@@ -7,6 +7,8 @@
 
 #include "physics/primitives/box.hpp"
 #include "physics/primitives/circle.hpp"
+#include "graphics/primitives/font.hpp"
+#include "graphics/renderer/textrenderer.hpp"
 
 using std::deque;
 using std::pair;
@@ -28,6 +30,8 @@ Scene::Scene(string name) {
     Box* box;
     Circle* circle;
     Rigidbody* rigidbody;
+    Font* font;
+    TextRenderer* textrenderer;
 
     entity = new Entity(vec2(0.0f, 0.0f), vec2(5.0f, 1.0f), 0.0f);
 
@@ -68,6 +72,14 @@ Scene::Scene(string name) {
     entity->addComponent(spriterenderer);
     entity->addComponent(rigidbody);
     entity->addComponent(circle);
+    this->addEntity(entity);
+
+    entity = new Entity(vec2(-4.0f, 1.0f), vec2(1.0f, 1.0f), 0.0f);
+
+    font = new Font("assets/fonts/pixellari.ttf", 64);
+    textrenderer = new TextRenderer("The quick brown fox jumps over the lazy dog.\nWe the best music, DJ Khaled.", font, vec4(1.0f, 1.0f, 1.0f, 1.0f), 0);
+    
+    entity->addComponent(textrenderer);
     this->addEntity(entity);
 
 }
