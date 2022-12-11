@@ -94,11 +94,11 @@ void TextRenderer::update(float dt) {
                 
                 SpriteRenderer* s = new SpriteRenderer(this->font->getSprite(text[i]), this->colour, this->zIndex);
 
-                vec2 offset = glm::vec2(x + width, y + height) * 0.5f - this->getPosition();
-                vec2 scale = glm::vec2(width, height) / scale;
+                vec2 positionOffset = glm::vec2(x + width, y + height) * 0.5f - this->getPosition();
+                vec2 sizeScale = glm::vec2(width, height) / size;
 
-                s->setPositionOffset(offset);
-                s->setSizeScale(scale);
+                s->setPositionOffset(positionOffset);
+                s->setSizeScale(sizeScale);
                 s->setRotationOffset(-this->getEntity()->getRotation());
 
                 this->getEntity()->addComponent(s);
