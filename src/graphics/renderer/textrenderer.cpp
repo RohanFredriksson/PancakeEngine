@@ -94,7 +94,7 @@ void TextRenderer::update(float dt) {
                 
                 SpriteRenderer* s = new SpriteRenderer(this->font->getSprite(text[i]), this->colour, this->zIndex);
 
-                vec2 positionOffset = glm::vec2(x + width, y + height) * 0.5f - this->getPosition();
+                vec2 positionOffset = glm::vec2(x + width * 0.5f, y + height * 0.5f) - this->getPosition();
                 vec2 sizeScale = glm::vec2(width, height) / size;
 
                 s->setPositionOffset(positionOffset);

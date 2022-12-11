@@ -1,8 +1,8 @@
 #include <stdio.h>
 #include "graphics/primitives/font.hpp"
 
-#define STB_IMAGE_WRITE_IMPLEMENTATION
-#include "stb/stb_image_write.h"
+//#define STB_IMAGE_WRITE_IMPLEMENTATION
+//#include "stb/stb_image_write.h"
 
 #define STB_TRUETYPE_IMPLEMENTATION
 #include "stb/stb_truetype.h"
@@ -148,7 +148,7 @@ Font::Font(string filename, float size) {
     }
 
     // Debug output
-    stbi_write_png("out.png", width, height, 4, image, width * 4);
+    //stbi_write_png("out.png", width, height, 4, image, width * 4);
 
     free(fontBuffer);
     free(mask);
