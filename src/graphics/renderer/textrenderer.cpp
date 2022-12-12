@@ -13,9 +13,9 @@ TextRenderer::TextRenderer(string text, Font* font, vec4 colour, int zIndex) : C
     this->lastFont = font;
     this->lastColour = colour;
     this->lastZIndex = zIndex;
-    this->lastPosition = glm::vec2(0.0f, 0.0f);
-    this->lastSize = glm::vec2(0.0f, 0.0f);
-    this->lastRotation = 0.0f;
+    this->lastPositionOffset = glm::vec2(0.0f, 0.0f);
+    this->lastSizeScale = glm::vec2(0.0f, 0.0f);
+    this->lastRotationOffset = 0.0f;
 
     this->dirty = true;
 
@@ -29,7 +29,7 @@ TextRenderer::~TextRenderer() {
 }
 
 void TextRenderer::update(float dt) {
-    
+
     if (this->text != this->lastText) {
         this->lastText = this->text;
         this->dirty = true;
@@ -45,18 +45,18 @@ void TextRenderer::update(float dt) {
         this->dirty = true;
     }
 
-    if (this->getPosition() != this->lastPosition) {
-        this->lastPosition = this->getPosition();
+    if (this->getPositionOffset() != this->lastPositionOffset) {
+        this->lastPositionOffset = this->getPositionOffset();
         this->dirty = true;
     }
 
-    if (this->getSize() != this->lastSize) {
-        this->lastSize = this->getSize();
+    if (this->getSizeScale() != this->lastSizeScale) {
+        this->lastSizeScale = this->getSizeScale();
         this->dirty = true;
     }
 
-    if (this->getRotation() != this->lastRotation) {
-        this->lastRotation = this->getRotation();
+    if (this->getRotationOffset() != this->lastRotationOffset) {
+        this->lastRotationOffset = this->getRotationOffset();
         this->dirty = true;
     }
 

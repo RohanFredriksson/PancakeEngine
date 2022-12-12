@@ -25,9 +25,9 @@ class TextRenderer : public Component {
         string lastText;
         Font* lastFont;
         vec4 lastColour;
-        vec2 lastPosition;
-        vec2 lastSize;
-        float lastRotation;
+        vec2 lastPositionOffset;
+        vec2 lastSizeScale;
+        float lastRotationOffset;
         int lastZIndex;
         
         bool dirty;

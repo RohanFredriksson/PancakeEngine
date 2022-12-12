@@ -57,7 +57,7 @@ Scene::Scene(string name) {
 
     texture = new Texture("assets/textures/ainsley.png");
     font = new Font("assets/fonts/Pixellari.ttf", 64);
-    textrenderer = new TextRenderer("A", font, vec4(1.0f, 1.0f, 1.0f, 1.0f), 0);
+    textrenderer = new TextRenderer("The", font, vec4(1.0f, 1.0f, 1.0f, 1.0f), 0);
 
     rigidbody = new Rigidbody();
     circle = new Circle(0.5f);
