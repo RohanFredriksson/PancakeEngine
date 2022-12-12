@@ -51,8 +51,9 @@ void Entity::update(float dt) {
     // Delete all dead elements
     for (int i : deadIndices) {
         Component* c = this->components[i];
-        delete c;
+        this->deadComponentIds.push_back(c->getId());
         this->components.erase(this->components.begin() + i);
+        delete c;
     }
     deadIndices.clear();
 
@@ -72,6 +73,10 @@ vector<Component*> Entity::getComponents() {
 
 vector<Component*> Entity::getNewComponents() {
     return this->newComponents;
+}
+
+vector<int> Entity::getDeadComponentIds() {
+    return this->deadComponentIds;
 }
 
 vec2 Entity::getPosition() {
@@ -122,4 +127,8 @@ void Entity::addComponent(Component* component) {
 
 void Entity::clearNewComponents() {
     this->newComponents.clear();
+}
+
+void Entity::clearDeadComponentIds() {
+    this->deadComponentIds.clear();
 }

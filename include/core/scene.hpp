@@ -23,6 +23,7 @@ class Scene {
         World* physics;
 
         void addNewComponents();
+        void removeDeadComponents();
         
     public:
 
@@ -37,5 +38,7 @@ class Scene {
         World* getPhysics();
 
         void addEntity(Entity* entity);
+        Entity* getEntityById(int id);
+        Component* getComponentById(int id);
 
 };

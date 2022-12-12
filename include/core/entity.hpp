@@ -15,6 +15,7 @@ class Entity {
         int id;
         vector<Component*> components;
         vector<Component*> newComponents;
+        vector<int> deadComponentIds;
         vec2 position;
         vec2 size;
         float rotation;
@@ -34,6 +35,7 @@ class Entity {
         int getId();
         vector<Component*> getComponents();
         vector<Component*> getNewComponents();
+        vector<int> getDeadComponentIds();
         vec2 getPosition();
         vec2 getSize();
         float getRotation();
@@ -52,6 +54,7 @@ class Entity {
         // Component Methods
         void addComponent(Component* component);
         void clearNewComponents();
+        void clearDeadComponentIds();
 
 };
 

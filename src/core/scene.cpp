@@ -57,7 +57,7 @@ Scene::Scene(string name) {
 
     texture = new Texture("assets/textures/ainsley.png");
     font = new Font("assets/fonts/Pixellari.ttf", 64);
-    textrenderer = new TextRenderer("The", font, vec4(1.0f, 1.0f, 1.0f, 1.0f), 0);
+    textrenderer = new TextRenderer("The quick brown fox jumps over the lazy dog.\nWe the best music! DJ Khaled!", font, vec4(1.0f, 1.0f, 1.0f, 1.0f), 0);
 
     rigidbody = new Rigidbody();
     circle = new Circle(0.5f);
@@ -112,6 +112,20 @@ void Scene::addNewComponents() {
     
 }
 
+void Scene::removeDeadComponents() {
+
+    // For each entity, check their dead component list.
+    // If there are components in this list, delete them.
+    for (auto const& x : this->entities) {
+        Entity* e = x.second;
+        for (int id : e->getDeadComponentIds()) {
+            this->components.erase(id);
+        }
+        e->clearNewComponents();
+    }
+
+}
+
 void Scene::update(float dt) {
 
     // Add all new components to their specific systems.
@@ -159,6 +173,7 @@ void Scene::update(float dt) {
 
     // Add all new components to their specific systems.
     this->addNewComponents(); 
+    this->removeDeadComponents();
 
 }
 
@@ -182,4 +197,18 @@ World* Scene::getPhysics() {
 void Scene::addEntity(Entity* entity) {
     pair<int, Entity*> p(entity->getId(), entity);
     this->entities.insert(p);
+}
+
+Entity* Scene::getEntityById(int id) {
+    auto search = this->entities.find(id);
+    if (search == this->entities.end()) {return NULL;}
+    Entity* e = search->second;
+    return e;
+}
+
+Component* Scene::getComponentById(int id) {
+    auto search = this->components.find(id);
+    if (search == this->components.end()) {return NULL;}
+    Component* c = search->second;
+    return c;
 }
