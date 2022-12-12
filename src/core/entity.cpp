@@ -28,8 +28,6 @@ Entity::~Entity() {
 
 }
 
-#include <stdio.h>
-
 void Entity::update(float dt) {
 
     // Update all the components.
