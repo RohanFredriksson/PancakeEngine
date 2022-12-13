@@ -4,3 +4,6 @@
 [submodule "dependencies/glfw"]
 	path = dependencies/glfw
 	url = https://github.com/glfw/glfw.git
+[submodule "dependencies/soloud"]
+	path = dependencies/soloud
+	url = https://github.com/RohanFredriksson/soloud.git
