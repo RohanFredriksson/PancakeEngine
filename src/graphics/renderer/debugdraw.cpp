@@ -1,6 +1,6 @@
 #include <vector>
 #include <algorithm>
-#include <stdlib.h>
+#include <cstdlib>
 #include "graphics/primitives/shader.hpp"
 #include "graphics/renderer/debugdraw.hpp"
 #include "core/window.hpp"

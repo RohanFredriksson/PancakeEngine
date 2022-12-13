@@ -1,5 +1,5 @@
-#include <stdio.h>
-#include <stdlib.h>
+#include <iostream>
+#include <cstdlib>
 #include <glad/glad.h>
 #include <glm/gtc/type_ptr.hpp>
 #include "graphics/primitives/shader.hpp"
@@ -49,8 +49,8 @@ Shader::Shader(string vertex, string fragment) {
     // Load shader code
     char* vertexCode = Shader::loadSource(vertex.c_str());
     char* fragmentCode = Shader::loadSource(fragment.c_str());
-    if (vertexCode == NULL) {printf("ERROR::SHADER::COMPILE::VERTEX_SOURCE_NOT_FOUND\n");}
-    if (vertexCode == NULL) {printf("ERROR::SHADER::COMPILE::FRAGMENT_SOURCE_NOT_FOUND\n");}
+    if (vertexCode == NULL) {std::cout << "ERROR::SHADER::COMPILE::VERTEX_SOURCE_NOT_FOUND\n";}
+    if (vertexCode == NULL) {std::cout << "ERROR::SHADER::COMPILE::FRAGMENT_SOURCE_NOT_FOUND\n";}
 
     GLuint v, f;
     GLint success;
@@ -65,7 +65,7 @@ Shader::Shader(string vertex, string fragment) {
     glGetShaderiv(v, GL_COMPILE_STATUS, &success);
     if (!success) {
         glGetShaderInfoLog(v, 512, NULL, infoLog);
-        printf("ERROR::SHADER::VERTEX::COMPILATION_FAILED\n%s", infoLog);
+        std::cout << "ERROR::SHADER::VERTEX::COMPILATION_FAILED\n" << infoLog << "\n";
     }
 
     // Fragment shader compilation.
@@ -77,7 +77,7 @@ Shader::Shader(string vertex, string fragment) {
     glGetShaderiv(f, GL_COMPILE_STATUS, &success);
     if (!success) {
         glGetShaderInfoLog(f, 512, NULL, infoLog);
-        printf("ERROR::SHADER::FRAGMENT::COMPILATION_FAILED\n%s", infoLog);
+        std::cout << "ERROR::SHADER::FRAGMENT::COMPILATION_FAILED\n" << infoLog << "\n";
     }
 
     // Shader program linking.
@@ -90,7 +90,7 @@ Shader::Shader(string vertex, string fragment) {
     glGetProgramiv(this->program, GL_LINK_STATUS, &success);
     if (!success) {
         glGetProgramInfoLog(this->program, 512, NULL, infoLog);
-        printf("ERROR::SHADER::PROGRAM::LINKING_FAILED\n%s", infoLog);
+        std::cout << "ERROR::SHADER::PROGRAM::LINKING_FAILED\n" << infoLog << "\n";
     }
 
     // Free the data.

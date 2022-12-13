@@ -1,5 +1,4 @@
-#include <stdlib.h>
-#include <stdio.h>
+#include <cstdlib>
 #include <glm/gtx/transform.hpp>
 #include <glm/glm.hpp>
 #include <glad/glad.h>

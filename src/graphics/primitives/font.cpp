@@ -1,4 +1,4 @@
-#include <stdio.h>
+#include <iostream>
 #include "graphics/primitives/font.hpp"
 
 //#define STB_IMAGE_WRITE_IMPLEMENTATION
@@ -21,7 +21,7 @@ Font::Font(string filename, float size) {
     unsigned char* fontBuffer;
     FILE* fontFile = fopen(filename.c_str(), "rb");
     if (fontFile == NULL) {
-        printf("ERROR::FONT::INIT::FILE_NOT_FOUND\n");
+        std::cout << "ERROR::FONT::INIT::FILE_NOT_FOUND\n";
     }
     fseek(fontFile, 0, SEEK_END);
     fileSize = ftell(fontFile);
@@ -33,7 +33,7 @@ Font::Font(string filename, float size) {
     // Prepare the font
     stbtt_fontinfo info;
     if (!stbtt_InitFont(&info, fontBuffer, 0)) {
-        printf("ERROR::FONT::INIT::FONT_LOADING_FAILED\n");
+        std::cout << "ERROR::FONT::INIT::FONT_LOADING_FAILED\n";
     }
 
     // Find the scale for a certain pixel height.

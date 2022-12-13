@@ -1,4 +1,4 @@
-#include <stdio.h>
+#include <iostream>
 #include <glad/glad.h>
 #include "graphics/primitives/texture.hpp"
 
@@ -24,12 +24,12 @@ void Texture::init(string name, unsigned char* image, int width, int height, int
 
         if (channels == 3) {glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, image);}
         else if (channels == 4) {glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, image);}
-        else {printf("ERROR::TEXTURE::INVALID_IMAGE_CHANNELS '%d'\n", channels);}
+        else {std::cout << "ERROR::TEXTURE::INVALID_IMAGE_CHANNELS '" << channels << "'\n";}
 
     }
 
     else {
-        printf("ERROR::TEXTURE::IMAGE_LOAD_FAILED '%s'\n", name.c_str());
+        std::cout << "ERROR::TEXTURE::IMAGE_LOAD_FAILED '" << name << "'\n";
     }
 
 }

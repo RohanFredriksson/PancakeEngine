@@ -16,7 +16,7 @@
 #include <unordered_map>
 #include <array>
 #include <algorithm>
-#include <stdlib.h>
+#include <cstdlib>
 #include <iostream>
 #include <ostream>
 #include <sstream>

@@ -1,4 +1,4 @@
-#include <stdio.h>
+#include <iostream>
 #include "graphics/primitives/framebuffer.hpp"
 
 void Framebuffer::init(GLint internal, int width, int height, GLenum format, GLenum type) {
@@ -20,7 +20,7 @@ void Framebuffer::init(GLint internal, int width, int height, GLenum format, GLe
     glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, rbo);
 
     if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
-        printf("ERROR::FRAMEBUFFER::FRAMEBUFFER_NOT_COMPLETE\n");
+        std::cout << "ERROR::FRAMEBUFFER::FRAMEBUFFER_NOT_COMPLETE\n";
     }
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 

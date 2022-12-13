@@ -1,5 +1,5 @@
-#include <stdio.h>
-#include <stdlib.h>
+#include <iostream>
+#include <cstdlib>
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
@@ -25,7 +25,7 @@ namespace {
 
         // Initialise GLFW
         if (!glfwInit()) {
-            printf("ERROR::WINDOW::GLFW_INITIALIZATION_FAILED\n");
+            std::cout << "ERROR::WINDOW::GLFW_INITIALIZATION_FAILED\n";
             return false;
         }
 
@@ -40,7 +40,7 @@ namespace {
         // Create the window
         window = glfwCreateWindow(width, height, "Pancake", NULL, NULL);
         if (window == NULL) {
-            printf("ERROR::WINDOW::GLFW_WINDOW_CREATION_FAILED\n");
+            std::cout << "ERROR::WINDOW::GLFW_WINDOW_CREATION_FAILED\n";
             return false;
         }
 
@@ -87,7 +87,7 @@ namespace {
         }
 
         if (MouseListener::isMouseButtonBeginDown(GLFW_MOUSE_BUTTON_LEFT)) {
-            printf("%d\n", Window::readPixel(MouseListener::getX(), MouseListener::getY()));
+            std::cout << Window::readPixel(MouseListener::getX(), MouseListener::getY());
         }
 
     }
