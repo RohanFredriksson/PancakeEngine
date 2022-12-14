@@ -1,12 +1,19 @@
+
+
+#include "core/window.hpp"
+using Window::run;
+
+int main() {
+    run();
+}
+
+/*
 #include "soloud/include/soloud.h"
 #include "soloud/include/soloud_speech.h"
 #include "soloud/include/soloud_thread.h"
 
-//#include "core/window.hpp"
-//using namespace Window;
-
 int main() {
-    
+
     // Define a couple of variables
     SoLoud::Soloud soloud;  // SoLoud engine core
     SoLoud::Speech speech;  // A sound source (speech, in this case)
@@ -32,6 +39,6 @@ int main() {
 
     // All done.
     return 0;
-    
-    //run();
+
 }
+*/
