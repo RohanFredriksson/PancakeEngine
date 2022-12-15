@@ -14,6 +14,7 @@
 namespace {
 
     GLFWwindow* window;
+    Soloud audio;
     int width = 800;
     int height = 800;
     Scene* scene;
@@ -66,6 +67,9 @@ namespace {
         // Enable alpha transparency
         glEnable(GL_BLEND);
         glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
+
+        // Initialise the audio engine
+        audio.init();
 
         defaultShader = new Shader("assets/shaders/default.vert", "assets/shaders/default.frag");
         entityShader = new Shader("assets/shaders/default.vert", "assets/shaders/entity.frag");
@@ -144,6 +148,7 @@ namespace {
     }
 
     void exit() {
+        audio.deinit();
         DebugDraw::destroy();
         glfwDestroyWindow(window);
         glfwTerminate();
@@ -173,6 +178,10 @@ namespace Window {
 
     Scene* getScene() {
         return scene;
+    }
+
+    Soloud* getAudioEngine() {
+        return &audio;
     }
 
     void setWidth(int w) {

@@ -1,6 +1,9 @@
 #pragma once
 
 #include "core/scene.hpp"
+#include "soloud/include/soloud.h"
+
+using SoLoud::Soloud;
 
 namespace Window {
     
@@ -10,6 +13,7 @@ namespace Window {
     int getHeight();
     float getAspectRatio();
     Scene* getScene();
+    Soloud* getAudioEngine();
 
     void setWidth(int w);
     void setHeight(int h);
