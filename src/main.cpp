@@ -1,15 +1,16 @@
-
-
-#include "window/window.hpp"
+/*#include "window/window.hpp"
 
 int main() {
     Window::init();
     Window::loop();
     Window::destroy();
 }
+*/
 
-/*
+#include <stb/stb_vorbis.h>
+
 #include "soloud/include/soloud.h"
+#include "soloud/include/soloud_wav.h"
 #include "soloud/include/soloud_speech.h"
 #include "soloud/include/soloud_thread.h"
 
@@ -17,16 +18,15 @@ int main() {
 
     // Define a couple of variables
     SoLoud::Soloud soloud;  // SoLoud engine core
-    SoLoud::Speech speech;  // A sound source (speech, in this case)
+    SoLoud::Wav source; // One wave file
 
-    // Configure sound source
-    speech.setText("1 2 3   1 2 3   Hello world. Welcome to So-Loud.");
+    source.load("assets/audio/ui.mp3");
 
     // initialize SoLoud.
     soloud.init();
 
     // Play the sound source (we could do this several times if we wanted)
-    soloud.play(speech);
+    soloud.play(source);
 
     // Wait until sounds have finished
     while (soloud.getActiveVoiceCount() > 0)
@@ -42,4 +42,3 @@ int main() {
     return 0;
 
 }
-*/
