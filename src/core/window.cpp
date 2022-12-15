@@ -144,6 +144,7 @@ namespace {
     }
 
     void exit() {
+        DebugDraw::destroy();
         glfwDestroyWindow(window);
         glfwTerminate();
     }
