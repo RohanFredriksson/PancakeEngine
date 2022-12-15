@@ -3,7 +3,7 @@
 #include <glm/glm.hpp>
 #include <glad/glad.h>
 #include "graphics/renderer/renderer.hpp"
-#include "core/window.hpp"
+#include "window/window.hpp"
 
 using glm::vec2;
 using glm::vec3;

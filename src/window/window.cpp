@@ -5,8 +5,8 @@
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
 
-#include "core/window.hpp"
-#include "core/listener.hpp"
+#include "window/window.hpp"
+#include "window/listener.hpp"
 #include "graphics/primitives/shader.hpp"
 #include "graphics/primitives/framebuffer.hpp"
 #include "graphics/renderer/debugdraw.hpp"
@@ -14,13 +14,56 @@
 namespace {
 
     GLFWwindow* window;
-    Soloud audio;
     int width = 800;
     int height = 800;
     Scene* scene;
     Shader* defaultShader;
     Shader* entityShader;
     Framebuffer* entityTexture;
+
+    void update(float dt) {
+        
+        scene->update(dt);
+
+        if (MouseListener::isMouseDragging()) {
+            if (MouseListener::getDx() != 0) {scene->getCamera()->addPosition(vec2(-MouseListener::getWorldDx(), 0.0f));}
+            if (MouseListener::getDy() != 0) {scene->getCamera()->addPosition(vec2(0.0f, MouseListener::getWorldDy()));}
+        }
+
+        if (MouseListener::isMouseButtonBeginDown(GLFW_MOUSE_BUTTON_LEFT)) {
+            std::cout << Window::readPixel(MouseListener::getX(), MouseListener::getY());
+        }
+
+    }
+
+    void render() {
+
+        // Render the scene to the entity picking texture.
+        glDisable(GL_BLEND);
+        entityTexture->bind();
+        glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+        glClear(GL_COLOR_BUFFER_BIT);
+        Renderer::bindShader(entityShader);
+        scene->render();
+        entityTexture->unbind();
+        glEnable(GL_BLEND);
+
+        // Render the scene to the window.
+        glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+        glClear(GL_COLOR_BUFFER_BIT);
+        Renderer::bindShader(defaultShader);
+        scene->render();
+
+        // Debug draw
+        DebugDraw::render();
+
+        glfwSwapBuffers(window);
+
+    }
+
+}
+
+namespace Window {
 
     bool init() {
 
@@ -68,9 +111,6 @@ namespace {
         glEnable(GL_BLEND);
         glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
 
-        // Initialise the audio engine
-        audio.init();
-
         defaultShader = new Shader("assets/shaders/default.vert", "assets/shaders/default.frag");
         entityShader = new Shader("assets/shaders/default.vert", "assets/shaders/entity.frag");
         entityTexture = new Framebuffer(GL_RGB32F, width, height, GL_RGB, GL_FLOAT);
@@ -79,46 +119,6 @@ namespace {
 
         scene = new Scene("Title");
         return true;
-    }
-
-    void update(float dt) {
-        
-        scene->update(dt);
-
-        if (MouseListener::isMouseDragging()) {
-            if (MouseListener::getDx() != 0) {scene->getCamera()->addPosition(vec2(-MouseListener::getWorldDx(), 0.0f));}
-            if (MouseListener::getDy() != 0) {scene->getCamera()->addPosition(vec2(0.0f, MouseListener::getWorldDy()));}
-        }
-
-        if (MouseListener::isMouseButtonBeginDown(GLFW_MOUSE_BUTTON_LEFT)) {
-            std::cout << Window::readPixel(MouseListener::getX(), MouseListener::getY());
-        }
-
-    }
-
-    void render() {
-
-        // Render the scene to the entity picking texture.
-        glDisable(GL_BLEND);
-        entityTexture->bind();
-        glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT);
-        Renderer::bindShader(entityShader);
-        scene->render();
-        entityTexture->unbind();
-        glEnable(GL_BLEND);
-
-        // Render the scene to the window.
-        glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT);
-        Renderer::bindShader(defaultShader);
-        scene->render();
-
-        // Debug draw
-        DebugDraw::render();
-
-        glfwSwapBuffers(window);
-
     }
 
     void loop() {
@@ -147,21 +147,10 @@ namespace {
 
     }
 
-    void exit() {
-        audio.deinit();
+    void destroy() {
         DebugDraw::destroy();
         glfwDestroyWindow(window);
         glfwTerminate();
-    }
-
-}
-
-namespace Window {
-
-    void run() {
-        if (!init()) {return;}
-        loop();
-        exit();
     }
 
     int getWidth() {
@@ -178,10 +167,6 @@ namespace Window {
 
     Scene* getScene() {
         return scene;
-    }
-
-    Soloud* getAudioEngine() {
-        return &audio;
     }
 
     void setWidth(int w) {

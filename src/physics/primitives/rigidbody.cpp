@@ -1,5 +1,5 @@
 #include "physics/primitives/rigidbody.hpp"
-#include "core/window.hpp"
+#include "window/window.hpp"
 
 Rigidbody::Rigidbody() : Component() {
 

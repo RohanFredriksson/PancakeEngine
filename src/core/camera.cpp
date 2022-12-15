@@ -1,5 +1,5 @@
 #include "core/camera.hpp"
-#include "core/window.hpp"
+#include "window/window.hpp"
 #include <glm/gtx/transform.hpp>
 
 using glm::vec3;

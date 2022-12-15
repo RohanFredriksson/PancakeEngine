@@ -1,5 +1,5 @@
 #include "graphics/renderer/spriterenderer.hpp"
-#include "core/window.hpp"
+#include "window/window.hpp"
 #include "core/scene.hpp"
 
 SpriteRenderer::SpriteRenderer(Sprite* sprite, vec4 colour, int zIndex) : Component() {

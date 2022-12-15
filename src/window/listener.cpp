@@ -1,7 +1,7 @@
 #include <glad/glad.h>
-#include "core/listener.hpp"
+#include "window/listener.hpp"
 #include "core/camera.hpp"
-#include "core/window.hpp"
+#include "window/window.hpp"
 
 namespace {
 

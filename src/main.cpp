@@ -1,10 +1,11 @@
 
 
-#include "core/window.hpp"
-using Window::run;
+#include "window/window.hpp"
 
 int main() {
-    run();
+    Window::init();
+    Window::loop();
+    Window::destroy();
 }
 
 /*

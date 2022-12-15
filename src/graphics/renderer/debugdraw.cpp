@@ -3,7 +3,7 @@
 #include <cstdlib>
 #include "graphics/primitives/shader.hpp"
 #include "graphics/renderer/debugdraw.hpp"
-#include "core/window.hpp"
+#include "window/window.hpp"
 
 using std::vector;
 
