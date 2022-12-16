@@ -13,12 +13,20 @@ Wav& AudioWave::getSource() {
     return this->source;
 }
 
+string AudioWave::getFilename() {
+    return this->filename;
+}
+
 float AudioWave::getVolume() {
     return this->volume;
 }
 
 bool AudioWave::isLooping() {
     return this->looping;
+}
+
+float AudioWave::getLength() {
+    return (float) this->source.getLength();
 }
 
 void AudioWave::setVolume(float volume) {
@@ -29,4 +37,8 @@ void AudioWave::setVolume(float volume) {
 void AudioWave::setLooping(bool looping) {
     this->looping = looping;
     this->source.setLooping(this->looping);
+}
+
+void AudioWave::stop() {
+    this->source.stop();
 }
