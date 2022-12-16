@@ -7,12 +7,11 @@ int main() {
 }
 */
 
-#include <stb/stb_vorbis.h>
+
 
 #include "soloud/include/soloud.h"
-#include "soloud/include/soloud_wav.h"
-#include "soloud/include/soloud_speech.h"
 #include "soloud/include/soloud_thread.h"
+#include "audio/audiowave.hpp"
 
 int main() {
 
@@ -20,13 +19,13 @@ int main() {
     SoLoud::Soloud soloud;  // SoLoud engine core
     SoLoud::Wav source; // One wave file
 
-    source.load("assets/audio/ui.mp3");
+    AudioWave audio("assets/audio/ui.mp3");
 
     // initialize SoLoud.
     soloud.init();
 
     // Play the sound source (we could do this several times if we wanted)
-    soloud.play(source);
+    soloud.play(audio.getSource());
 
     // Wait until sounds have finished
     while (soloud.getActiveVoiceCount() > 0)
