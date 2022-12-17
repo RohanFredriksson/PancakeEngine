@@ -7,6 +7,8 @@
 
 #include "window/window.hpp"
 #include "window/listener.hpp"
+#include "audio/audioengine.hpp"
+#include "audio/audiowave.hpp"
 #include "graphics/primitives/shader.hpp"
 #include "graphics/primitives/framebuffer.hpp"
 #include "graphics/renderer/debugdraw.hpp"
@@ -122,6 +124,10 @@ namespace Window {
     }
 
     void loop() {
+
+        // Temporary audio test.
+        AudioWave audio("assets/audio/ui.mp3");
+        AudioEngine::play(&audio);
 
         float beginTime = (float)glfwGetTime();
         float endTime = (float)glfwGetTime();
