@@ -22,6 +22,7 @@ Font::Font(string filename, float size) {
     FILE* fontFile = fopen(filename.c_str(), "rb");
     if (fontFile == NULL) {
         std::cout << "ERROR::FONT::INIT::FILE_NOT_FOUND\n";
+        throw "ERROR::FONT::INIT::FILE_NOT_FOUND";
     }
     fseek(fontFile, 0, SEEK_END);
     fileSize = ftell(fontFile);
@@ -34,6 +35,7 @@ Font::Font(string filename, float size) {
     stbtt_fontinfo info;
     if (!stbtt_InitFont(&info, fontBuffer, 0)) {
         std::cout << "ERROR::FONT::INIT::FONT_LOADING_FAILED\n";
+        throw "ERROR::FONT::INIT::FONT_LOADING_FAILED";
     }
 
     // Find the scale for a certain pixel height.

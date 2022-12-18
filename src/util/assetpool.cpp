@@ -139,8 +139,18 @@ void FontPool::destroy() {
     FontPool::clear();
 }
 
-Font* FontPool::get(string name, float size) {
-    return NULL;
+Font* FontPool::get(string name) {
+    
+    // If the font already exists, return the font. 
+    auto search = fonts.find(name);
+    if (search != fonts.end()) {return search->second;}
+
+    // Attempt to initialise the font.
+    Font* font = new Font(name, 60);
+    pair<string, Font*> p(font->getFilename(), font);
+    fonts.insert(p);
+    return font;
+
 }
 
 void AudioPool::init() {
@@ -160,5 +170,15 @@ void AudioPool::destroy() {
 }
 
 AudioWave* AudioPool::get(string name) {
-    return NULL;
+    
+    // If the font already exists, return the font. 
+    auto search = audio.find(name);
+    if (search != audio.end()) {return search->second;}
+
+    // Attempt to initialise the font.
+    AudioWave* audioWave = new AudioWave(name);
+    pair<string, AudioWave*> p(audioWave->getFilename(), audioWave);
+    audio.insert(p);
+    return audioWave;
+
 }

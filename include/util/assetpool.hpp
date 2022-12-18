@@ -41,7 +41,7 @@ namespace FontPool {
     void init();
     void clear();
     void destroy();
-    Font* get(string name, float size);
+    Font* get(string name);
 
 }
 
