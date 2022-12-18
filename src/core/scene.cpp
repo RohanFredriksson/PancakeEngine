@@ -9,6 +9,8 @@
 #include "graphics/primitives/font.hpp"
 #include "graphics/renderer/textrenderer.hpp"
 
+#include "util/assetpool.hpp"
+
 using std::deque;
 using std::pair;
 using glm::vec2;
@@ -34,7 +36,7 @@ Scene::Scene(string name) {
 
     entity = new Entity(vec2(0.0f, 0.0f), vec2(5.0f, 1.0f), 0.0f);
 
-    texture = new Texture("assets/textures/armaan.png");
+    texture = TexturePool::get("assets/textures/armaan.png");
     sprite = new Sprite("armaan", texture);
     spriterenderer = new SpriteRenderer(sprite, vec4(1.0f, 1.0f, 1.0f, 1.0f), 0);
 
@@ -54,8 +56,8 @@ Scene::Scene(string name) {
 
     entity = new Entity(vec2(-4.0f, 0.0f), vec2(1.0f, 1.0f), 0.0f);
 
-    texture = new Texture("assets/textures/ainsley.png");
-    font = new Font("assets/fonts/Pixellari.ttf", 64);
+    texture = TexturePool::get("assets/textures/ainsley.png");
+    font = FontPool::get("assets/fonts/Pixellari.ttf");
     textrenderer = new TextRenderer("The quick brown fox jumps over the lazy dog.\nWe the best music! DJ Khaled!", font, vec4(1.0f, 1.0f, 1.0f, 1.0f), 0);
 
     rigidbody = new Rigidbody();

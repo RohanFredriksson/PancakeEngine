@@ -146,7 +146,7 @@ Font* FontPool::get(string name) {
     if (search != fonts.end()) {return search->second;}
 
     // Attempt to initialise the font.
-    Font* font = new Font(name, 60);
+    Font* font = new Font(name, 64);
     pair<string, Font*> p(font->getFilename(), font);
     fonts.insert(p);
     return font;

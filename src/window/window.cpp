@@ -5,6 +5,7 @@
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
 
+
 #include "window/window.hpp"
 #include "window/listener.hpp"
 #include "audio/audioengine.hpp"
@@ -12,6 +13,7 @@
 #include "graphics/primitives/shader.hpp"
 #include "graphics/primitives/framebuffer.hpp"
 #include "graphics/renderer/debugdraw.hpp"
+#include "util/assetpool.hpp"
 
 namespace {
 
@@ -126,8 +128,7 @@ namespace Window {
     void loop() {
 
         // Temporary audio test.
-        AudioWave audio("assets/audio/ui.mp3");
-        AudioEngine::play(&audio);
+        AudioEngine::play(AudioPool::get("assets/audio/ui.mp3"));
 
         float beginTime = (float)glfwGetTime();
         float endTime = (float)glfwGetTime();
