@@ -108,7 +108,9 @@ Font::Font(string filename, float size) {
         texCoords[3][1] = y1;
 
         // Initialise the sprite object.
-        Sprite* sprite = new Sprite(name, texCoords);
+        Sprite* sprite = new Sprite();
+        sprite->setName(name);
+        sprite->setTexCoords(texCoords);
         this->sprites.push_back(sprite);
 
         // Render the character

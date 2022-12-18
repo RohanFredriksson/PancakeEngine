@@ -37,7 +37,7 @@ void Texture::init(string name, unsigned char* image, int width, int height, int
 void Texture::generate(GLint internal, int width, int height, GLenum format, GLenum type) {
 
     // Store the string.
-    this->name = "Generated";
+    this->name = "generated";
 
     // Generate texture on GPU
     glGenTextures(1, &this->id);
@@ -55,7 +55,7 @@ void Texture::generate(GLint internal, int width, int height, GLenum format, GLe
 void Texture::missing() {
 
     // Label the texture as missing
-    this->name = "Missing";
+    this->name = "missing";
 
     // Generate texture on GPU
     glGenTextures(1, &this->id);
@@ -113,6 +113,10 @@ void Texture::bind() {
 
 void Texture::unbind() {
     glBindTexture(GL_TEXTURE_2D, 0);
+}
+
+string Texture::getName() {
+    return this->name;
 }
 
 unsigned int Texture::getId() {

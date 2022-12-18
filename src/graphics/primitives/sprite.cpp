@@ -12,8 +12,8 @@ void Sprite::init(string name, Texture* texture, vec2 texCoords[4]) {
 
 }
 
-Sprite::Sprite(string name, vec2 texCoords[4]) {
-    this->init(name, NULL, texCoords);
+Sprite::Sprite() {
+    
 }
 
 Sprite::Sprite(string name, Texture* texture) {

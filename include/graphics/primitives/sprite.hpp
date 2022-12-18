@@ -21,7 +21,7 @@ class Sprite {
 
     public:
 
-        Sprite(string name, vec2 texCoords[4]);
+        Sprite();
         Sprite(string name, Texture* texture);
         Sprite(string name, Texture* texture, vec2 texCoords[4]);
 
