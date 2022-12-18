@@ -43,7 +43,7 @@ namespace FontPool {
 
 }
 
-namespace AudioWavePool {
+namespace AudioPool {
 
     void init();
     void clear();
