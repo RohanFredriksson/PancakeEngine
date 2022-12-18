@@ -52,6 +52,31 @@ void Texture::generate(GLint internal, int width, int height, GLenum format, GLe
 
 }
 
+void Texture::missing() {
+
+    // Label the texture as missing
+    this->name = "Missing";
+
+    // Generate texture on GPU
+    glGenTextures(1, &this->id);
+    glBindTexture(GL_TEXTURE_2D, this->id);
+
+    // Set texture parameters
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+
+    // Load the image
+    unsigned char image[] = {0,0,0,255,0,255,0,0,255,0,255,0,0};
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 2, 2, 0, GL_RGB, GL_UNSIGNED_BYTE, image);
+
+}
+
+Texture::Texture() {
+    this->missing();
+}
+
 Texture::Texture(string filename) {
 
     int width;
