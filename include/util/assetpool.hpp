@@ -31,6 +31,8 @@ namespace SpritePool {
     void clear();
     void destroy();
     Sprite* get(string name);
+    bool has(string name);
+    void put(Sprite* sprite);
 
 }
 

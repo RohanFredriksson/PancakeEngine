@@ -1,4 +1,5 @@
 #include <utility>
+#include <iostream>
 #include <unordered_map>
 #include "util/assetpool.hpp"
 
@@ -57,20 +58,35 @@ void TexturePool::destroy() {
 }
 
 Texture* TexturePool::get(string name) {
-    return NULL;
+
+    // If the texture already exists, return the texture. 
+    auto search = textures.find(name);
+    if (search != textures.end()) {return search->second;}
+
+    // Attempt to initialise the texture.
+    try {
+        Texture* texture = new Texture(name);
+        pair<string, Texture*> p(texture->getName(), texture);
+        textures.insert(p);
+        return texture;
+    } 
+    
+    // If the texture could not be initialise return the missing texture.
+    catch (...) {
+        return TexturePool::get("missing");
+    }
+
 }
 
 void SpritePool::init() {
 
     // Add the empty sprite to the pool
     Sprite* empty = new Sprite("empty", NULL);
-    pair<string, Sprite*> p1(empty->getName(), empty);
-    sprites.insert(p1);
+    SpritePool::put(empty);
 
     // Add the missing sprite to the pool
     Sprite* missing = new Sprite("missing", TexturePool::get("missing"));
-    pair<string, Sprite*> p2(missing->getName(), missing);
-    sprites.insert(p2);
+    SpritePool::put(missing);
 
 }
 
@@ -87,7 +103,24 @@ void SpritePool::destroy() {
 }
 
 Sprite* SpritePool::get(string name) {
-    return NULL;
+    
+    // If the sprite already exists, return the sprite. 
+    auto search = sprites.find(name);
+    if (search != sprites.end()) {return search->second;}
+
+    std::cout << "ERROR::SPRITEPOOL::GET::SPRITE_NOT_EXIST\n";
+    return SpritePool::get("missing");
+
+}
+
+bool SpritePool::has(string name) {
+    auto search = sprites.find(name);
+    return search != sprites.end();
+}
+
+void SpritePool::put(Sprite* sprite) {
+    pair<string, Sprite*> p(sprite->getName(), sprite);
+    sprites.insert(p);
 }
 
 void FontPool::init() {
