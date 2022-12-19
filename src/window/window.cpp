@@ -5,7 +5,6 @@
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
 
-
 #include "window/window.hpp"
 #include "window/listener.hpp"
 #include "audio/audioengine.hpp"
@@ -115,6 +114,9 @@ namespace Window {
         glEnable(GL_BLEND);
         glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
 
+        // Initialise the asset pool.
+        AssetPool::init();
+
         defaultShader = new Shader("assets/shaders/default.vert", "assets/shaders/default.frag");
         entityShader = new Shader("assets/shaders/default.vert", "assets/shaders/entity.frag");
         entityTexture = new Framebuffer(GL_RGB32F, width, height, GL_RGB, GL_FLOAT);
@@ -156,6 +158,7 @@ namespace Window {
 
     void destroy() {
         DebugDraw::destroy();
+        AssetPool::destroy();
         glfwDestroyWindow(window);
         glfwTerminate();
     }

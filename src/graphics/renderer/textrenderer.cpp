@@ -92,7 +92,10 @@ void TextRenderer::update(float dt) {
 
             if (text[i] != ' ') {
                 
-                SpriteRenderer* s = new SpriteRenderer(this->font->getSprite(text[i]), this->colour, this->zIndex);
+                SpriteRenderer* s = new SpriteRenderer();
+                s->setSprite(this->font->getSprite(text[i]));
+                s->setColour(this->colour);
+                s->setZIndex(this->zIndex);
 
                 vec2 positionOffset = glm::vec2(x + width * 0.5f, y + height * 0.5f) - this->getPosition();
                 vec2 sizeScale = glm::vec2(width, height) / size;

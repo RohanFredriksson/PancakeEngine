@@ -26,7 +26,7 @@ class SpriteRenderer : public Component {
 
     public:
 
-        SpriteRenderer(Sprite* sprite, vec4 colour, int zIndex);
+        SpriteRenderer();
         ~SpriteRenderer() override;
 
         void update(float dt) override;
@@ -38,9 +38,9 @@ class SpriteRenderer : public Component {
         bool isDirty();
         
         // Setters
-        void setSprite(Sprite* sprite);
-        void setColour(vec4 colour);
-        void setZIndex(int zIndex);
+        SpriteRenderer* setSprite(Sprite* sprite);
+        SpriteRenderer* setColour(vec4 colour);
+        SpriteRenderer* setZIndex(int zIndex);
         void setClean();
 
 };

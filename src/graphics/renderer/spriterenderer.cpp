@@ -1,16 +1,17 @@
 #include "graphics/renderer/spriterenderer.hpp"
 #include "window/window.hpp"
 #include "core/scene.hpp"
+#include "util/assetpool.hpp"
 
-SpriteRenderer::SpriteRenderer(Sprite* sprite, vec4 colour, int zIndex) : Component() {
+SpriteRenderer::SpriteRenderer() : Component() {
     
-    this->sprite = sprite;
-    this->colour = colour;
-    this->zIndex = zIndex;
+    this->sprite = SpritePool::get("empty");
+    this->colour = vec4(1.0f, 1.0f, 1.0f, 1.0f);
+    this->zIndex = 0;
 
-    this->lastSprite = sprite;
-    this->lastColour = colour;
-    this->lastZIndex = zIndex;
+    this->lastSprite = this->sprite;
+    this->lastColour = vec4(1.0f, 1.0f, 1.0f, 1.0f);
+    this->lastZIndex = 0;
 
     this->dirty = true;
 
@@ -70,19 +71,25 @@ bool SpriteRenderer::isDirty() {
     return this->dirty;
 }
 
-void SpriteRenderer::setSprite(Sprite* sprite) {
+SpriteRenderer* SpriteRenderer::setSprite(Sprite* sprite) {
     this->sprite = sprite;
+    this->lastSprite = sprite;
     this->dirty = true;
+    return this;
 }
 
-void SpriteRenderer::setColour(vec4 colour) {
+SpriteRenderer* SpriteRenderer::setColour(vec4 colour) {
     this->colour = colour;
+    this->lastColour = colour;
     this->dirty = true;
+    return this;
 }
 
-void SpriteRenderer::setZIndex(int zIndex) {
+SpriteRenderer* SpriteRenderer::setZIndex(int zIndex) {
     this->zIndex = zIndex;
+    this->lastZIndex = zIndex;
     this->dirty = true;
+    return this;
 }
 
 void SpriteRenderer::setClean() {

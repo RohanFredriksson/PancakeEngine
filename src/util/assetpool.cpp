@@ -108,7 +108,7 @@ Sprite* SpritePool::get(string name) {
     auto search = sprites.find(name);
     if (search != sprites.end()) {return search->second;}
 
-    std::cout << "ERROR::SPRITEPOOL::GET::SPRITE_NOT_EXIST\n";
+    std::cout << "ERROR::SPRITEPOOL::GET::SPRITE_NOT_EXIST: '" << name << "'\n";
     return SpritePool::get("missing");
 
 }

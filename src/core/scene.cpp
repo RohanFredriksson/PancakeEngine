@@ -38,7 +38,8 @@ Scene::Scene(string name) {
 
     texture = TexturePool::get("assets/textures/armaan.png");
     sprite = new Sprite("armaan", texture);
-    spriterenderer = new SpriteRenderer(sprite, vec4(1.0f, 1.0f, 1.0f, 1.0f), 0);
+    spriterenderer = new SpriteRenderer();
+    spriterenderer->setSprite(sprite);
 
     rigidbody = new Rigidbody();
     box = new Box(vec2(5.0f, 1.0f));
