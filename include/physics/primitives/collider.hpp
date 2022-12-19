@@ -16,7 +16,7 @@ class Collider : public Component {
         ~Collider();
 
         Rigidbody* getRigidbody();
-        void setRigidbody(Rigidbody* rigidbody);
+        Collider* setRigidbody(Rigidbody* rigidbody);
 
 };
 

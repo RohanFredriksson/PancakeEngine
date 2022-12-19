@@ -12,6 +12,7 @@ Rigidbody* Collider::getRigidbody() {
     return this->rigidbody;
 }
 
-void Collider::setRigidbody(Rigidbody* rigidbody) {
+Collider* Collider::setRigidbody(Rigidbody* rigidbody) {
     this->rigidbody = rigidbody;
+    return this;
 }

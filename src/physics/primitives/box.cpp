@@ -21,7 +21,8 @@ vec2 Box::getMax() {
     return this->getPosition() + this->halfSize;
 }
 
-void Box::setSize(vec2 size) {
+Box* Box::setSize(vec2 size) {
     this->size = size;
     this->halfSize = size * 0.5f;
+    return this;
 }

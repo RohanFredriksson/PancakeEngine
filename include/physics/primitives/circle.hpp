@@ -13,5 +13,5 @@ class Circle : public Collider {
         Circle();
 
         float getRadius();
-        void setRadius(float radius);
+        Circle* setRadius(float radius);
 };

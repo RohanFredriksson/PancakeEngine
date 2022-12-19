@@ -36,25 +36,30 @@ bool Rigidbody::isSensor() {
     return this->sensor;
 }
 
-void Rigidbody::setCollider(Collider* collider) {
+Rigidbody* Rigidbody::setCollider(Collider* collider) {
     this->collider = collider;
+    return this;
 }
 
-void Rigidbody::setVelocity(vec2 velocity) {
+Rigidbody* Rigidbody::setVelocity(vec2 velocity) {
     this->velocity = velocity;
+    return this;
 }
 
-void Rigidbody::setCor(float cor) {
+Rigidbody* Rigidbody::setCor(float cor) {
     this->cor = cor;
+    return this;
 }
 
-void Rigidbody::setMass(float mass) {
+Rigidbody* Rigidbody::setMass(float mass) {
     if (mass < 0) {mass = 0;}
     this->mass = mass;
+    return this;
 }
 
-void Rigidbody::setSensor(bool sensor) {
+Rigidbody* Rigidbody::setSensor(bool sensor) {
     this->sensor = sensor;
+    return this;
 }
 
 void Rigidbody::clearAccumulators() {

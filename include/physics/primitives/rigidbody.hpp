@@ -29,11 +29,11 @@ class Rigidbody : public Component {
         float getMass();
         bool isSensor();
 
-        void setCollider(Collider* collider);
-        void setVelocity(vec2 velocity);
-        void setCor(float cor);
-        void setMass(float mass);
-        void setSensor(bool sensor);
+        Rigidbody* setCollider(Collider* collider);
+        Rigidbody* setVelocity(vec2 velocity);
+        Rigidbody* setCor(float cor);
+        Rigidbody* setMass(float mass);
+        Rigidbody* setSensor(bool sensor);
 
         void clearAccumulators();
         void physicsUpdate(float dt);

@@ -8,6 +8,7 @@ float Circle::getRadius() {
     return this->radius;
 }
 
-void Circle::setRadius(float radius) {
+Circle* Circle::setRadius(float radius) {
     this->radius = radius;
+    return this;
 }

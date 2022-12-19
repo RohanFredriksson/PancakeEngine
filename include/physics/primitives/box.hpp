@@ -21,6 +21,6 @@ class Box : public Collider {
         vec2 getMin();
         vec2 getMax();
 
-        void setSize(vec2 size);
+        Box* setSize(vec2 size);
 
 };
