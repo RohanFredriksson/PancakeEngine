@@ -1,16 +1,17 @@
 #include <string.h>
 #include "graphics/renderer/textrenderer.hpp"
 #include "graphics/renderer/spriterenderer.hpp"
+#include "util/assetpool.hpp"
 
 TextRenderer::TextRenderer() : Component() {
     
     this->text = "";
-    this->font = NULL; // TODO ADD A DEFAULT FONT
+    this->font = FontPool::get("default");
     this->colour = vec4(1.0f, 1.0f, 1.0f, 1.0f);
     this->zIndex = 0;
 
     this->lastText = "";
-    this->lastFont = NULL; // TODO ADD A DEFAULT FONT
+    this->lastFont = this->font;
     this->lastColour = vec4(1.0f, 1.0f, 1.0f, 1.0f);
     this->lastZIndex = 0;
     this->lastPositionOffset = glm::vec2(0.0f, 0.0f);

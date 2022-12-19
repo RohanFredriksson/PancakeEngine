@@ -125,6 +125,11 @@ void SpritePool::put(Sprite* sprite) {
 
 void FontPool::init() {
 
+    // Add the default font to the pool.
+    Font* font = new Font("assets/fonts/Pixellari.ttf", 64);
+    pair<string, Font*> p("default", font);
+    fonts.insert(p);
+
 }
 
 void FontPool::clear() {
@@ -146,10 +151,17 @@ Font* FontPool::get(string name) {
     if (search != fonts.end()) {return search->second;}
 
     // Attempt to initialise the font.
-    Font* font = new Font(name, 64);
-    pair<string, Font*> p(font->getFilename(), font);
-    fonts.insert(p);
-    return font;
+    try {
+        Font* font = new Font(name, 64);
+        pair<string, Font*> p(font->getFilename(), font);
+        fonts.insert(p);
+        return font;
+    } 
+    
+    // If the texture could not be initialise return the missing texture.
+    catch (...) {
+        return FontPool::get("default");
+    }
 
 }
 
