@@ -41,6 +41,6 @@ class SpriteRenderer : public Component {
         SpriteRenderer* setSprite(Sprite* sprite);
         SpriteRenderer* setColour(vec4 colour);
         SpriteRenderer* setZIndex(int zIndex);
-        void setClean();
+        SpriteRenderer* setClean();
 
 };

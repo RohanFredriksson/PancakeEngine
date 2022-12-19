@@ -34,7 +34,7 @@ class TextRenderer : public Component {
 
     public:
 
-        TextRenderer(string text, Font* font, vec4 colour, int zIndex);
+        TextRenderer();
         ~TextRenderer() override;
 
         void update(float dt) override;
@@ -47,10 +47,10 @@ class TextRenderer : public Component {
         bool isDirty();
         
         // Setters
-        void setText(string text);
-        void setFont(Font* font);
-        void setColour(vec4 colour);
-        void setZIndex(int zIndex);
-        void setClean();
+        TextRenderer* setText(string text);
+        TextRenderer* setFont(Font* font);
+        TextRenderer* setColour(vec4 colour);
+        TextRenderer* setZIndex(int zIndex);
+        TextRenderer* setClean();
 
 };

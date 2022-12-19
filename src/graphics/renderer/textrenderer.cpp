@@ -2,17 +2,17 @@
 #include "graphics/renderer/textrenderer.hpp"
 #include "graphics/renderer/spriterenderer.hpp"
 
-TextRenderer::TextRenderer(string text, Font* font, vec4 colour, int zIndex) : Component() {
+TextRenderer::TextRenderer() : Component() {
     
-    this->text = text;
-    this->font = font;
-    this->colour = colour;
-    this->zIndex = zIndex;
+    this->text = "";
+    this->font = NULL; // TODO ADD A DEFAULT FONT
+    this->colour = vec4(1.0f, 1.0f, 1.0f, 1.0f);
+    this->zIndex = 0;
 
-    this->lastText = text;
-    this->lastFont = font;
-    this->lastColour = colour;
-    this->lastZIndex = zIndex;
+    this->lastText = "";
+    this->lastFont = NULL; // TODO ADD A DEFAULT FONT
+    this->lastColour = vec4(1.0f, 1.0f, 1.0f, 1.0f);
+    this->lastZIndex = 0;
     this->lastPositionOffset = glm::vec2(0.0f, 0.0f);
     this->lastSizeScale = glm::vec2(0.0f, 0.0f);
     this->lastRotationOffset = 0.0f;
@@ -135,26 +135,35 @@ bool TextRenderer::isDirty() {
     return this->dirty;
 }
 
-void TextRenderer::setText(string text) {
+TextRenderer* TextRenderer::setText(string text) {
     this->text = text;
+    this->lastText = text;
     this->dirty = true;
+    return this;
 }
 
-void TextRenderer::setFont(Font* font) {
+TextRenderer* TextRenderer::setFont(Font* font) {
     this->font = font;
+    this->lastFont = font;
     this->dirty = true;
+    return this;
 }
 
-void TextRenderer::setColour(vec4 colour) {
+TextRenderer* TextRenderer::setColour(vec4 colour) {
     this->colour = colour;
+    this->lastColour = colour;
     this->dirty = true;
+    return this;
 }
 
-void TextRenderer::setZIndex(int zIndex) {
+TextRenderer* TextRenderer::setZIndex(int zIndex) {
     this->zIndex = zIndex;
+    this->lastZIndex = zIndex;
     this->dirty = true;
+    return this;
 }
 
-void TextRenderer::setClean() {
+TextRenderer* TextRenderer::setClean() {
     this->dirty = false;
+    return this;
 }

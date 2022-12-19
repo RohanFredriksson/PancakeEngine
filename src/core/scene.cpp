@@ -59,7 +59,9 @@ Scene::Scene(string name) {
 
     texture = TexturePool::get("assets/textures/ainsley.png");
     font = FontPool::get("assets/fonts/Pixellari.ttf");
-    textrenderer = new TextRenderer("The quick brown fox jumps over the lazy dog.\nWe the best music! DJ Khaled!", font, vec4(1.0f, 1.0f, 1.0f, 1.0f), 0);
+    textrenderer = new TextRenderer();
+    textrenderer->setText("The quick brown fox jumps over the lazy dog.\nWe the best music! DJ Khaled!");
+    textrenderer->setFont(font);
 
     rigidbody = new Rigidbody();
     circle = new Circle(0.5f);

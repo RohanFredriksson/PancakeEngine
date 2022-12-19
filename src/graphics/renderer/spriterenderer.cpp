@@ -92,6 +92,7 @@ SpriteRenderer* SpriteRenderer::setZIndex(int zIndex) {
     return this;
 }
 
-void SpriteRenderer::setClean() {
+SpriteRenderer* SpriteRenderer::setClean() {
     this->dirty = false;
+    return this;
 }
