@@ -1,8 +1,8 @@
 #include "physics/primitives/box.hpp"
 
-Box::Box(vec2 size) : Collider()  {
-    this->size = size;
-    this->halfSize = size * 0.5f;
+Box::Box() : Collider()  {
+    this->size = vec2(1.0f, 1.0f);
+    this->halfSize = this->size * 0.5f;
 }
 
 vec2 Box::getSize() {

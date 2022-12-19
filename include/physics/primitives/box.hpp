@@ -14,7 +14,7 @@ class Box : public Collider {
 
     public:
 
-        Box(vec2 size);
+        Box();
 
         vec2 getSize();
         vec2 getHalfSize();

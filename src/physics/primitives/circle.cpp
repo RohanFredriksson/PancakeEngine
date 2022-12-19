@@ -1,7 +1,7 @@
 #include "physics/primitives/circle.hpp"
 
-Circle::Circle(float radius) : Collider() {
-    this->radius = radius;
+Circle::Circle() : Collider() {
+    this->radius = 0.5f;
 }
 
 float Circle::getRadius() {

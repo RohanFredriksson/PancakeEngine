@@ -41,13 +41,14 @@ Scene::Scene(string name) {
     spriterenderer->setSprite(sprite);
 
     rigidbody = new Rigidbody();
-    box = new Box(vec2(5.0f, 1.0f));
-
+    box = new Box();
+    
     rigidbody->setCollider(box);
     rigidbody->setMass(0.0f);
     rigidbody->setCor(1.0f);
 
     box->setRigidbody(rigidbody);
+    box->setSize(vec2(5.0f, 1.0f));
 
     entity->addComponent(spriterenderer);
     entity->addComponent(rigidbody);
@@ -61,7 +62,7 @@ Scene::Scene(string name) {
     textrenderer->setText("The quick brown fox jumps over the lazy dog.\nWe the best music! DJ Khaled!");
 
     rigidbody = new Rigidbody();
-    circle = new Circle(0.5f);
+    circle = new Circle();
     
     rigidbody->setCollider(circle);
     rigidbody->setVelocity(vec2(1.0f, 10.0f));
@@ -69,6 +70,7 @@ Scene::Scene(string name) {
     rigidbody->setCor(0.75f);
 
     circle->setRigidbody(rigidbody);
+    circle->setRadius(0.5f);
 
     entity->addComponent(textrenderer);
     entity->addComponent(rigidbody);
