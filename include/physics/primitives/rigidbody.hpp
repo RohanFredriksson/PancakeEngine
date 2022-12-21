@@ -1,8 +1,10 @@
 #pragma once
 
+#include <vector>
 #include <glm/glm.hpp>
 #include "core/component.hpp"
 
+using std::vector;
 using glm::vec2;
 
 class Collider;
@@ -11,7 +13,7 @@ class Rigidbody : public Component {
 
     private:
 
-        Collider* collider;
+        vector<Collider*> colliders;
         vec2 forceAccum;
         vec2 velocity;
         float cor;
@@ -23,13 +25,20 @@ class Rigidbody : public Component {
         Rigidbody();
         ~Rigidbody();
 
-        Collider* getCollider();
+        vector<Collider*> getColliders();
         vec2 getVelocity();
         float getCor();
         float getMass();
         bool isSensor();
 
+        Rigidbody* addCollider(Collider* collider);
+        Rigidbody* addColliders(vector<Collider*> colliders);
+        Rigidbody* removeCollider(Collider* collider);
+        Rigidbody* removeColliders(vector<Collider*> colliders);
         Rigidbody* setCollider(Collider* collider);
+        Rigidbody* setColliders(vector<Collider*> colliders);
+        Rigidbody* clearColliders();
+
         Rigidbody* setVelocity(vec2 velocity);
         Rigidbody* setCor(float cor);
         Rigidbody* setMass(float mass);

@@ -8,7 +8,6 @@ class CollisionManifold {
 
     public:
 
-        bool colliding;
         vec2 normal;
         vec2 contactPoint;
         float depth;

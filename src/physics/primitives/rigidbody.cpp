@@ -3,7 +3,6 @@
 
 Rigidbody::Rigidbody() : Component() {
 
-    this->collider = NULL;
     this->forceAccum = glm::vec2(0.0f, 0.0f);
     this->velocity = glm::vec2(0.0f, 0.0f);
     this->cor = 1.0f;
@@ -16,8 +15,8 @@ Rigidbody::~Rigidbody() {
     Window::getScene()->getPhysics()->remove(this);
 }
 
-Collider* Rigidbody::getCollider() {
-    return this->collider;
+vector<Collider*> Rigidbody::getColliders() {
+    return this->colliders;
 }
 
 vec2 Rigidbody::getVelocity() {
@@ -36,8 +35,51 @@ bool Rigidbody::isSensor() {
     return this->sensor;
 }
 
+Rigidbody* Rigidbody::addCollider(Collider* collider) {
+    if (collider != NULL) {this->colliders.push_back(collider);}
+    return this;
+}
+
+Rigidbody* Rigidbody::addColliders(vector<Collider*> colliders) {
+    int n = colliders.size();
+    for (int i = 0; i < n; i++) {
+        this->addCollider(colliders[i]);
+    }
+    return this;
+}
+
+Rigidbody* Rigidbody::removeCollider(Collider* collider) {
+    int n = colliders.size();
+    for (int i = 0; i < n; i++) {
+        if (this->colliders[i] == collider) {
+            this->colliders.erase(this->colliders.begin() + i);
+            break;
+        }
+    }
+    return this;
+}
+
+Rigidbody* Rigidbody::removeColliders(vector<Collider*> colliders) {
+    int n = colliders.size();
+    for (int i = 0; i < n; i++) {
+        this->removeCollider(colliders[i]);
+    }
+    return this;
+}
+
 Rigidbody* Rigidbody::setCollider(Collider* collider) {
-    this->collider = collider;
+    this->clearColliders();
+    this->addCollider(collider);
+    return this;
+}
+
+Rigidbody* Rigidbody::setColliders(vector<Collider*> colliders) {
+    this->clearColliders();
+    this->addColliders(colliders);
+}
+
+Rigidbody* Rigidbody::clearColliders() {
+    this->colliders.clear();
     return this;
 }
 

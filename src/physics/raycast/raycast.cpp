@@ -76,16 +76,16 @@ namespace Raycast {
 
     RaycastResult raycast(Rigidbody* rigidbody, Ray* ray) {
 
-        Collider* collider = rigidbody->getCollider();
-        if (collider == NULL) {return RaycastResult();}
+        //Collider* collider = rigidbody->getCollider();
+        //if (collider == NULL) {return RaycastResult();}
 
-        if (dynamic_cast<Box*>(collider) != nullptr) {
-            return raycastBox((Box*) collider, ray);
-        }
+        //if (dynamic_cast<Box*>(collider) != nullptr) {
+        //    return raycastBox((Box*) collider, ray);
+        //}
 
-        else if (dynamic_cast<Circle*>(collider) != nullptr) {
-            return raycastCircle((Circle*) collider, ray);
-        }
+        //else if (dynamic_cast<Circle*>(collider) != nullptr) {
+        //    return raycastCircle((Circle*) collider, ray);
+        //}
 
         return RaycastResult();
     }

@@ -30,6 +30,7 @@ Scene::Scene(string name) {
     SpriteRenderer* spriterenderer;
     Box* box;
     Circle* circle;
+    Circle* circle1;
     Rigidbody* rigidbody;
     TextRenderer* textrenderer;
 
@@ -60,21 +61,24 @@ Scene::Scene(string name) {
     texture = TexturePool::get("assets/textures/ainsley.png");
     textrenderer = new TextRenderer();
     textrenderer->setText("The quick brown fox jumps over the lazy dog.\nWe the best music! DJ Khaled!");
+    entity->addComponent(textrenderer);
 
     rigidbody = new Rigidbody();
+    entity->addComponent(rigidbody);
+
     circle = new Circle();
-    
-    rigidbody->setCollider(circle);
+    circle->setPositionOffset(vec2(-0.5f, 0.0f));
+    circle1 = new Circle();
+    circle1->setPositionOffset(vec2(0.5f, 0.0f));
+    entity->addComponent(circle);
+    entity->addComponent(circle1);
+
+    rigidbody->addCollider(circle1);
+    rigidbody->addCollider(circle);
     rigidbody->setVelocity(vec2(1.0f, 10.0f));
     rigidbody->setMass(1.0f);
     rigidbody->setCor(0.75f);
 
-    circle->setRigidbody(rigidbody);
-    circle->setRadius(0.5f);
-
-    entity->addComponent(textrenderer);
-    entity->addComponent(rigidbody);
-    entity->addComponent(circle);
     this->addEntity(entity);
 
 }
