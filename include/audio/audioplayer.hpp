@@ -1,5 +1,6 @@
 #pragma once
 
+#include "core/component.hpp"
 #include "audio/audiowave.hpp"
 
 class AudioPlayer : public Component {
@@ -10,14 +11,18 @@ class AudioPlayer : public Component {
     public:
 
         AudioPlayer();
-        ~AudioPlayer() override;
-
-        void update(float dt) override;
-        
-        // Getters
+ 
         AudioWave* getAudioWave();
-        
-        // Setters
+        string getFilename();
+        float getVolume();
+        bool isLooping();
+        float getLength();
+
         AudioPlayer* setAudioWave(AudioWave* audio);
+        AudioPlayer* setVolume(float volume);
+        AudioPlayer* setLooping(bool looping);
+
+        void play();
+        void stop();
 
 };
