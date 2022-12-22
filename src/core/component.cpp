@@ -26,6 +26,10 @@ void Component::update(float dt) {
 
 }
 
+void Component::onCollision(vec2 normal, vec2 contactPoint, float depth) {
+    
+}
+
 void Component::kill() {
     this->dead = true;
 }
