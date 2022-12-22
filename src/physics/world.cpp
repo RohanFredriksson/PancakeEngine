@@ -134,7 +134,8 @@ void World::fixedUpdate() {
 
             if (colliders1.size() == 0 || colliders2.size() == 0) {continue;}
 
-            vector<CollisionManifold*> results;
+            vector<CollisionManifold*> tmp;
+            bool cardinal = false;
             for (int k = 0; k < colliders1.size(); k++) {
                 for (int l = 0; l < colliders2.size(); l++) {
                     
@@ -142,9 +143,29 @@ void World::fixedUpdate() {
                     Collider* collider2 = colliders2[l];
 
                     CollisionManifold* result = Collision::findCollisionFeatures(collider1, collider2);
-                    if (result != NULL) {results.push_back(result);}
+                    if (result == NULL) {continue;}
+                    if (result->isCardinal()) {cardinal = true;}
+                    tmp.push_back(result);
 
                 }
+            }
+
+            vector<CollisionManifold*> results;
+            if (cardinal) {
+                
+                for (int k = 0; k < tmp.size(); k++) {
+                    if (tmp[i]->isCardinal()) {results.push_back(tmp[i]);} 
+                    else {delete tmp[i];}
+                }
+                
+            } 
+            
+            else {
+
+                for (int k = 0; k < tmp.size(); k++) {
+                    results.push_back(tmp[i]);
+                }
+
             }
 
             if (results.size() > 0) {
