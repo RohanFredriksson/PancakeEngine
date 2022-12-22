@@ -76,6 +76,7 @@ Rigidbody* Rigidbody::setCollider(Collider* collider) {
 Rigidbody* Rigidbody::setColliders(vector<Collider*> colliders) {
     this->clearColliders();
     this->addColliders(colliders);
+    return this;
 }
 
 Rigidbody* Rigidbody::clearColliders() {
