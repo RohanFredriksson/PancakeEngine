@@ -170,6 +170,9 @@ void World::fixedUpdate() {
 
             if (results.size() > 0) {
 
+                rigidbody1->getEntity()->onCollision(rigidbody2);
+                rigidbody2->getEntity()->onCollision(rigidbody1);
+
                 this->bodies1.push_back(rigidbody1);
                 this->bodies2.push_back(rigidbody2);
                 this->collisions.push_back(results);

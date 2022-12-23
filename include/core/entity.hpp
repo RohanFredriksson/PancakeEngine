@@ -29,6 +29,7 @@ class Entity {
         ~Entity();
 
         void update(float dt);
+        void onCollision(Component* with);
         void kill();
 
         // Getter Methods.

@@ -25,7 +25,7 @@ class Component {
         virtual ~Component();
 
         virtual void update(float dt);
-        virtual void onCollision(vec2 normal, vec2 contactPoint, float depth);
+        virtual void onCollision(Component* with);
         void kill();
         
         // Getters
