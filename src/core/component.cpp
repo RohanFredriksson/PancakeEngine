@@ -70,6 +70,10 @@ bool Component::isDead() {
     return this->dead;
 }
 
+void Component::setId(int id) {
+    this->id = id;
+}
+
 void Component::setEntity(Entity* entity) {
     this->entity = entity;
 }
