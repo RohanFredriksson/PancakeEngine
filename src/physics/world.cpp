@@ -108,6 +108,8 @@ void World::update(float dt) {
     }
 }
 
+#include <iostream>
+
 void World::fixedUpdate() {
 
     // Update velocities of all rigidbodies
@@ -166,6 +168,18 @@ void World::fixedUpdate() {
                     results.push_back(tmp[i]);
                 }
 
+            }
+
+            if (tmp.size() > 0) {
+                std::cout << "TMP: [";
+                for (int k = 0; k < tmp.size(); k++) {
+                    std::cout << "[" << tmp[i]->normal.x << ", " << tmp[i]->normal.y << "]";
+                }
+                std::cout << "] RESULTS: [";
+                for (int k = 0; k < results.size(); k++) {
+                    std::cout << "[" << results[i]->normal.x << ", " << results[i]->normal.y << "]";
+                }
+                std::cout << "]\n";
             }
 
             if (results.size() > 0) {

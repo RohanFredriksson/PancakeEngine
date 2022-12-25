@@ -17,6 +17,8 @@ using glm::vec2;
 
 using glm::vec4;
 
+#include <iostream>
+
 Scene::Scene(string name) {
 
     this->name = name;
@@ -30,7 +32,6 @@ Scene::Scene(string name) {
     SpriteRenderer* spriterenderer;
     Box* box;
     Circle* circle;
-    Circle* circle1;
     Rigidbody* rigidbody;
     TextRenderer* textrenderer;
 
@@ -47,38 +48,35 @@ Scene::Scene(string name) {
     rigidbody->setCollider(box);
     rigidbody->setMass(0.0f);
     rigidbody->setCor(1.0f);
-
-    box->setRigidbody(rigidbody);
     box->setSize(vec2(5.0f, 1.0f));
 
     entity->addComponent(spriterenderer);
     entity->addComponent(rigidbody);
-    entity->addComponent(box);
     this->addEntity(entity);
 
     entity = new Entity(vec2(-4.0f, 0.0f), vec2(1.0f, 1.0f), 0.0f);
 
     texture = TexturePool::get("assets/textures/ainsley.png");
-    textrenderer = new TextRenderer();
-    textrenderer->setText("The quick brown fox jumps over the lazy dog.\nWe the best music! DJ Khaled!");
-    entity->addComponent(textrenderer);
-
+    sprite = new Sprite("ainsley", texture);
+    spriterenderer = new SpriteRenderer();
+    spriterenderer->setSprite(sprite);
+    
     rigidbody = new Rigidbody();
-    entity->addComponent(rigidbody);
-
-    circle = new Circle();
-    circle->setPositionOffset(vec2(-0.5f, 0.0f));
-    circle1 = new Circle();
-    circle1->setPositionOffset(vec2(0.5f, 0.0f));
-    entity->addComponent(circle);
-    entity->addComponent(circle1);
-
-    rigidbody->addCollider(circle1);
-    rigidbody->addCollider(circle);
     rigidbody->setVelocity(vec2(1.0f, 10.0f));
     rigidbody->setMass(1.0f);
     rigidbody->setCor(0.75f);
 
+    circle = new Circle();
+    std::cout << circle << "\n";
+    rigidbody->addCollider(circle);
+
+    circle = new Circle();
+    std::cout << circle << "\n";
+    circle->setPositionOffset(vec2(-1.0f, 0.0f));
+    rigidbody->addCollider(circle);
+
+    entity->addComponent(spriterenderer);
+    entity->addComponent(rigidbody);
     this->addEntity(entity);
 
 }

@@ -13,6 +13,7 @@ Rigidbody::Rigidbody() : Component() {
 
 Rigidbody::~Rigidbody() {
     Window::getScene()->getPhysics()->remove(this);
+    this->clearColliders();
 }
 
 vector<Collider*> Rigidbody::getColliders() {
@@ -36,7 +37,10 @@ bool Rigidbody::isSensor() {
 }
 
 Rigidbody* Rigidbody::addCollider(Collider* collider) {
-    if (collider != NULL) {this->colliders.push_back(collider);}
+    if (collider != NULL) {
+        this->colliders.push_back(collider);
+        collider->setRigidbody(this);
+    }
     return this;
 }
 
@@ -53,6 +57,7 @@ Rigidbody* Rigidbody::removeCollider(Collider* collider) {
     for (int i = 0; i < n; i++) {
         if (this->colliders[i] == collider) {
             this->colliders.erase(this->colliders.begin() + i);
+            delete collider;
             break;
         }
     }
@@ -80,6 +85,10 @@ Rigidbody* Rigidbody::setColliders(vector<Collider*> colliders) {
 }
 
 Rigidbody* Rigidbody::clearColliders() {
+    int n = this->colliders.size();
+    for (int i = 0; i < n; i++) {
+        delete this->colliders[i];
+    }
     this->colliders.clear();
     return this;
 }
