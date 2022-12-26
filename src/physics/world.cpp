@@ -156,8 +156,8 @@ void World::fixedUpdate() {
             if (cardinal) {
                 
                 for (int k = 0; k < tmp.size(); k++) {
-                    if (tmp[i]->isCardinal()) {results.push_back(tmp[i]);} 
-                    else {delete tmp[i];}
+                    if (tmp[k]->isCardinal()) {results.push_back(tmp[k]);} 
+                    else {delete tmp[k];}
                 }
                 
             } 
@@ -165,21 +165,9 @@ void World::fixedUpdate() {
             else {
 
                 for (int k = 0; k < tmp.size(); k++) {
-                    results.push_back(tmp[i]);
+                    results.push_back(tmp[k]);
                 }
 
-            }
-
-            if (tmp.size() > 0) {
-                std::cout << "TMP: [";
-                for (int k = 0; k < tmp.size(); k++) {
-                    std::cout << "[" << tmp[i]->normal.x << ", " << tmp[i]->normal.y << "]";
-                }
-                std::cout << "] RESULTS: [";
-                for (int k = 0; k < results.size(); k++) {
-                    std::cout << "[" << results[i]->normal.x << ", " << results[i]->normal.y << "]";
-                }
-                std::cout << "]\n";
             }
 
             if (results.size() > 0) {
