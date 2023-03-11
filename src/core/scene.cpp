@@ -63,8 +63,10 @@ Scene::Scene(string name) {
     rigidbody->setVelocity(vec2(1.0f, 10.0f));
     rigidbody->setMass(1.0f);
     rigidbody->setCor(0.75f);
+    //rigidbody->setFixedOrientation(true);
     rigidbody->setAngularVelocity(45.0f);
 
+    /*
     circle = new Circle();
     circle->setPositionOffset(vec2(0.5f, 0.0f));
     rigidbody->addCollider(circle);
@@ -72,6 +74,15 @@ Scene::Scene(string name) {
     circle = new Circle();
     circle->setPositionOffset(vec2(-0.5f, 0.0f));
     rigidbody->addCollider(circle);
+    */
+    
+    box = new Box();
+    box->setPositionOffset(vec2(0.5f, 0.0f));
+    rigidbody->addCollider(box);
+
+    box = new Box();
+    box->setPositionOffset(vec2(-0.5f, 0.0f));
+    rigidbody->addCollider(box);
 
     entity->addComponent(spriterenderer);
     entity->addComponent(rigidbody);

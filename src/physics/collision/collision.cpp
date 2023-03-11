@@ -6,7 +6,7 @@
 #include "physics/primitives/circle.hpp"
 #include "physics/primitives/box.hpp"
 
-#include <stdio.h>
+#include <iostream>
 
 namespace {
 
@@ -291,6 +291,7 @@ namespace Collision {
     
     CollisionManifold* findCollisionFeatures(Collider* c1, Collider* c2) {
 
+        if (dynamic_cast<Box*>(c1) != nullptr && dynamic_cast<Box*>(c2) != nullptr) {return findCollisionFeaturesBoxAndBox((Box*) c1, (Box*) c2);}
         if (dynamic_cast<Circle*>(c1) != nullptr && dynamic_cast<Circle*>(c2) != nullptr) {return findCollisionFeaturesCircleAndCircle((Circle*) c1, (Circle*) c2);}
         if (dynamic_cast<Circle*>(c1) != nullptr && dynamic_cast<Box*>(c2) != nullptr) {return findCollisionFeaturesCircleAndBox((Circle*) c1, (Box*) c2, false);}
         if (dynamic_cast<Box*>(c1) != nullptr && dynamic_cast<Circle*>(c2) != nullptr) {return findCollisionFeaturesCircleAndBox((Circle*) c2, (Box*) c1, true);}

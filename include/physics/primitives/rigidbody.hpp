@@ -21,6 +21,7 @@ class Rigidbody : public Component {
         float cor;
         float mass;
         bool sensor;
+        bool fixedOrientation;
 
     public:
 
@@ -33,6 +34,7 @@ class Rigidbody : public Component {
         float getCor();
         float getMass();
         bool isSensor();
+        bool hasFixedOrientation();
 
         Rigidbody* addCollider(Collider* collider);
         Rigidbody* addColliders(vector<Collider*> colliders);
@@ -47,6 +49,7 @@ class Rigidbody : public Component {
         Rigidbody* setCor(float cor);
         Rigidbody* setMass(float mass);
         Rigidbody* setSensor(bool sensor);
+        Rigidbody* setFixedOrientation(bool orientation);
 
         void clearAccumulators();
         void physicsUpdate(float dt);

@@ -142,7 +142,7 @@ void Entity::addRotation(float rotation) {
         if (t != NULL) {
             vec2 offset = t->getPositionOffset();
             float x = (offset.x * rCos) - (offset.y * rSin);
-            float y = (offset.x * rCos) + (offset.y * rSin);
+            float y = (offset.x * rSin) + (offset.y * rCos);
             t->setPositionOffset(vec2(x, y));
         }
 
@@ -168,7 +168,7 @@ void Entity::addRotationAround(float rotation, vec2 around) {
 
     // Rotate the entity around the position.
     this->position.x = around.x + ((x * rCos) - (y * rSin));
-    this->position.y = around.y + ((x * rCos) + (y * rSin));
+    this->position.y = around.y + ((x * rSin) + (y * rCos));
     this->rotation += rotation;
 
     // Rotate all position offsets of components
@@ -178,7 +178,7 @@ void Entity::addRotationAround(float rotation, vec2 around) {
         if (t != NULL) {
             vec2 offset = t->getPositionOffset();
             float x = (offset.x * rCos) - (offset.y * rSin);
-            float y = (offset.x * rCos) + (offset.y * rSin);
+            float y = (offset.x * rSin) + (offset.y * rCos);
             t->setPositionOffset(vec2(x, y));
         }
 

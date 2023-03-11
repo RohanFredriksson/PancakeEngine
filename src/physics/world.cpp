@@ -231,7 +231,8 @@ void World::render() {
             vec2 position = collider->getPosition();
             if (dynamic_cast<Box*>(collider) != nullptr) {
                 Box* box = (Box*) collider;
-                DebugDraw::drawBox(position, box->getSize(), /*box->getRotation()*/ 0.0f, vec3(0.0f, 1.0f, 0.0f), 1);
+                //DebugDraw::drawBox(position, box->getSize(), box->getRotation(), vec3(0.0f, 1.0f, 0.0f), 1);
+                DebugDraw::drawBox(position, box->getSize(), 0.0f, vec3(0.0f, 1.0f, 0.0f), 1);
             }
 
             else if (dynamic_cast<Circle*>(collider) != nullptr) {

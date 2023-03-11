@@ -10,6 +10,7 @@ Rigidbody::Rigidbody() : Component() {
     this->cor = 1.0f;
     this->mass = 0.0f;
     this->sensor = false;
+    this->fixedOrientation = false;
 
 }
 
@@ -40,6 +41,10 @@ float Rigidbody::getMass() {
 
 bool Rigidbody::isSensor() {
     return this->sensor;
+}
+
+bool Rigidbody::hasFixedOrientation() {
+    return this->fixedOrientation;
 }
 
 Rigidbody* Rigidbody::addCollider(Collider* collider) {
@@ -125,27 +130,56 @@ Rigidbody* Rigidbody::setSensor(bool sensor) {
     return this;
 }
 
+Rigidbody* Rigidbody::setFixedOrientation(bool orientation) {
+    this->fixedOrientation = orientation;
+    return this;
+}
+
 void Rigidbody::clearAccumulators() {
     this->forceAccum.x = 0;
     this->forceAccum.y = 0;
     this->torqueAccum = 0;
 }
 
-#include <iostream>
-
 void Rigidbody::physicsUpdate(float dt) {
     
     if (this->mass == 0.0f) {return;}
 
-    // Calculate linear velocity
+    // Calculate velocity
     this->velocity += this->forceAccum * (dt / this->mass);
     this->angularVelocity += this->torqueAccum * (dt / this->mass);
 
-    // Update the entity's position.
-    this->getEntity()->addPosition(this->velocity * dt);
-    this->getEntity()->addRotation(this->angularVelocity * dt);
+    // Calculate displacement
+    vec2 displacement = this->velocity * dt;
+    float rotation = this->angularVelocity * dt;
+
+    // Clear the force and torque accumulators.
     this->clearAccumulators();
 
+    // Update the entity's position.
+    this->getEntity()->addPosition(displacement);
+
+    // Update the rotation if required and allowed to.
+    if (!this->fixedOrientation && rotation != 0.0f) {
+
+        // Update the entity's rotation.
+        this->getEntity()->addRotation(rotation);
+
+        // Update all collider position offsets.
+        float radians = rotation * M_PI / 180.0f;
+        float rCos = (float) cos(radians);
+        float rSin = (float) sin(radians);
+
+        for (Collider* c : this->colliders) {
+            vec2 offset = c->getPositionOffset();
+            float x = (offset.x * rCos) - (offset.y * rSin);
+            float y = (offset.x * rSin) + (offset.y * rCos);
+            c->setPositionOffset(vec2(x, y));
+        }
+
+        // Note: There is no need to update collider rotation offsets since they are updated in the entity.
+    }
+    
 }
 
 void Rigidbody::addVelocity(vec2 velocity) {

@@ -1,9 +1,6 @@
 #include "core/component.hpp"
 #include "core/entity.hpp"
 
-#include <typeinfo>
-#include <iostream>
-
 namespace {
     int nextId = 0;
 }
