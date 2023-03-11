@@ -3,7 +3,7 @@
 #include "core/scene.hpp"
 #include "util/assetpool.hpp"
 
-SpriteRenderer::SpriteRenderer() : Component() {
+SpriteRenderer::SpriteRenderer() : TransformableComponent() {
     
     this->sprite = SpritePool::get("empty");
     this->colour = vec4(1.0f, 1.0f, 1.0f, 1.0f);

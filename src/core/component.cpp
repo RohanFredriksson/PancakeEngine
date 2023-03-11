@@ -1,21 +1,18 @@
 #include "core/component.hpp"
 #include "core/entity.hpp"
 
+#include <typeinfo>
+#include <iostream>
+
 namespace {
     int nextId = 0;
 }
 
 Component::Component() {
-    
     this->id = nextId;
     this->entity = NULL;
-    this->positionOffset = glm::vec2(0.0f, 0.0f);
-    this->sizeScale = glm::vec2(1.0f, 1.0f);
-    this->rotationOffset = 0.0f;
     this->dead = false;
-
     nextId++;
-
 }
 
 Component::~Component() {
@@ -42,30 +39,6 @@ Entity* Component::getEntity() {
     return this->entity;
 }
 
-vec2 Component::getPosition() {
-    return this->entity->getPosition() + this->positionOffset;
-}
-
-vec2 Component::getSize() {
-    return this->entity->getSize() * this->sizeScale;
-}
-
-float Component::getRotation() {
-    return this->entity->getRotation() + this->rotationOffset;
-}
-
-vec2 Component::getPositionOffset() {
-    return this->positionOffset;
-}
-
-vec2 Component::getSizeScale() {
-    return this->sizeScale;
-}
-
-float Component::getRotationOffset() {
-    return this->rotationOffset;
-}
-
 bool Component::isDead() {
     return this->dead;
 }
@@ -78,26 +51,56 @@ void Component::setEntity(Entity* entity) {
     this->entity = entity;
 }
 
-void Component::setPositionOffset(vec2 offset) {
+TransformableComponent::TransformableComponent() : Component() {
+    this->positionOffset = glm::vec2(0.0f, 0.0f);
+    this->sizeScale = glm::vec2(1.0f, 1.0f);
+    this->rotationOffset = 0.0f;
+}
+
+vec2 TransformableComponent::getPosition() {
+    return this->getEntity()->getPosition() + this->positionOffset;
+}
+
+vec2 TransformableComponent::getSize() {
+    return this->getEntity()->getSize() * this->sizeScale;
+}
+
+float TransformableComponent::getRotation() {
+    return this->getEntity()->getRotation() + this->rotationOffset;
+}
+
+vec2 TransformableComponent::getPositionOffset() {
+    return this->positionOffset;
+}
+
+vec2 TransformableComponent::getSizeScale() {
+    return this->sizeScale;
+}
+
+float TransformableComponent::getRotationOffset() {
+    return this->rotationOffset;
+}
+
+void TransformableComponent::setPositionOffset(vec2 offset) {
     this->positionOffset = offset;
 }
 
-void Component::setSizeScale(vec2 scale) {
+void TransformableComponent::setSizeScale(vec2 scale) {
     this->sizeScale = scale;
 }
 
-void Component::setRotationOffset(float offset) {
+void TransformableComponent::setRotationOffset(float offset) {
     this->rotationOffset = offset;
 }
 
-void Component::addPositionOffset(vec2 offset) {
+void TransformableComponent::addPositionOffset(vec2 offset) {
     this->positionOffset += offset;
 }
 
-void Component::addSizeScale(vec2 scale) {
+void TransformableComponent::addSizeScale(vec2 scale) {
     this->sizeScale += scale;
 }
 
-void Component::addRotationOffset(float offset) {
+void TransformableComponent::addRotationOffset(float offset) {
     this->rotationOffset += offset;
 }

@@ -7,7 +7,7 @@
 using glm::vec2;
 using glm::vec4;
 
-class SpriteRenderer : public Component {
+class SpriteRenderer : public TransformableComponent {
 
     private:
 

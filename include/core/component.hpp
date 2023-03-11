@@ -14,39 +14,48 @@ class Component {
 
         int id;
         Entity* entity;
-        vec2 positionOffset;
-        vec2 sizeScale;
-        float rotationOffset;
         bool dead;
 
     public:
 
         Component();
         virtual ~Component();
-
         virtual void update(float dt);
         virtual void onCollision(Component* with);
         void kill();
         
-        // Getters
         int getId();
         Entity* getEntity();
+        bool isDead();
+        
+        void setId(int id);
+        void setEntity(Entity* entity);
+    
+};
+
+class TransformableComponent : public Component {
+
+    private:
+
+        vec2 positionOffset;
+        vec2 sizeScale;
+        float rotationOffset;
+
+    public:
+
+        TransformableComponent();
+
         vec2 getPosition();
         vec2 getSize();
         float getRotation();
         vec2 getPositionOffset();
         vec2 getSizeScale();
         float getRotationOffset();
-        bool isDead();
 
-        // Setters
-        void setId(int id);
-        void setEntity(Entity* entity);
         void setPositionOffset(vec2 offset);
         void setSizeScale(vec2 scale);
         void setRotationOffset(float offset);
 
-        // Adders
         void addPositionOffset(vec2 offset);
         void addSizeScale(vec2 scale);
         void addRotationOffset(float offset);

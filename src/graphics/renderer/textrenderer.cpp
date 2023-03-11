@@ -3,7 +3,7 @@
 #include "graphics/renderer/spriterenderer.hpp"
 #include "util/assetpool.hpp"
 
-TextRenderer::TextRenderer() : Component() {
+TextRenderer::TextRenderer() : TransformableComponent() {
     
     this->text = "";
     this->font = FontPool::get("default");

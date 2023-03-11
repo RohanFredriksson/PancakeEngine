@@ -11,7 +11,7 @@ using std::string;
 using glm::vec2;
 using glm::vec4;
 
-class TextRenderer : public Component {
+class TextRenderer : public TransformableComponent {
 
     private:
 

@@ -18,7 +18,7 @@ Entity* Collider::getEntity() {
 }
 
 vec2 Collider::getPosition() {
-    return this->rigidbody->getPosition() + this->positionOffset;
+    return this->rigidbody->getEntity()->getPosition() + this->positionOffset;
 }
 
 vec2 Collider::getPositionOffset() {

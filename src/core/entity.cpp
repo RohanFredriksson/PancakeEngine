@@ -135,13 +135,16 @@ void Entity::addRotation(float rotation) {
     float rCos = (float) cos(radians);
     float rSin = (float) sin(radians);
 
-    // Rotate all position offsets of components
+    // Rotate all transformable components.
     for (Component* c : this->components) {
 
-        vec2 offset = c->getPositionOffset();
-        float x = (offset.x * rCos) - (offset.y * rSin);
-        float y = (offset.x * rCos) + (offset.y * rSin);
-        c->setPositionOffset(vec2(x, y));
+        TransformableComponent* t = dynamic_cast<TransformableComponent*>(c);
+        if (t != NULL) {
+            vec2 offset = t->getPositionOffset();
+            float x = (offset.x * rCos) - (offset.y * rSin);
+            float y = (offset.x * rCos) + (offset.y * rSin);
+            t->setPositionOffset(vec2(x, y));
+        }
 
     }
 
@@ -171,10 +174,13 @@ void Entity::addRotationAround(float rotation, vec2 around) {
     // Rotate all position offsets of components
     for (Component* c : this->components) {
 
-        vec2 offset = c->getPositionOffset();
-        x = (offset.x * rCos) - (offset.y * rSin);
-        y = (offset.x * rCos) + (offset.y * rSin);
-        c->setPositionOffset(vec2(x, y));
+        TransformableComponent* t = dynamic_cast<TransformableComponent*>(c);
+        if (t != NULL) {
+            vec2 offset = t->getPositionOffset();
+            float x = (offset.x * rCos) - (offset.y * rSin);
+            float y = (offset.x * rCos) + (offset.y * rSin);
+            t->setPositionOffset(vec2(x, y));
+        }
 
     }
 
