@@ -17,8 +17,6 @@ using glm::vec2;
 
 using glm::vec4;
 
-#include <iostream>
-
 Scene::Scene(string name) {
 
     this->name = name;
@@ -65,14 +63,14 @@ Scene::Scene(string name) {
     rigidbody->setVelocity(vec2(1.0f, 10.0f));
     rigidbody->setMass(1.0f);
     rigidbody->setCor(0.75f);
+    rigidbody->setAngularVelocity(45.0f);
 
     circle = new Circle();
-    std::cout << circle << "\n";
+    circle->setPositionOffset(vec2(0.5f, 0.0f));
     rigidbody->addCollider(circle);
 
     circle = new Circle();
-    std::cout << circle << "\n";
-    circle->setPositionOffset(vec2(-1.0f, 0.0f));
+    circle->setPositionOffset(vec2(-0.5f, 0.0f));
     rigidbody->addCollider(circle);
 
     entity->addComponent(spriterenderer);

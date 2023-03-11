@@ -1,3 +1,4 @@
+#include <cmath>
 #include <deque>
 #include "core/entity.hpp"
 #include "core/component.hpp"
@@ -122,7 +123,61 @@ void Entity::addSize(vec2 size) {
 }
 
 void Entity::addRotation(float rotation) {
+    
+    // If we don't need to perform expensive computations, don't.
+    if (rotation == 0.0f) {return;}
+
+    // Rotate the entity
     this->rotation += rotation;
+
+    // Get required values to rotate all component offsets.
+    float radians = rotation * M_PI / 180.0f;
+    float rCos = (float) cos(radians);
+    float rSin = (float) sin(radians);
+
+    // Rotate all position offsets of components
+    for (Component* c : this->components) {
+
+        vec2 offset = c->getPositionOffset();
+        float x = (offset.x * rCos) - (offset.y * rSin);
+        float y = (offset.x * rCos) + (offset.y * rSin);
+        c->setPositionOffset(vec2(x, y));
+
+    }
+
+}
+
+void Entity::addRotationAround(float rotation, vec2 around) {
+
+    // If we don't need to perform expensive computations, don't.
+    if (rotation == 0.0f) {return;}
+
+    if (around.x == 0.0f && around.y == 0.0f) {
+        this->addRotation(rotation);
+        return;
+    }
+    
+    float x = this->position.x - around.x;
+    float y = this->position.y - around.y;
+    float radians = rotation * M_PI / 180.0f;
+    float rCos = (float) cos(radians);
+    float rSin = (float) sin(radians);
+
+    // Rotate the entity around the position.
+    this->position.x = around.x + ((x * rCos) - (y * rSin));
+    this->position.y = around.y + ((x * rCos) + (y * rSin));
+    this->rotation += rotation;
+
+    // Rotate all position offsets of components
+    for (Component* c : this->components) {
+
+        vec2 offset = c->getPositionOffset();
+        x = (offset.x * rCos) - (offset.y * rSin);
+        y = (offset.x * rCos) + (offset.y * rSin);
+        c->setPositionOffset(vec2(x, y));
+
+    }
+
 }
 
 void Entity::addComponent(Component* component) {

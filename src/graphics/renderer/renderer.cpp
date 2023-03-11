@@ -207,12 +207,12 @@ void RenderBatch::loadVertexProperties(int index) {
     mat4 transformMatrix = mat4(1.0f);
 
     if (isRotated) {
-        vec3 translateVector = vec3(position.x, position.y, 0.0f);
-        glm::translate(transformMatrix, translateVector);
+        //vec3 translateVector = vec3(position.x, position.y, 0.0f); // FOR SOME REASON THIS DOESNT WORK
+        //transformMatrix = glm::translate(transformMatrix, translateVector);
         vec3 rotateVector = vec3(0.0f, 0.0f, 1.0f);
-        glm::rotate(transformMatrix, rotation / (float)(180.0 / M_PI), rotateVector);
+        transformMatrix = glm::rotate(transformMatrix, rotation / (float)(180.0 / M_PI), rotateVector);
         vec3 scaleVector = vec3(size.x, size.y, 1.0f);
-        glm::scale(transformMatrix, scaleVector);
+        transformMatrix = glm::scale(transformMatrix, scaleVector);
     }
 
     // Add vertices with the appropriate properties.
@@ -234,6 +234,8 @@ void RenderBatch::loadVertexProperties(int index) {
         if (isRotated) {
             vec4 posVector = vec4(xAdd, yAdd, 0.0f, 1.0f);
             currentPos = posVector * transformMatrix;
+            currentPos.x += position.x; // TEMPORARY SOLUTION
+            currentPos.y += position.y; // TEMPORARY SOLUTION
         }
 
         // Load Position

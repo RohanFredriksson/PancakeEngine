@@ -108,8 +108,6 @@ void World::update(float dt) {
     }
 }
 
-#include <iostream>
-
 void World::fixedUpdate() {
 
     // Update velocities of all rigidbodies

@@ -51,6 +51,7 @@ class Entity {
         void addPosition(vec2 position);
         void addSize(vec2 size);
         void addRotation(float rotation);
+        void addRotationAround(float rotation, vec2 around);
 
         // Component Methods
         void addComponent(Component* component);

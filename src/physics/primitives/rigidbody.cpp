@@ -5,6 +5,8 @@ Rigidbody::Rigidbody() : Component() {
 
     this->forceAccum = glm::vec2(0.0f, 0.0f);
     this->velocity = glm::vec2(0.0f, 0.0f);
+    this->torqueAccum = 0.0f;
+    this->angularVelocity = 0.0f;
     this->cor = 1.0f;
     this->mass = 0.0f;
     this->sensor = false;
@@ -22,6 +24,10 @@ vector<Collider*> Rigidbody::getColliders() {
 
 vec2 Rigidbody::getVelocity() {
     return this->velocity;
+}
+
+float Rigidbody::getAngularVelocity() {
+    return this->angularVelocity;
 }
 
 float Rigidbody::getCor() {
@@ -98,6 +104,11 @@ Rigidbody* Rigidbody::setVelocity(vec2 velocity) {
     return this;
 }
 
+Rigidbody* Rigidbody::setAngularVelocity(float angularVelocity) {
+    this->angularVelocity = angularVelocity;
+    return this;
+}
+
 Rigidbody* Rigidbody::setCor(float cor) {
     this->cor = cor;
     return this;
@@ -117,7 +128,10 @@ Rigidbody* Rigidbody::setSensor(bool sensor) {
 void Rigidbody::clearAccumulators() {
     this->forceAccum.x = 0;
     this->forceAccum.y = 0;
+    this->torqueAccum = 0;
 }
+
+#include <iostream>
 
 void Rigidbody::physicsUpdate(float dt) {
     
@@ -125,9 +139,11 @@ void Rigidbody::physicsUpdate(float dt) {
 
     // Calculate linear velocity
     this->velocity += this->forceAccum * (dt / this->mass);
+    this->angularVelocity += this->torqueAccum * (dt / this->mass);
 
     // Update the entity's position.
     this->getEntity()->addPosition(this->velocity * dt);
+    this->getEntity()->addRotation(this->angularVelocity * dt);
     this->clearAccumulators();
 
 }
@@ -136,12 +152,24 @@ void Rigidbody::addVelocity(vec2 velocity) {
     this->velocity += velocity;
 }
 
+void Rigidbody::addAngularVelocity(float angularVelocity) {
+    this->angularVelocity += angularVelocity;
+}
+
 void Rigidbody::addForce(vec2 force) {
     this->forceAccum += force;
 }
 
 void Rigidbody::zeroForces() {
     this->forceAccum = glm::vec2(0.0f, 0.0f);
+}
+
+void Rigidbody::addTorque(float torque) {
+    this->torqueAccum += torque;
+}
+
+void Rigidbody::zeroTorque() {
+    this->torqueAccum = 0.0f;
 }
 
 bool Rigidbody::hasInfiniteMass() {

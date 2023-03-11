@@ -16,6 +16,8 @@ class Rigidbody : public Component {
         vector<Collider*> colliders;
         vec2 forceAccum;
         vec2 velocity;
+        float torqueAccum;
+        float angularVelocity;
         float cor;
         float mass;
         bool sensor;
@@ -27,6 +29,7 @@ class Rigidbody : public Component {
 
         vector<Collider*> getColliders();
         vec2 getVelocity();
+        float getAngularVelocity();
         float getCor();
         float getMass();
         bool isSensor();
@@ -40,6 +43,7 @@ class Rigidbody : public Component {
         Rigidbody* clearColliders();
 
         Rigidbody* setVelocity(vec2 velocity);
+        Rigidbody* setAngularVelocity(float angularVelocity);
         Rigidbody* setCor(float cor);
         Rigidbody* setMass(float mass);
         Rigidbody* setSensor(bool sensor);
@@ -47,8 +51,11 @@ class Rigidbody : public Component {
         void clearAccumulators();
         void physicsUpdate(float dt);
         void addVelocity(vec2 velocity);
+        void addAngularVelocity(float angularVelocity);
         void addForce(vec2 force);
         void zeroForces();
+        void addTorque(float torque);
+        void zeroTorque();
         bool hasInfiniteMass();
 
 };
