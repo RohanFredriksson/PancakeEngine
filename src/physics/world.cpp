@@ -8,12 +8,14 @@
 #include "physics/primitives/box.hpp"
 #include "physics/primitives/circle.hpp"
 
+#include <iostream>
+
 namespace {
     
     const int IMPULSE_ITERATIONS =  6;
 
     inline float cross(vec2 a, vec2 b) {
-        return a.x * b.y + a.y * b.y;
+        return a.x * b.y + a.y * b.x;
     }
 
     inline vec2 cross(vec2 a, float s) {
