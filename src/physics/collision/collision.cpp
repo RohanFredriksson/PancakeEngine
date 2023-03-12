@@ -192,7 +192,7 @@ namespace {
         // Rotate the circle into the box's space.
         if (bRot != 0.0f) {
 
-            radians = bRot * M_PI / 180.0f;
+            radians = -bRot * M_PI / 180.0f;
             rCos = cosf(radians);
             rSin = sinf(radians);
 

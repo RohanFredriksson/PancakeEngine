@@ -8,8 +8,6 @@
 #include "physics/primitives/box.hpp"
 #include "physics/primitives/circle.hpp"
 
-#include <iostream>
-
 namespace {
     
     const int IMPULSE_ITERATIONS =  6;
@@ -28,49 +26,48 @@ namespace {
 
     void applyImpulse(Rigidbody* a, Rigidbody* b, CollisionManifold* m) {
 
+        DebugDraw::drawCircle(m->contactPoint, 0.1f, vec3(0.0f, 0.0f, 1.0f), 10);
+
         // Check for infinite mass objects.
         if (a->hasInfiniteMass() && b->hasInfiniteMass()) {return;}
 
-        // Get inverse masses.
+        // Get the inverse masses.
         float aInvMass = a->getInverseMass();
         float bInvMass = b->getInverseMass();
         float sumInvMass = aInvMass + bInvMass;
         if (sumInvMass == 0.0f) {return;}
 
-        // Relative velocity
+        // Calculate relative velocities of the bodies at the point of contact.
         vec2 relativeVelocity = b->getVelocity() - a->getVelocity();
+        vec2 contactVelocity = glm::dot(relativeVelocity, m->normal) * m->normal;
         if (glm::dot(relativeVelocity, m->normal) > 0.0f) {return;}
 
-        // Get the numerator for the j equation.
+        // Calculate the impulse required to resolve this collision.
         float e = std::min(a->getCor(), b->getCor());
-        float numerator = -(1.0f + e) * glm::dot(relativeVelocity, m->normal);
+        vec2 impulse = (-(1.0f + e) * contactVelocity) / sumInvMass;
 
-        //std::cout << m->contactPoint.x << ", " << m->contactPoint.y << "\n"; // PROBLEM: BOX BOX CONTACT POINT IS INCORRECT
+        // Apply impulses to the bodies proportionally to their mass.
+        a->addVelocity(-impulse * a->getMass());
+        b->addVelocity(impulse * b->getMass());
 
-        // Get the denominator for the j equation.
-        vec2 rA = m->contactPoint - a->getEntity()->getPosition();
-        vec2 rB = m->contactPoint - b->getEntity()->getPosition();
-        float right = glm::dot((cross(a->getInverseMomentOfInertia() * cross(rA, m->normal), rA)) + 
-                               (cross(b->getInverseMomentOfInertia() * cross(rB, m->normal), rB)), m->normal);
-        std::cout << right << "\n";
-        float denominator = sumInvMass;//+ right;
+        // Calculate change in angular velocity of each body due to the impulse
+        vec2 r1 = m->contactPoint - a->getEntity()->getPosition();
+        vec2 r2 = m->contactPoint - b->getEntity()->getPosition();
+        a->addAngularVelocity(-a->getInverseMomentOfInertia() * cross(r1, impulse));
+        b->addAngularVelocity(b->getInverseMomentOfInertia() * cross(r2, impulse));
 
-        // Compute j
-        float j = numerator / denominator;
-        vec2 impulse = m->normal * j;
-
-        // Add impulses to each body.
-        a->addVelocity(impulse * -1.0f * aInvMass);
-        b->addVelocity(impulse * bInvMass);
-        a->addAngularVelocity(-a->getInverseMomentOfInertia() * (cross(rA, j * m->normal)));
-        b->addAngularVelocity(b->getInverseMomentOfInertia() * (cross(rB, j * m->normal)));
+        const float slop = 0.01f;
+        const float percent = 0.2f;
+        vec2 correction = std::max(m->depth - slop, 0.0f) / (sumInvMass) * percent * m->normal;
+        a->getEntity()->addPosition(-correction * aInvMass);
+        b->getEntity()->addPosition(correction * bInvMass);
 
     }
 
 }
 
 World::World(float timeStep, vec2 gravity) {
-    this->gravity = new Gravity(vec2(0.0f, -10.0f));
+    this->gravity = new Gravity(gravity);
     this->timeStep = timeStep;
     this->time = 0.0f;
 }

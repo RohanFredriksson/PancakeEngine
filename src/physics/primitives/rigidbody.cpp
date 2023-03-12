@@ -56,7 +56,7 @@ float Rigidbody::getMomentOfInertia() {
 float Rigidbody::getInverseMomentOfInertia() {
     if (this->hasInfiniteMass()) {return 0.0f;}
     vec2 size = this->getEntity()->getSize();
-    return 12.0f / (this->mass * (size.x * size.x + size.y * size.y));
+    return 1.0f / (this->mass * (size.x * size.x + size.y * size.y) / 12.0f);
 }
 
 bool Rigidbody::isSensor() {
@@ -188,8 +188,8 @@ void Rigidbody::physicsUpdate(float dt) {
 
         // Update all collider position offsets.
         float radians = rotation * M_PI / 180.0f;
-        float rCos = (float) cos(radians);
-        float rSin = (float) sin(radians);
+        float rCos = cosf(radians);
+        float rSin = sinf(radians);
 
         for (Collider* c : this->colliders) {
             vec2 offset = c->getPositionOffset();
