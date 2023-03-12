@@ -33,6 +33,9 @@ class Rigidbody : public Component {
         float getAngularVelocity();
         float getCor();
         float getMass();
+        float getInverseMass();
+        float getMomentOfInertia();
+        float getInverseMomentOfInertia();
         bool isSensor();
         bool hasFixedOrientation();
 

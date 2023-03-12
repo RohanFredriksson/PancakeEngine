@@ -1,3 +1,4 @@
+#include <limits>
 #include "physics/primitives/rigidbody.hpp"
 #include "window/window.hpp"
 
@@ -37,6 +38,23 @@ float Rigidbody::getCor() {
 
 float Rigidbody::getMass() {
     return this->mass;
+}
+
+float Rigidbody::getInverseMass() {
+    if (this->hasInfiniteMass()) {return 0.0f;}
+    return 1.0f / this->mass;
+}
+
+float Rigidbody::getMomentOfInertia() {
+    if (this->hasInfiniteMass()) {return FLT_MAX;}
+    vec2 size = this->getEntity()->getSize();
+    return this->mass * (size.x * size.x + size.y * size.y) / 12.0f;
+}
+
+float Rigidbody::getInverseMomentOfInertia() {
+    if (this->hasInfiniteMass()) {return 0.0f;}
+    vec2 size = this->getEntity()->getSize();
+    return 12.0f / (this->mass * (size.x * size.x + size.y * size.y));
 }
 
 bool Rigidbody::isSensor() {
