@@ -64,7 +64,7 @@ Scene::Scene(string name) {
     rigidbody->setMass(1.0f);
     rigidbody->setCor(0.75f);
     //rigidbody->setFixedOrientation(true);
-    //rigidbody->setAngularVelocity(45.0f);
+    rigidbody->setAngularVelocity(-35.0f);
 
     /*
     circle = new Circle();
@@ -77,11 +77,7 @@ Scene::Scene(string name) {
     */
     
     box = new Box();
-    box->setPositionOffset(vec2(0.5f, 0.0f));
-    rigidbody->addCollider(box);
-
-    box = new Box();
-    box->setPositionOffset(vec2(-0.5f, 0.0f));
+    box->setSize(vec2(2.0f, 1.0f));
     rigidbody->addCollider(box);
 
     entity->addComponent(spriterenderer);
