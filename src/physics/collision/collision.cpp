@@ -1,12 +1,10 @@
-#include <math.h>
+#include <cmath>
 #include <algorithm>
 #include <glm/glm.hpp>
 #include <glm/geometric.hpp>
 #include "physics/collision/collision.hpp"
 #include "physics/primitives/circle.hpp"
 #include "physics/primitives/box.hpp"
-
-#include <iostream>
 
 namespace {
 
@@ -168,12 +166,33 @@ namespace {
 
     CollisionManifold* findCollisionFeaturesCircleAndBox(Circle* c, Box* b, bool flip) {
 
+        // Get the circle's properties.
         vec2 cPos = c->getPosition();
         float cRadius = c->getRadius();
 
+        // Get the box's properties.
+        float bRot = b->getRotation();
         vec2 bPos = b->getPosition();
         vec2 bMin = b->getMin();
         vec2 bMax = b->getMax();
+
+        // If we need to rotate, we need to store these variables.
+        vec2 offset;
+        float radians;
+        float rCos;
+        float rSin;
+        
+        // Rotate the circle into the box's space.
+        if (bRot != 0.0f) {
+
+            offset = cPos - bPos;
+            radians = bRot * M_PI / 180.0f;
+            rCos = (float) cos(radians);
+            rSin = (float) sin(radians);
+
+            cPos.x = bPos.x + ((offset.x * rCos) - (offset.y * rSin));
+            cPos.y = bPos.y + ((offset.x * rSin) + (offset.y * rCos));
+        }
 
         float depth;
         vec2 normal;
@@ -189,6 +208,22 @@ namespace {
             contactPoint.y = bMax.y - depth;
             if (flip) {normal = -normal;}
 
+            // Rotate the normal and contact point back into normal space.
+            if (bRot != 0.0f) {
+
+                // Rotate the normal.
+                float x = (normal.x * rCos) - (normal.y * -rSin);
+                float y = (normal.x * -rSin) + (normal.y * rCos);
+                normal.x = x;
+                normal.y = y;
+
+                // Rotate the contact point.
+                offset = contactPoint - bPos;
+                contactPoint.x = bPos.x + ((offset.x * rCos) - (offset.y * -rSin));
+                contactPoint.y = bPos.y + ((offset.x * -rSin) + (offset.y * rCos));
+
+            }
+
             return new CollisionManifold(normal, contactPoint, depth);
         }
 
@@ -201,6 +236,22 @@ namespace {
             contactPoint.x = cPos.x;
             contactPoint.y = bMin.y + depth;
             if (flip) {normal = -normal;}
+
+            // Rotate the normal and contact point back into normal space.
+            if (bRot != 0.0f) {
+
+                // Rotate the normal.
+                float x = (normal.x * rCos) - (normal.y * -rSin);
+                float y = (normal.x * -rSin) + (normal.y * rCos);
+                normal.x = x;
+                normal.y = y;
+
+                // Rotate the contact point.
+                offset = contactPoint - bPos;
+                contactPoint.x = bPos.x + ((offset.x * rCos) - (offset.y * -rSin));
+                contactPoint.y = bPos.y + ((offset.x * -rSin) + (offset.y * rCos));
+
+            }
 
             return new CollisionManifold(normal, contactPoint, depth);
         }
@@ -215,6 +266,22 @@ namespace {
             contactPoint.y = bMax.x - depth;
             if (flip) {normal = -normal;}
 
+            // Rotate the normal and contact point back into normal space.
+            if (bRot != 0.0f) {
+
+                // Rotate the normal.
+                float x = (normal.x * rCos) - (normal.y * -rSin);
+                float y = (normal.x * -rSin) + (normal.y * rCos);
+                normal.x = x;
+                normal.y = y;
+
+                // Rotate the contact point.
+                offset = contactPoint - bPos;
+                contactPoint.x = bPos.x + ((offset.x * rCos) - (offset.y * -rSin));
+                contactPoint.y = bPos.y + ((offset.x * -rSin) + (offset.y * rCos));
+
+            }
+
             return new CollisionManifold(normal, contactPoint, depth);
         }
 
@@ -227,6 +294,22 @@ namespace {
             contactPoint.x = cPos.y;
             contactPoint.y = bMin.x + depth;
             if (flip) {normal = -normal;}
+
+            // Rotate the normal and contact point back into normal space.
+            if (bRot != 0.0f) {
+
+                // Rotate the normal.
+                float x = (normal.x * rCos) - (normal.y * -rSin);
+                float y = (normal.x * -rSin) + (normal.y * rCos);
+                normal.x = x;
+                normal.y = y;
+
+                // Rotate the contact point.
+                offset = contactPoint - bPos;
+                contactPoint.x = bPos.x + ((offset.x * rCos) - (offset.y * -rSin));
+                contactPoint.y = bPos.y + ((offset.x * -rSin) + (offset.y * rCos));
+
+            }
 
             return new CollisionManifold(normal, contactPoint, depth);
         }
@@ -241,6 +324,22 @@ namespace {
             contactPoint = vec2(bMin.x, bMax.y) + depthVector;
             if (flip) {normal = -normal;}
 
+            // Rotate the normal and contact point back into normal space.
+            if (bRot != 0.0f) {
+
+                // Rotate the normal.
+                float x = (normal.x * rCos) - (normal.y * -rSin);
+                float y = (normal.x * -rSin) + (normal.y * rCos);
+                normal.x = x;
+                normal.y = y;
+
+                // Rotate the contact point.
+                offset = contactPoint - bPos;
+                contactPoint.x = bPos.x + ((offset.x * rCos) - (offset.y * -rSin));
+                contactPoint.y = bPos.y + ((offset.x * -rSin) + (offset.y * rCos));
+
+            }
+
             return new CollisionManifold(normal, contactPoint, depth);
         }
 
@@ -253,6 +352,22 @@ namespace {
             depth = glm::length(depthVector);
             contactPoint = vec2(bMax.x, bMax.y) + depthVector;
             if (flip) {normal = -normal;}
+
+            // Rotate the normal and contact point back into normal space.
+            if (bRot != 0.0f) {
+
+                // Rotate the normal.
+                float x = (normal.x * rCos) - (normal.y * -rSin);
+                float y = (normal.x * -rSin) + (normal.y * rCos);
+                normal.x = x;
+                normal.y = y;
+
+                // Rotate the contact point.
+                offset = contactPoint - bPos;
+                contactPoint.x = bPos.x + ((offset.x * rCos) - (offset.y * -rSin));
+                contactPoint.y = bPos.y + ((offset.x * -rSin) + (offset.y * rCos));
+
+            }
 
             return new CollisionManifold(normal, contactPoint, depth);
         }
@@ -267,6 +382,22 @@ namespace {
             contactPoint = vec2(bMin.x, bMin.y) + depthVector;
             if (flip) {normal = -normal;}
 
+            // Rotate the normal and contact point back into normal space.
+            if (bRot != 0.0f) {
+
+                // Rotate the normal.
+                float x = (normal.x * rCos) - (normal.y * -rSin);
+                float y = (normal.x * -rSin) + (normal.y * rCos);
+                normal.x = x;
+                normal.y = y;
+
+                // Rotate the contact point.
+                offset = contactPoint - bPos;
+                contactPoint.x = bPos.x + ((offset.x * rCos) - (offset.y * -rSin));
+                contactPoint.y = bPos.y + ((offset.x * -rSin) + (offset.y * rCos));
+
+            }
+
             return new CollisionManifold(normal, contactPoint, depth);
         }
 
@@ -279,6 +410,22 @@ namespace {
             depth = glm::length(depthVector);
             contactPoint = vec2(bMax.x, bMin.y) + depthVector;
             if (flip) {normal = -normal;}
+
+            // Rotate the normal and contact point back into normal space.
+            if (bRot != 0.0f) {
+
+                // Rotate the normal.
+                float x = (normal.x * rCos) - (normal.y * -rSin);
+                float y = (normal.x * -rSin) + (normal.y * rCos);
+                normal.x = x;
+                normal.y = y;
+
+                // Rotate the contact point.
+                offset = contactPoint - bPos;
+                contactPoint.x = bPos.x + ((offset.x * rCos) - (offset.y * -rSin));
+                contactPoint.y = bPos.y + ((offset.x * -rSin) + (offset.y * rCos));
+
+            }
 
             return new CollisionManifold(normal, contactPoint, depth);
         }
