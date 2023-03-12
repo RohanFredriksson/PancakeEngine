@@ -45,14 +45,15 @@ namespace {
         float e = std::min(a->getCor(), b->getCor());
         float numerator = -(1.0f + e) * glm::dot(relativeVelocity, m->normal);
 
-        std::cout << m->contactPoint.x << ", " << m->contactPoint.y << "\n"; // PROBLEM: BOX BOX CONTACT POINT IS INCORRECT
+        //std::cout << m->contactPoint.x << ", " << m->contactPoint.y << "\n"; // PROBLEM: BOX BOX CONTACT POINT IS INCORRECT
 
         // Get the denominator for the j equation.
         vec2 rA = m->contactPoint - a->getEntity()->getPosition();
         vec2 rB = m->contactPoint - b->getEntity()->getPosition();
         float right = glm::dot((cross(a->getInverseMomentOfInertia() * cross(rA, m->normal), rA)) + 
                                (cross(b->getInverseMomentOfInertia() * cross(rB, m->normal), rB)), m->normal);
-        float denominator = sumInvMass;// + right;
+        std::cout << right << "\n";
+        float denominator = sumInvMass;//+ right;
 
         // Compute j
         float j = numerator / denominator;
@@ -61,6 +62,8 @@ namespace {
         // Add impulses to each body.
         a->addVelocity(impulse * -1.0f * aInvMass);
         b->addVelocity(impulse * bInvMass);
+        a->addAngularVelocity(-a->getInverseMomentOfInertia() * (cross(rA, j * m->normal)));
+        b->addAngularVelocity(b->getInverseMomentOfInertia() * (cross(rB, j * m->normal)));
 
     }
 

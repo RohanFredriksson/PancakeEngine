@@ -33,7 +33,7 @@ Scene::Scene(string name) {
     Rigidbody* rigidbody;
     TextRenderer* textrenderer;
 
-    entity = new Entity(vec2(0.0f, 0.0f), vec2(5.0f, 1.0f), 0.0f);
+    entity = new Entity(vec2(0.0f, 0.0f), vec2(1.0f, 1.0f), 0.0f);
 
     texture = TexturePool::get("assets/textures/armaan.png");
     sprite = new Sprite("armaan", texture);
@@ -44,15 +44,14 @@ Scene::Scene(string name) {
     rigidbody->setMass(0.0f);
     rigidbody->setCor(1.0f);
 
-    box = new Box();
-    box->setSize(vec2(5.0f, 1.0f));
-    rigidbody->addCollider(box);
+    circle = new Circle();
+    rigidbody->addCollider(circle);
 
     entity->addComponent(spriterenderer);
     entity->addComponent(rigidbody);
     this->addEntity(entity);
 
-    entity = new Entity(vec2(0.0f, 3.0f), vec2(2.0f, 1.0f), 0.0f);
+    entity = new Entity(vec2(1.0f, 3.0f), vec2(3.0f, 1.0f), 0.0f);
 
     texture = TexturePool::get("assets/textures/ainsley.png");
     sprite = new Sprite("ainsley", texture);
@@ -67,7 +66,7 @@ Scene::Scene(string name) {
     //rigidbody->setAngularVelocity(-35.0f);
     
     box = new Box();
-    box->setSize(vec2(2.0f, 1.0f));
+    box->setSize(vec2(3.0f, 1.0f));
     rigidbody->addCollider(box);
 
     entity->addComponent(spriterenderer);

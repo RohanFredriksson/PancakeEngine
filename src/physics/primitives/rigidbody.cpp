@@ -25,10 +25,12 @@ vector<Collider*> Rigidbody::getColliders() {
 }
 
 vec2 Rigidbody::getVelocity() {
+    if (this->hasInfiniteMass()) {return vec2(0.0f, 0.0f);}
     return this->velocity;
 }
 
 float Rigidbody::getAngularVelocity() {
+    if (this->hasInfiniteMass()) {return 0.0f;}
     return this->angularVelocity;
 }
 
@@ -161,7 +163,8 @@ void Rigidbody::clearAccumulators() {
 
 void Rigidbody::physicsUpdate(float dt) {
     
-    if (this->mass == 0.0f) {return;}
+    // Do not do a physics update if static.
+    if (this->hasInfiniteMass()) {return;}
 
     // Calculate velocity
     this->velocity += this->forceAccum * (dt / this->mass);
@@ -201,14 +204,17 @@ void Rigidbody::physicsUpdate(float dt) {
 }
 
 void Rigidbody::addVelocity(vec2 velocity) {
+    if (this->hasInfiniteMass()) {return;}
     this->velocity += velocity;
 }
 
 void Rigidbody::addAngularVelocity(float angularVelocity) {
+    if (this->hasInfiniteMass()) {return;}
     this->angularVelocity += angularVelocity;
 }
 
 void Rigidbody::addForce(vec2 force) {
+    if (this->hasInfiniteMass()) {return;}
     this->forceAccum += force;
 }
 
@@ -217,6 +223,7 @@ void Rigidbody::zeroForces() {
 }
 
 void Rigidbody::addTorque(float torque) {
+    if (this->hasInfiniteMass()) {return;}
     this->torqueAccum += torque;
 }
 
