@@ -51,7 +51,7 @@ Scene::Scene(string name) {
     entity->addComponent(rigidbody);
     this->addEntity(entity);
 
-    entity = new Entity(vec2(-0.5f, 3.0f), vec2(3.0f, 1.0f), 0.0f);
+    entity = new Entity(vec2(0.1f, 3.0f), vec2(3.0f, 1.0f), 0.0f);
 
     texture = TexturePool::get("assets/textures/ainsley.png");
     sprite = new Sprite("ainsley", texture);
@@ -60,7 +60,7 @@ Scene::Scene(string name) {
     
     rigidbody = new Rigidbody();
     rigidbody->setMass(1.0f);
-    rigidbody->setCor(0.5f);
+    rigidbody->setCor(0.2f);
     //rigidbody->setVelocity(vec2(1.0f, 10.0f));
     //rigidbody->setFixedOrientation(true);
     //rigidbody->setAngularVelocity(-35.0f);

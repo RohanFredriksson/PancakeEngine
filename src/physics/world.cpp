@@ -13,7 +13,7 @@
 
 namespace {
     
-    const int IMPULSE_ITERATIONS =  6;
+    const int IMPULSE_ITERATIONS = 6;
 
     inline float cross(vec2 a, vec2 b) {
         return a.x * b.y + a.y * b.x;
@@ -47,7 +47,7 @@ namespace {
         // Calculate relative velocities of the bodies at the point of contact.
         vec2 r1 = m->contactPoint - a->getEntity()->getPosition();
         vec2 r2 = m->contactPoint - b->getEntity()->getPosition();
-        vec2 relativeVelocity = b->getVelocity() - a->getVelocity();
+        vec2 relativeVelocity = b->getVelocity() + tangentVelocity(r2, b->getAngularVelocity()) - a->getVelocity() - tangentVelocity(r1, a->getAngularVelocity());
         vec2 contactVelocity = glm::dot(relativeVelocity, m->normal) * m->normal;
 
         // If both the linear and angular velocity are moving away from the object then the collision has been resolved.
@@ -58,8 +58,8 @@ namespace {
         vec2 impulse = (-(1.0f + e) * contactVelocity) / sumInvMass;
 
         // Apply impulses to the bodies proportionally to their mass.
-        a->addVelocity(-impulse * a->getMass());
-        b->addVelocity(impulse * b->getMass());
+        a->addVelocity(-impulse * aInvMass);
+        b->addVelocity(impulse * bInvMass);
 
         // Calculate change in angular velocity of each body due to the impulse
         a->addAngularVelocity(-a->getInverseMomentOfInertia() * cross(r1, impulse));
