@@ -16,6 +16,7 @@ class Box : public Collider {
 
         Box();
 
+        float getMomentOfInertia() override;
         vec2 getSize();
         vec2 getHalfSize();
         vec2 getMin();

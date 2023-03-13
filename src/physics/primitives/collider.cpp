@@ -1,7 +1,9 @@
+#include <iostream>
 #include "physics/primitives/collider.hpp"
 
 Collider::Collider() {
     this->rigidbody = NULL;
+    this->mass = 0.0f;
     this->positionOffset = vec2(0.0f, 0.0f);
     this->rotationOffset = 0.0f;
 }
@@ -14,8 +16,12 @@ Rigidbody* Collider::getRigidbody() {
     return this->rigidbody;
 }
 
-Entity* Collider::getEntity() {
-    return this->rigidbody->getEntity();
+float Collider::getMass() {
+    return this->mass;
+}
+
+float Collider::getMomentOfInertia() {
+    return FLT_MAX;
 }
 
 vec2 Collider::getPosition() {
@@ -34,8 +40,18 @@ float Collider::getRotationOffset() {
     return this->rotationOffset;
 }
 
+bool Collider::hasInfiniteMass() {
+    return this->mass <= 0.0f;
+}
+
 Collider* Collider::setRigidbody(Rigidbody* rigidbody) {
     this->rigidbody = rigidbody;
+    return this;
+}
+
+Collider* Collider::setMass(float mass) {
+    if (mass < 0.0f) {std::cout << "WARNING::COLLIDER::SET_MASS::NEGATIVE_MASS\n";}
+    this->mass = mass;
     return this;
 }
 

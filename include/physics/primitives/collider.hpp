@@ -9,9 +9,10 @@ class Rigidbody;
 
 class Collider {
 
-    private:
+    protected:
 
         Rigidbody* rigidbody;
+        float mass;
         vec2 positionOffset;
         float rotationOffset;
 
@@ -21,13 +22,16 @@ class Collider {
         virtual ~Collider();
 
         Rigidbody* getRigidbody();
-        Entity* getEntity();
+        float getMass();
+        virtual float getMomentOfInertia();
         vec2 getPosition();
         vec2 getPositionOffset();
         float getRotation();
         float getRotationOffset();
+        bool hasInfiniteMass();
 
         Collider* setRigidbody(Rigidbody* rigidbody);
+        Collider* setMass(float mass);
         Collider* setPositionOffset(vec2 offset);
         Collider* setRotationOffset(float offset);
 

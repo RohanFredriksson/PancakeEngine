@@ -12,6 +12,7 @@ class Circle : public Collider {
 
         Circle();
 
+        float getMomentOfInertia() override;
         float getRadius();
         Circle* setRadius(float radius);
 };

@@ -27,10 +27,6 @@ namespace {
         return vec2(-s * a.y, s * a.x);
     }
 
-    vec2 tangentVelocity(vec2 radius, float angularVelocity) {
-        return angularVelocity * glm::rotate(glm::normalize(radius), glm::radians(90.0f));
-    }
-
     void applyImpulse(Rigidbody* a, Rigidbody* b, CollisionManifold* m) {
 
         DebugDraw::drawCircle(m->contactPoint, 0.1f, vec3(0.0f, 0.0f, 1.0f), 10);
@@ -45,31 +41,31 @@ namespace {
         if (sumInvMass == 0.0f) {return;}
 
         // Calculate relative velocities of the bodies at the point of contact.
-        vec2 r1 = m->contactPoint - a->getEntity()->getPosition();
-        vec2 r2 = m->contactPoint - b->getEntity()->getPosition();
-        vec2 relativeVelocity = b->getVelocity() + tangentVelocity(r2, b->getAngularVelocity()) - a->getVelocity() - tangentVelocity(r1, a->getAngularVelocity());
+        vec2 r1 = m->contactPoint - a->getCentroid();
+        vec2 r2 = m->contactPoint - b->getCentroid();
+        vec2 relativeVelocity = b->getVelocity() + cross(b->getAngularVelocity(), r2) - a->getVelocity() - cross(a->getAngularVelocity(), r1);
         vec2 contactVelocity = glm::dot(relativeVelocity, m->normal) * m->normal;
 
         // If both the linear and angular velocity are moving away from the object then the collision has been resolved.
         if (glm::dot(relativeVelocity, m->normal) > 0.0f) {return;}
 
         // Calculate the impulse required to resolve this collision.
-        float e = std::min(a->getCor(), b->getCor());
+        float e = std::min(a->getRestitution(), b->getRestitution());
         vec2 impulse = (-(1.0f + e) * contactVelocity) / sumInvMass;
 
         // Apply impulses to the bodies proportionally to their mass.
         a->addVelocity(-impulse * aInvMass);
         b->addVelocity(impulse * bInvMass);
 
-        // Calculate change in angular velocity of each body due to the impulse
-        a->addAngularVelocity(-a->getInverseMomentOfInertia() * cross(r1, impulse));
-        b->addAngularVelocity(b->getInverseMomentOfInertia() * cross(r2, impulse));
-
         const float slop = 0.01f; // 0.01f
         const float percent = 0.2f; // 0.2f
         vec2 correction = std::max(m->depth - slop, 0.0f) / (sumInvMass) * percent * m->normal;
         a->getEntity()->addPosition(-correction * aInvMass);
         b->getEntity()->addPosition(correction * bInvMass);
+
+        // Calculate change in angular velocity of each body due to the impulse
+        a->addAngularVelocity(-a->getInverseMomentOfInertia() * cross(r1, impulse));
+        b->addAngularVelocity(b->getInverseMomentOfInertia() * cross(r2, impulse));
 
     }
 

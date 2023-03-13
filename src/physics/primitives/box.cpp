@@ -1,8 +1,14 @@
+#include <limits>
 #include "physics/primitives/box.hpp"
 
 Box::Box() : Collider()  {
     this->size = vec2(1.0f, 1.0f);
     this->halfSize = this->size * 0.5f;
+}
+
+float Box::getMomentOfInertia() {
+    if (this->mass <= 0.0f) {return FLT_MAX;}
+    return this->mass * (this->size.x * this->size.x + this->size.y * this->size.y) / 12.0f;
 }
 
 vec2 Box::getSize() {

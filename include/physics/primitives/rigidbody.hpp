@@ -14,12 +14,11 @@ class Rigidbody : public Component {
     private:
 
         vector<Collider*> colliders;
-        vec2 forceAccum;
+        vec2 force;
         vec2 velocity;
-        float torqueAccum;
+        float torque;
         float angularVelocity;
-        float cor;
-        float mass;
+        float restitution;
         bool sensor;
         bool fixedOrientation;
 
@@ -30,14 +29,16 @@ class Rigidbody : public Component {
 
         vector<Collider*> getColliders();
         vec2 getVelocity();
+        vec2 getCentroid();
         float getAngularVelocity();
-        float getCor();
+        float getRestitution();
         float getMass();
         float getInverseMass();
         float getMomentOfInertia();
         float getInverseMomentOfInertia();
         bool isSensor();
         bool hasFixedOrientation();
+        bool hasInfiniteMass();
 
         Rigidbody* addCollider(Collider* collider);
         Rigidbody* addColliders(vector<Collider*> colliders);
@@ -49,20 +50,20 @@ class Rigidbody : public Component {
 
         Rigidbody* setVelocity(vec2 velocity);
         Rigidbody* setAngularVelocity(float angularVelocity);
-        Rigidbody* setCor(float cor);
-        Rigidbody* setMass(float mass);
+        Rigidbody* setRestitution(float cor);
         Rigidbody* setSensor(bool sensor);
         Rigidbody* setFixedOrientation(bool orientation);
 
-        void clearAccumulators();
         void physicsUpdate(float dt);
+
+        void clearAccumulators();
         void addVelocity(vec2 velocity);
         void addAngularVelocity(float angularVelocity);
         void addForce(vec2 force);
-        void zeroForces();
         void addTorque(float torque);
+        void zeroForces();
         void zeroTorque();
-        bool hasInfiniteMass();
+        
 
 };
 

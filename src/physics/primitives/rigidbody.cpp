@@ -1,15 +1,15 @@
 #include <limits>
+#include <iostream>
 #include "physics/primitives/rigidbody.hpp"
 #include "window/window.hpp"
 
 Rigidbody::Rigidbody() : Component() {
 
-    this->forceAccum = glm::vec2(0.0f, 0.0f);
+    this->force = glm::vec2(0.0f, 0.0f);
     this->velocity = glm::vec2(0.0f, 0.0f);
-    this->torqueAccum = 0.0f;
+    this->torque = 0.0f;
     this->angularVelocity = 0.0f;
-    this->cor = 1.0f;
-    this->mass = 0.0f;
+    this->restitution = 1.0f;
     this->sensor = false;
     this->fixedOrientation = false;
 
@@ -29,34 +29,79 @@ vec2 Rigidbody::getVelocity() {
     return this->velocity;
 }
 
+vec2 Rigidbody::getCentroid() {
+
+    // If the rigidbody has infinite mass, get the average of all bodies.
+    if (this->hasInfiniteMass()) {
+
+        if (this->colliders.size() == 0) {
+            std::cout << "ERROR::RIGIDBODY::GET_CENTROID::NO_COLLIDERS\n";
+        }
+
+        vec2 points = vec2(0.0f, 0.0f);
+        for (Collider* c : this->colliders) {
+            points += c->getPosition();
+        }
+
+        vec2 average = points * (1.0f / this->colliders.size());
+        return average;
+    }
+    
+    // Get the weighted sum of objects.
+    else {
+        
+        float mass = 0.0f;
+        vec2 weighted = vec2(0.0f, 0.0f);
+        
+        for (Collider* c : this->colliders) {
+            mass += c->getMass();
+            weighted += c->getPosition() * c->getMass();
+        }
+
+        return weighted / mass;
+    }
+
+}
+
 float Rigidbody::getAngularVelocity() {
-    if (this->hasInfiniteMass()) {return 0.0f;}
+    if (this->hasInfiniteMass() || this->fixedOrientation) {return 0.0f;}
     return this->angularVelocity;
 }
 
-float Rigidbody::getCor() {
-    return this->cor;
+float Rigidbody::getRestitution() {
+    return this->restitution;
 }
 
 float Rigidbody::getMass() {
-    return this->mass;
+    float mass = 0.0f;
+    for (Collider* c : this->colliders) {mass += c->getMass();}
+    return mass;
 }
 
 float Rigidbody::getInverseMass() {
     if (this->hasInfiniteMass()) {return 0.0f;}
-    return 1.0f / this->mass;
+    return 1.0f / this->getMass();
 }
 
 float Rigidbody::getMomentOfInertia() {
+
     if (this->hasInfiniteMass()) {return FLT_MAX;}
-    vec2 size = this->getEntity()->getSize();
-    return this->mass * (size.x * size.x + size.y * size.y) / 12.0f;
+    
+    float moment = 0.0f;
+    float mass = this->getMass();
+    vec2 centroid = this->getCentroid();
+    for (Collider* c : this->colliders) {
+        vec2 r = c->getPosition() - centroid;
+        float rr = r.x * r.x + r.y * r.y;
+        moment += c->getMomentOfInertia() + rr * mass;
+    }
+
+    return moment;
 }
 
 float Rigidbody::getInverseMomentOfInertia() {
     if (this->hasInfiniteMass()) {return 0.0f;}
-    vec2 size = this->getEntity()->getSize();
-    return 1.0f / (this->mass * (size.x * size.x + size.y * size.y) / 12.0f);
+    return 1.0f / this->getMomentOfInertia();
 }
 
 bool Rigidbody::isSensor() {
@@ -130,18 +175,18 @@ Rigidbody* Rigidbody::setVelocity(vec2 velocity) {
 }
 
 Rigidbody* Rigidbody::setAngularVelocity(float angularVelocity) {
+
+    if (this->fixedOrientation) {
+        this->angularVelocity = 0.0f; 
+        return this;
+    }
+
     this->angularVelocity = angularVelocity;
     return this;
 }
 
-Rigidbody* Rigidbody::setCor(float cor) {
-    this->cor = cor;
-    return this;
-}
-
-Rigidbody* Rigidbody::setMass(float mass) {
-    if (mass < 0) {mass = 0;}
-    this->mass = mass;
+Rigidbody* Rigidbody::setRestitution(float cor) {
+    this->restitution = cor;
     return this;
 }
 
@@ -156,9 +201,9 @@ Rigidbody* Rigidbody::setFixedOrientation(bool orientation) {
 }
 
 void Rigidbody::clearAccumulators() {
-    this->forceAccum.x = 0;
-    this->forceAccum.y = 0;
-    this->torqueAccum = 0;
+    this->force.x = 0;
+    this->force.y = 0;
+    this->torque = 0;
 }
 
 void Rigidbody::physicsUpdate(float dt) {
@@ -166,24 +211,16 @@ void Rigidbody::physicsUpdate(float dt) {
     // Do not do a physics update if static.
     if (this->hasInfiniteMass()) {return;}
 
-    // Calculate velocity
-    this->velocity += this->forceAccum * (dt / this->mass);
-    this->angularVelocity += this->torqueAccum * (dt / this->mass);
-
-    // Calculate displacement
+    // Update linear
+    this->velocity += this->force * (dt / this->getMass());
     vec2 displacement = this->velocity * dt;
-    float rotation = this->angularVelocity * dt;
-
-    // Clear the force and torque accumulators.
-    this->clearAccumulators();
-
-    // Update the entity's position.
     this->getEntity()->addPosition(displacement);
 
-    // Update the rotation if required and allowed to.
-    if (!this->fixedOrientation && rotation != 0.0f) {
+    // Update the rotation if allowed to.
+    if (!this->fixedOrientation) {
 
-        // Update the entity's rotation.
+        this->angularVelocity += this->torque * (dt / this->getMass());
+        float rotation = this->angularVelocity * dt;
         this->getEntity()->addRotation(rotation);
 
         // Update all collider position offsets.
@@ -199,6 +236,9 @@ void Rigidbody::physicsUpdate(float dt) {
 
         // Note: There is no need to update collider rotation offsets since they are updated in the entity.
     }
+
+    // Clear the force and torque accumulators.
+    this->clearAccumulators();
     
 }
 
@@ -208,28 +248,30 @@ void Rigidbody::addVelocity(vec2 velocity) {
 }
 
 void Rigidbody::addAngularVelocity(float angularVelocity) {
-    if (this->hasInfiniteMass()) {return;}
+    if (this->hasInfiniteMass() || this->fixedOrientation) {return;}
     this->angularVelocity += angularVelocity;
 }
 
 void Rigidbody::addForce(vec2 force) {
     if (this->hasInfiniteMass()) {return;}
-    this->forceAccum += force;
+    this->force += force;
 }
 
 void Rigidbody::zeroForces() {
-    this->forceAccum = glm::vec2(0.0f, 0.0f);
+    this->force = glm::vec2(0.0f, 0.0f);
 }
 
 void Rigidbody::addTorque(float torque) {
     if (this->hasInfiniteMass()) {return;}
-    this->torqueAccum += torque;
+    this->torque += torque;
 }
 
 void Rigidbody::zeroTorque() {
-    this->torqueAccum = 0.0f;
+    this->torque = 0.0f;
 }
 
 bool Rigidbody::hasInfiniteMass() {
-    return this->mass == 0.0f;
+    for (Collider* c : this->colliders) {if (c->hasInfiniteMass()) {return true;}}
+    if (this->colliders.size() == 0) {return true;}
+    return false;
 }

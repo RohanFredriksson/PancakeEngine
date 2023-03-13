@@ -43,7 +43,7 @@ namespace {
 
         vec2 point = ray->direction * t + ray->origin;
         vec2 normal = glm::normalize(ray->origin - point);
-        return RaycastResult(point, normal, t, box->getEntity());
+        return RaycastResult(point, normal, t, box->getRigidbody()->getEntity());
 
     }
 
@@ -66,7 +66,7 @@ namespace {
 
         vec2 point = ray->direction * t + ray->origin;
         vec2 normal = glm::normalize(ray->origin - point);
-        return RaycastResult(point, normal, t, circle->getEntity());
+        return RaycastResult(point, normal, t, circle->getRigidbody()->getEntity());
 
     }
 
