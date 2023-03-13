@@ -212,7 +212,7 @@ void RenderBatch::loadVertexProperties(int index) {
         vec3 scaleVector = vec3(size.x, size.y, 1.0f);
         transformMatrix = glm::scale(transformMatrix, scaleVector);
         vec3 rotateVector = vec3(0.0f, 0.0f, 1.0f);
-        transformMatrix = glm::rotate(transformMatrix, -rotation / (float)(180.0 / M_PI), rotateVector);
+        transformMatrix = glm::rotate(transformMatrix, -rotation, rotateVector);
     }
 
     // Add vertices with the appropriate properties.

@@ -2,11 +2,12 @@
 #include <algorithm>
 #include <glm/glm.hpp>
 #include <glm/geometric.hpp>
-#include "physics/world.hpp"
-#include "graphics/renderer/debugdraw.hpp"
+#include <glm/gtx/rotate_vector.hpp>
 
+#include "physics/world.hpp"
 #include "physics/primitives/box.hpp"
 #include "physics/primitives/circle.hpp"
+#include "graphics/renderer/debugdraw.hpp"
 
 #include <iostream>
 
@@ -26,6 +27,10 @@ namespace {
         return vec2(-s * a.y, s * a.x);
     }
 
+    vec2 tangentVelocity(vec2 radius, float angularVelocity) {
+        return angularVelocity * glm::rotate(glm::normalize(radius), glm::radians(90.0f));
+    }
+
     void applyImpulse(Rigidbody* a, Rigidbody* b, CollisionManifold* m) {
 
         DebugDraw::drawCircle(m->contactPoint, 0.1f, vec3(0.0f, 0.0f, 1.0f), 10);
@@ -40,8 +45,12 @@ namespace {
         if (sumInvMass == 0.0f) {return;}
 
         // Calculate relative velocities of the bodies at the point of contact.
+        vec2 r1 = m->contactPoint - a->getEntity()->getPosition();
+        vec2 r2 = m->contactPoint - b->getEntity()->getPosition();
         vec2 relativeVelocity = b->getVelocity() - a->getVelocity();
         vec2 contactVelocity = glm::dot(relativeVelocity, m->normal) * m->normal;
+
+        // If both the linear and angular velocity are moving away from the object then the collision has been resolved.
         if (glm::dot(relativeVelocity, m->normal) > 0.0f) {return;}
 
         // Calculate the impulse required to resolve this collision.
@@ -53,13 +62,11 @@ namespace {
         b->addVelocity(impulse * b->getMass());
 
         // Calculate change in angular velocity of each body due to the impulse
-        vec2 r1 = m->contactPoint - a->getEntity()->getPosition();
-        vec2 r2 = m->contactPoint - b->getEntity()->getPosition();
         a->addAngularVelocity(-a->getInverseMomentOfInertia() * cross(r1, impulse));
         b->addAngularVelocity(b->getInverseMomentOfInertia() * cross(r2, impulse));
 
-        const float slop = 0.01f;
-        const float percent = 0.2f;
+        const float slop = 0.01f; // 0.01f
+        const float percent = 0.2f; // 0.2f
         vec2 correction = std::max(m->depth - slop, 0.0f) / (sumInvMass) * percent * m->normal;
         a->getEntity()->addPosition(-correction * aInvMass);
         b->getEntity()->addPosition(correction * bInvMass);
@@ -166,6 +173,7 @@ void World::fixedUpdate() {
     this->registry.updateForces(this->timeStep);
 
     // Resolve collision via iterative impulse resolution.
+    if (this->collisions.size() > 0) {std::cout << "RESOLUTION\n";}
     for (int k = 0; k < IMPULSE_ITERATIONS; k++) {
         int m = this->collisions.size();
         for (int i = 0; i < m; i++) {

@@ -9,12 +9,12 @@ namespace {
     int nextId = 0;
 }
 
-Entity::Entity(vec2 position, vec2 size, float rotation) {
+Entity::Entity(vec2 position, vec2 size, float radians) {
     
     this->id = nextId;
     this->position = position;
     this->size = size;
-    this->rotation = rotation;
+    this->rotation = radians;
     this->dead = false;
 
     nextId++;
@@ -110,8 +110,8 @@ void Entity::setSize(vec2 size) {
     this->size = size;
 }
 
-void Entity::setRotation(float rotation) {
-    this->rotation = rotation;
+void Entity::setRotation(float radians) {
+    this->rotation = radians;
 }
 
 void Entity::addPosition(vec2 position) {
@@ -122,18 +122,17 @@ void Entity::addSize(vec2 size) {
     this->size += size;
 }
 
-void Entity::addRotation(float rotation) {
+void Entity::addRotation(float radians) {
     
     // If we don't need to perform expensive computations, don't.
-    if (rotation == 0.0f) {return;}
+    if (radians == 0.0f) {return;}
 
     // Rotate the entity
-    this->rotation += rotation;
+    this->rotation += radians;
 
     // Get required values to rotate all component offsets.
-    float radians = rotation * M_PI / 180.0f;
-    float rCos = (float) cos(radians);
-    float rSin = (float) sin(radians);
+    float rCos = cosf(radians);
+    float rSin = sinf(radians);
 
     // Rotate all transformable components.
     for (Component* c : this->components) {
@@ -150,26 +149,25 @@ void Entity::addRotation(float rotation) {
 
 }
 
-void Entity::addRotationAround(float rotation, vec2 around) {
+void Entity::addRotationAround(float radians, vec2 around) {
 
     // If we don't need to perform expensive computations, don't.
-    if (rotation == 0.0f) {return;}
+    if (radians == 0.0f) {return;}
 
     if (around.x == 0.0f && around.y == 0.0f) {
-        this->addRotation(rotation);
+        this->addRotation(radians);
         return;
     }
     
     float x = this->position.x - around.x;
     float y = this->position.y - around.y;
-    float radians = rotation * M_PI / 180.0f;
-    float rCos = (float) cos(radians);
-    float rSin = (float) sin(radians);
+    float rCos = cosf(radians);
+    float rSin = sinf(radians);
 
     // Rotate the entity around the position.
     this->position.x = around.x + ((x * rCos) - (y * rSin));
     this->position.y = around.y + ((x * rSin) + (y * rCos));
-    this->rotation += rotation;
+    this->rotation += radians;
 
     // Rotate all position offsets of components
     for (Component* c : this->components) {

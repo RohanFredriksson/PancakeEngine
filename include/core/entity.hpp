@@ -21,11 +21,11 @@ class Entity {
         float rotation;
         bool dead;
 
-        void init(int id, vec2 position, vec2 size, float rotation);
+        void init(int id, vec2 position, vec2 size, float radians);
 
     public:
 
-        Entity(vec2 position, vec2 size, float rotation);
+        Entity(vec2 position, vec2 size, float radians);
         ~Entity();
 
         void update(float dt);
@@ -45,13 +45,13 @@ class Entity {
         // Setter Methods.
         void setPosition(vec2 position);
         void setSize(vec2 size);
-        void setRotation(float rotation);
+        void setRotation(float radians);
 
         // Adder Methods.
         void addPosition(vec2 position);
         void addSize(vec2 size);
-        void addRotation(float rotation);
-        void addRotationAround(float rotation, vec2 around);
+        void addRotation(float radians);
+        void addRotationAround(float radians, vec2 around);
 
         // Component Methods
         void addComponent(Component* component);

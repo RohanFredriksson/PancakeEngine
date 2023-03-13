@@ -185,17 +185,13 @@ namespace {
 
         // If we need to rotate, we need to store these variables.
         vec2 offset;
-        float radians;
         float rCos;
         float rSin;
         
         // Rotate the circle into the box's space.
         if (bRot != 0.0f) {
-
-            radians = -bRot * M_PI / 180.0f;
-            rCos = cosf(radians);
-            rSin = sinf(radians);
-
+            rCos = cosf(-bRot);
+            rSin = sinf(-bRot);
             rotate(cPos, bPos, rCos, rSin);
         }
 

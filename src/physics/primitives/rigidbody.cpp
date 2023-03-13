@@ -187,9 +187,8 @@ void Rigidbody::physicsUpdate(float dt) {
         this->getEntity()->addRotation(rotation);
 
         // Update all collider position offsets.
-        float radians = rotation * M_PI / 180.0f;
-        float rCos = cosf(radians);
-        float rSin = sinf(radians);
+        float rCos = cosf(rotation);
+        float rSin = sinf(rotation);
 
         for (Collider* c : this->colliders) {
             vec2 offset = c->getPositionOffset();

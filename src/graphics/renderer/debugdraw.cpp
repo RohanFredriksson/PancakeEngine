@@ -192,7 +192,7 @@ namespace DebugDraw {
 
         if (rotation != 0.0f) {
             for (int i = 0; i < 4; i++) {
-                vertices[i] = rotate(vertices[i], rotation, centre);
+                vertices[i] = rotate(vertices[i], rotation * 180 / M_PI, centre);
             }
         }
 
