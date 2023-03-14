@@ -221,7 +221,7 @@ void Rigidbody::physicsUpdate(float dt) {
 
         this->angularVelocity += this->torque * (dt / this->getMass());
         float rotation = this->angularVelocity * dt;
-        this->getEntity()->addRotation(rotation);
+        this->getEntity()->addRotationAround(rotation, this->getCentroid());
 
         // Update all collider position offsets.
         float rCos = cosf(rotation);

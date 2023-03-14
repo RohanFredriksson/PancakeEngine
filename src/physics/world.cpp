@@ -9,8 +9,6 @@
 #include "physics/primitives/circle.hpp"
 #include "graphics/renderer/debugdraw.hpp"
 
-#include <iostream>
-
 namespace {
     
     const int IMPULSE_ITERATIONS = 6;
@@ -37,12 +35,8 @@ namespace {
 
     void applyImpulse(Rigidbody* a, Rigidbody* b, CollisionManifold* m) {
 
-        DebugDraw::drawCircle(m->contactPoint, 0.1f, vec3(0.0f, 0.0f, 1.0f), 10);
-
         // Check for infinite mass objects.
         if (a->hasInfiniteMass() && b->hasInfiniteMass()) {return;}
-
-        std::cout << a->getCentroid().x << "\n";
 
         float invMassA = a->getInverseMass();
         float invMassB = b->getInverseMass();
@@ -80,42 +74,6 @@ namespace {
         vec2 correction = std::max(m->depth - slop, 0.0f) / (invMassA + invMassB) * percent * m->normal;
         a->getEntity()->addPosition(-correction * invMassA);
         b->getEntity()->addPosition(correction * invMassB);
-
-        /*
-        
-        // Get the inverse masses.
-        float aInvMass = a->getInverseMass();
-        float bInvMass = b->getInverseMass();
-        float sumInvMass = aInvMass + bInvMass;
-        if (sumInvMass == 0.0f) {return;}
-
-        // Calculate relative velocities of the bodies at the point of contact.
-        vec2 r1 = m->contactPoint - a->getCentroid();
-        vec2 r2 = m->contactPoint - b->getCentroid();
-        vec2 relativeVelocity = b->getVelocity() + cross(b->getAngularVelocity(), r2) - a->getVelocity() - cross(a->getAngularVelocity(), r1);
-        vec2 contactVelocity = glm::dot(relativeVelocity, m->normal) * m->normal;
-
-        // If both the linear and angular velocity are moving away from the object then the collision has been resolved.
-        if (glm::dot(relativeVelocity, m->normal) > 0.0f) {return;}
-
-        // Calculate the impulse required to resolve this collision.
-        float e = std::min(a->getRestitution(), b->getRestitution());
-        vec2 impulse = (-(1.0f + e) * contactVelocity) / sumInvMass;
-
-        // Apply impulses to the bodies proportionally to their mass.
-        a->addVelocity(-impulse * aInvMass);
-        b->addVelocity(impulse * bInvMass);
-
-        const float slop = 0.01f; // 0.01f
-        const float percent = 0.2f; // 0.2f
-        vec2 correction = std::max(m->depth - slop, 0.0f) / (sumInvMass) * percent * m->normal;
-        a->getEntity()->addPosition(-correction * aInvMass);
-        b->getEntity()->addPosition(correction * bInvMass);
-
-        // Calculate change in angular velocity of each body due to the impulse
-        a->addAngularVelocity(-a->getInverseMomentOfInertia() * cross(r1, impulse));
-        b->addAngularVelocity(b->getInverseMomentOfInertia() * cross(r2, impulse));
-        */
 
     }
 
@@ -219,7 +177,6 @@ void World::fixedUpdate() {
     this->registry.updateForces(this->timeStep);
 
     // Resolve collision via iterative impulse resolution.
-    if (this->collisions.size() > 0) {std::cout << "RESOLUTION\n";}
     for (int k = 0; k < IMPULSE_ITERATIONS; k++) {
         int m = this->collisions.size();
         for (int i = 0; i < m; i++) {
@@ -265,7 +222,6 @@ void World::render() {
             if (dynamic_cast<Box*>(collider) != nullptr) {
                 Box* box = (Box*) collider;
                 DebugDraw::drawBox(position, box->getSize(), box->getRotation(), vec3(0.0f, 1.0f, 0.0f), 1);
-                //DebugDraw::drawBox(position, box->getSize(), 0.0f, vec3(0.0f, 1.0f, 0.0f), 1);
             }
 
             else if (dynamic_cast<Circle*>(collider) != nullptr) {

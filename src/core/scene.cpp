@@ -33,6 +33,7 @@ Scene::Scene(string name) {
     Rigidbody* rigidbody;
     TextRenderer* textrenderer;
 
+    // SPHERE 1
     entity = new Entity(vec2(0.0f, 0.0f), vec2(1.0f, 1.0f), 0.0f);
 
     texture = TexturePool::get("assets/textures/armaan.png");
@@ -51,7 +52,46 @@ Scene::Scene(string name) {
     entity->addComponent(rigidbody);
     this->addEntity(entity);
 
-    entity = new Entity(vec2(-0.5f, 3.0f), vec2(3.0f, 1.0f), 0.0f);
+    // SPHERE 2
+    entity = new Entity(vec2(3.5f, -2.5f), vec2(1.0f, 1.0f), 0.0f);
+
+    texture = TexturePool::get("assets/textures/armaan.png");
+    sprite = new Sprite("armaan", texture);
+    spriterenderer = new SpriteRenderer();
+    spriterenderer->setSprite(sprite);
+
+    rigidbody = new Rigidbody();
+    rigidbody->setRestitution(1.0f);
+
+    circle = new Circle();
+    circle->setMass(0.0f);
+    rigidbody->addCollider(circle);
+
+    entity->addComponent(spriterenderer);
+    entity->addComponent(rigidbody);
+    this->addEntity(entity);
+
+    // SPHERE 3
+    entity = new Entity(vec2(-0.5f, -4.5f), vec2(1.0f, 1.0f), 0.0f);
+
+    texture = TexturePool::get("assets/textures/armaan.png");
+    sprite = new Sprite("armaan", texture);
+    spriterenderer = new SpriteRenderer();
+    spriterenderer->setSprite(sprite);
+
+    rigidbody = new Rigidbody();
+    rigidbody->setRestitution(1.0f);
+
+    circle = new Circle();
+    circle->setMass(0.0f);
+    rigidbody->addCollider(circle);
+
+    entity->addComponent(spriterenderer);
+    entity->addComponent(rigidbody);
+    this->addEntity(entity);
+
+    // BOX
+    entity = new Entity(vec2(0.5f, 3.0f), vec2(3.0f, 1.0f), 0.0f);
 
     texture = TexturePool::get("assets/textures/ainsley.png");
     sprite = new Sprite("ainsley", texture);
@@ -59,7 +99,7 @@ Scene::Scene(string name) {
     spriterenderer->setSprite(sprite);
     
     rigidbody = new Rigidbody();
-    rigidbody->setRestitution(1.0f);
+    rigidbody->setRestitution(0.5f);
     //rigidbody->setVelocity(vec2(1.0f, 10.0f));
     //rigidbody->setFixedOrientation(true);
     //rigidbody->setAngularVelocity(-35.0f);
