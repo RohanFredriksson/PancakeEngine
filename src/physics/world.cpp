@@ -27,6 +27,14 @@ namespace {
         return vec2(-s * a.y, s * a.x);
     }
 
+    inline vec2 perp(vec2 v) {
+        return glm::rotate(v, glm::half_pi<float>());
+    }
+
+    inline float proj(vec2 a, vec2 b) {
+        return glm::dot(a, b) / glm::length(b);
+    }
+
     void applyImpulse(Rigidbody* a, Rigidbody* b, CollisionManifold* m) {
 
         DebugDraw::drawCircle(m->contactPoint, 0.1f, vec3(0.0f, 0.0f, 1.0f), 10);
@@ -34,6 +42,47 @@ namespace {
         // Check for infinite mass objects.
         if (a->hasInfiniteMass() && b->hasInfiniteMass()) {return;}
 
+        std::cout << a->getCentroid().x << "\n";
+
+        float invMassA = a->getInverseMass();
+        float invMassB = b->getInverseMass();
+        float invMoiA = a->getInverseMomentOfInertia();
+        float invMoiB = b->getInverseMomentOfInertia();
+        float angVelA = a->getAngularVelocity();
+        float angVelB = b->getAngularVelocity();
+        float restitution = a->getRestitution() * b->getRestitution();
+        vec2 tangent = perp(m->normal);
+        vec2 rA = m->contactPoint - a->getCentroid();
+        vec2 rB = m->contactPoint - b->getCentroid();
+        vec2 vAB = b->getVelocity() + perp(rB) * angVelB - a->getVelocity() - perp(rA) * angVelA;
+        float rAproj = proj(rA, m->normal);
+        float rAreg = proj(rA, tangent);
+        float rBproj = proj(rB, m->normal);
+        float rBreg = proj(rB, tangent);
+        float vproj = proj(vAB, m->normal);
+        float vreg = proj(vAB, tangent);
+
+        // If both bodies are moving away from each other.
+        if (vproj >= 0.0f) {return;}
+
+        // Calculate the impulse of the collision.
+        float impulse =  -((1 + restitution) * vproj) / (invMassA + invMassB + (invMoiA * rAreg * rAreg) + (invMoiB * rBreg * rBreg));
+
+        // Resolve the collision.
+        b->addVelocity(m->normal * impulse * invMassB);
+        b->addAngularVelocity(-impulse * invMoiB * rBreg);
+        a->addVelocity(-m->normal * impulse * invMassA);
+        a->addAngularVelocity(impulse * invMoiA * rAreg);
+
+        // Position correction.
+        const float slop = 0.01f;
+        const float percent = 0.2f;
+        vec2 correction = std::max(m->depth - slop, 0.0f) / (invMassA + invMassB) * percent * m->normal;
+        a->getEntity()->addPosition(-correction * invMassA);
+        b->getEntity()->addPosition(correction * invMassB);
+
+        /*
+        
         // Get the inverse masses.
         float aInvMass = a->getInverseMass();
         float bInvMass = b->getInverseMass();
@@ -66,6 +115,7 @@ namespace {
         // Calculate change in angular velocity of each body due to the impulse
         a->addAngularVelocity(-a->getInverseMomentOfInertia() * cross(r1, impulse));
         b->addAngularVelocity(b->getInverseMomentOfInertia() * cross(r2, impulse));
+        */
 
     }
 
