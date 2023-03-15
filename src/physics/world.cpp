@@ -130,8 +130,7 @@ void World::fixedUpdate() {
 
             if (colliders1.size() == 0 || colliders2.size() == 0) {continue;}
 
-            vector<CollisionManifold*> tmp;
-            bool cardinal = false;
+            vector<CollisionManifold*> results;
             for (int k = 0; k < colliders1.size(); k++) {
                 for (int l = 0; l < colliders2.size(); l++) {
                     
@@ -139,29 +138,9 @@ void World::fixedUpdate() {
                     Collider* collider2 = colliders2[l];
 
                     CollisionManifold* result = Collision::findCollisionFeatures(collider1, collider2);
-                    if (result == NULL) {continue;}
-                    if (result->isCardinal()) {cardinal = true;}
-                    tmp.push_back(result);
+                    if (result != NULL) {results.push_back(result);}
 
                 }
-            }
-
-            vector<CollisionManifold*> results;
-            if (cardinal) {
-                
-                for (int k = 0; k < tmp.size(); k++) {
-                    if (tmp[k]->isCardinal()) {results.push_back(tmp[k]);} 
-                    else {delete tmp[k];}
-                }
-                
-            } 
-            
-            else {
-
-                for (int k = 0; k < tmp.size(); k++) {
-                    results.push_back(tmp[k]);
-                }
-
             }
 
             if (results.size() > 0) {
@@ -188,7 +167,7 @@ void World::fixedUpdate() {
         for (int i = 0; i < m; i++) {
             Rigidbody* r1 = this->bodies1[i];
             Rigidbody* r2 = this->bodies2[i];
-            for (int j = 0; j < this->collisions.size(); j++) {
+            for (int j = 0; j < this->collisions[i].size(); j++) {
                 applyImpulse(r1, r2, this->collisions[i][j]);
             }
         }

@@ -15,6 +15,4 @@ class CollisionManifold {
         CollisionManifold();
         CollisionManifold(vec2 normal, vec2 contactPoint, float depth);
 
-        bool isCardinal();
-
 };
