@@ -109,6 +109,12 @@ Scene::Scene(string name) {
     box->setSize(vec2(3.0f, 1.0f));
     rigidbody->addCollider(box);
 
+    box = new Box();
+    box->setMass(1.0f);
+    box->setSize(vec2(1.0f, 2.0f));
+    box->setPositionOffset(vec2(1.0f, 1.5f));
+    rigidbody->addCollider(box);
+
     entity->addComponent(spriterenderer);
     entity->addComponent(rigidbody);
     this->addEntity(entity);

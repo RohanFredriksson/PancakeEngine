@@ -19,6 +19,7 @@ class Rigidbody : public Component {
         float torque;
         float angularVelocity;
         float restitution;
+        float friction;
         bool sensor;
         bool fixedOrientation;
 
@@ -32,6 +33,7 @@ class Rigidbody : public Component {
         vec2 getCentroid();
         float getAngularVelocity();
         float getRestitution();
+        float getFriction();
         float getMass();
         float getInverseMass();
         float getMomentOfInertia();
@@ -51,6 +53,7 @@ class Rigidbody : public Component {
         Rigidbody* setVelocity(vec2 velocity);
         Rigidbody* setAngularVelocity(float angularVelocity);
         Rigidbody* setRestitution(float cor);
+        Rigidbody* setFriction(float cof);
         Rigidbody* setSensor(bool sensor);
         Rigidbody* setFixedOrientation(bool orientation);
 

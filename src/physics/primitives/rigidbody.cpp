@@ -10,6 +10,7 @@ Rigidbody::Rigidbody() : Component() {
     this->torque = 0.0f;
     this->angularVelocity = 0.0f;
     this->restitution = 1.0f;
+    this->friction = 0.0f;
     this->sensor = false;
     this->fixedOrientation = false;
 
@@ -70,6 +71,10 @@ float Rigidbody::getAngularVelocity() {
 
 float Rigidbody::getRestitution() {
     return this->restitution;
+}
+
+float Rigidbody::getFriction() {
+    return this->friction;
 }
 
 float Rigidbody::getMass() {
@@ -187,6 +192,11 @@ Rigidbody* Rigidbody::setAngularVelocity(float angularVelocity) {
 
 Rigidbody* Rigidbody::setRestitution(float cor) {
     this->restitution = cor;
+    return this;
+}
+
+Rigidbody* Rigidbody::setFriction(float cof) {
+    this->friction = cof;
     return this;
 }
 
