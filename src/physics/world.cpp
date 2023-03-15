@@ -1,4 +1,5 @@
-#include <limits.h>
+#include <cmath>
+#include <limits>
 #include <algorithm>
 #include <glm/glm.hpp>
 #include <glm/geometric.hpp>
@@ -12,19 +13,7 @@
 namespace {
     
     const int IMPULSE_ITERATIONS = 6;
-
-    inline float cross(vec2 a, vec2 b) {
-        return a.x * b.y + a.y * b.x;
-    }
-
-    inline vec2 cross(vec2 a, float s) {
-        return vec2(s * a.y, -s * a.x);
-    }
-
-    inline vec2 cross(float s, vec2 a) {
-        return vec2(-s * a.y, s * a.x);
-    }
-
+    
     inline vec2 perp(vec2 v) {
         return glm::rotate(v, glm::half_pi<float>());
     }
@@ -45,6 +34,7 @@ namespace {
         float angVelA = a->getAngularVelocity();
         float angVelB = b->getAngularVelocity();
         float restitution = a->getRestitution() * b->getRestitution();
+        float friction = std::max(a->getFriction(), b->getFriction());
         vec2 tangent = perp(m->normal);
         vec2 rA = m->contactPoint - a->getCentroid();
         vec2 rB = m->contactPoint - b->getCentroid();
@@ -67,6 +57,22 @@ namespace {
         b->addAngularVelocity(-impulse * invMoiB * rBreg);
         a->addVelocity(-m->normal * impulse * invMassA);
         a->addAngularVelocity(impulse * invMoiA * rAreg);
+
+        // Calculate friction.
+        if (friction > 0.0f && vreg > 0.0f) {
+
+            float max = fabsf(vreg) / (invMassA + invMassB + (invMoiA * rAproj * rAproj) + (invMoiB * rBproj * rBproj));
+            float sign = vreg < 0.0f ? -1.0f : 1.0f;
+            impulse = friction * fabsf(impulse);
+            impulse = std::min(impulse, max);
+            impulse *= sign;
+
+            b->addVelocity(-tangent * impulse * invMassB);
+            b->addAngularVelocity(-impulse * invMoiB * rBproj);
+            a->addVelocity(tangent * impulse * invMassA);
+            a->addAngularVelocity(impulse * invMoiA * rAproj);
+
+        }
 
         // Position correction.
         const float slop = 0.01f;

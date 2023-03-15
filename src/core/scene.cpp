@@ -100,6 +100,7 @@ Scene::Scene(string name) {
     
     rigidbody = new Rigidbody();
     rigidbody->setRestitution(0.5f);
+    rigidbody->setFriction(0.5f);
     //rigidbody->setVelocity(vec2(1.0f, 10.0f));
     //rigidbody->setFixedOrientation(true);
     //rigidbody->setAngularVelocity(-35.0f);
@@ -109,11 +110,11 @@ Scene::Scene(string name) {
     box->setSize(vec2(3.0f, 1.0f));
     rigidbody->addCollider(box);
 
-    box = new Box();
-    box->setMass(1.0f);
-    box->setSize(vec2(1.0f, 2.0f));
-    box->setPositionOffset(vec2(1.0f, 1.5f));
-    rigidbody->addCollider(box);
+    //box = new Box();
+    //box->setMass(1.0f);
+    //box->setSize(vec2(1.0f, 2.0f));
+    //box->setPositionOffset(vec2(1.0f, 1.5f));
+    //rigidbody->addCollider(box);
 
     entity->addComponent(spriterenderer);
     entity->addComponent(rigidbody);
