@@ -8,6 +8,8 @@
 #include "physics/primitives/circle.hpp"
 #include "physics/primitives/box.hpp"
 
+#include <iostream>
+
 using std::vector;
 
 namespace {
@@ -70,7 +72,7 @@ namespace {
         return new CollisionManifold(normal, contactPoint, depth);
     }
 
-    CollisionManifold* findCollisionFeaturesBoxAndBox(Box* a, Box* b) {
+    CollisionManifold* findCollisionFeaturesBoxAndBox(Box* a, Box* b, bool flip) {
 
         // Store all the information that is required.
         float aRotation = a->getRotation();
@@ -121,13 +123,8 @@ namespace {
         vector<vec2> inside;
         for (vec2 v : bVertices) {if (v.x >= aMin.x && v.x <= aMax.x && v.y >= aMin.y && v.y <= aMax.y) {inside.push_back(v);}}
 
-        // If no points are inside
-        if (inside.size() == 0) {
-
-        }
-
         // Find the size that minimises the straight line distance of all points to an edge.
-        else if (inside.size() == 1 || inside.size() == 2) {
+        if (inside.size() == 1 || inside.size() == 2) {
 
             float best = FLT_MAX;
             float distance;
@@ -207,10 +204,17 @@ namespace {
             CollisionManifold* result = new CollisionManifold(normal, contactPoint, depth);
             rotate(result->normal, vec2(0.0f, 0.0f), aCos, aSin);
             rotate(result->contactPoint, aPos, aCos, aSin);
+            if (flip) {result->normal = -result->normal;}
             return result;
         }
 
         return NULL;
+    }
+
+    CollisionManifold* findCollisionFeaturesBoxAndBox(Box* a, Box* b) {
+        CollisionManifold* result = findCollisionFeaturesBoxAndBox(a, b, false);
+        if (result != NULL) {return result;}
+        return findCollisionFeaturesBoxAndBox(b, a, true);
     }
 
     CollisionManifold* findCollisionFeaturesCircleAndBox(Circle* c, Box* b, bool flip) {
