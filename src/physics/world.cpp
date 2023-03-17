@@ -27,6 +27,8 @@ namespace {
         // Check for infinite mass objects.
         if (a->hasInfiniteMass() && b->hasInfiniteMass()) {return;}
 
+        DebugDraw::drawBox(m->contactPoint, vec2(0.1f, 0.1f), 0.0f, vec3(1.0f, 0.0f, 0.0f), 10);
+
         float invMassA = a->getInverseMass();
         float invMassB = b->getInverseMass();
         float invMoiA = a->getInverseMomentOfInertia();

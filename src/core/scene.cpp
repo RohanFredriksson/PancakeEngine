@@ -33,8 +33,8 @@ Scene::Scene(string name) {
     Rigidbody* rigidbody;
     TextRenderer* textrenderer;
 
-    // SPHERE 1
-    entity = new Entity(vec2(2.0f, 5.0f), vec2(1.0f, 1.0f), 0.0f);
+    // BOX 1
+    entity = new Entity(vec2(0.0f, 5.0f), vec2(1.0f, 1.0f), 0.0f);
 
     texture = TexturePool::get("assets/textures/armaan.png");
     sprite = new Sprite("armaan", texture);
@@ -42,47 +42,20 @@ Scene::Scene(string name) {
     spriterenderer->setSprite(sprite);
 
     rigidbody = new Rigidbody();
-    rigidbody->setRestitution(1.0f);
-    rigidbody->setFriction(0.0f);
+    rigidbody->setRestitution(0.5f);
+    rigidbody->setFriction(0.5f);
 
-    circle = new Circle();
-    circle->setRadius(0.5f);
-    circle->setMass(0.5f);
-    circle->setPositionOffset(vec2(0.5f, 0.0f));
-    rigidbody->addCollider(circle);
-
-    circle = new Circle();
-    circle->setRadius(0.5f);
-    circle->setMass(0.5f);
-    circle->setPositionOffset(vec2(-0.5f, 0.0f));
-    rigidbody->addCollider(circle);
+    box = new Box();
+    box->setMass(1.0f);
+    box->setSize(vec2(1.0f, 1.0f));
+    box->setRotationOffset(0.5f);
+    rigidbody->addCollider(box);
 
     entity->addComponent(spriterenderer);
     entity->addComponent(rigidbody);
     this->addEntity(entity);
 
-    // SPHERE 2
-    entity = new Entity(vec2(-2.0f, 5.0f), vec2(1.0f, 1.0f), 0.0f);
-
-    texture = TexturePool::get("assets/textures/armaan.png");
-    sprite = new Sprite("armaan", texture);
-    spriterenderer = new SpriteRenderer();
-    spriterenderer->setSprite(sprite);
-
-    rigidbody = new Rigidbody();
-    rigidbody->setRestitution(1.0f);
-    rigidbody->setFriction(0.0f);
-    rigidbody->setFixedOrientation(true);
-
-    circle = new Circle();
-    circle->setMass(1.0f);
-    rigidbody->addCollider(circle);
-
-    entity->addComponent(spriterenderer);
-    entity->addComponent(rigidbody);
-    this->addEntity(entity);
-
-    // BOX
+    // BOX 2
     entity = new Entity(vec2(0.0f, 0.0f), vec2(7.0f, 1.0f), 0.0f);
 
     texture = TexturePool::get("assets/textures/ainsley.png");
@@ -91,7 +64,7 @@ Scene::Scene(string name) {
     spriterenderer->setSprite(sprite);
     
     rigidbody = new Rigidbody();
-    rigidbody->setRestitution(0.9f);
+    rigidbody->setRestitution(1.0f);
     rigidbody->setFriction(0.0f);
     
     box = new Box();

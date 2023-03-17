@@ -1,4 +1,5 @@
 #include <cmath>
+#include <limits>
 #include <vector>
 #include <algorithm>
 #include <glm/glm.hpp>
@@ -6,6 +7,8 @@
 #include "physics/collision/collision.hpp"
 #include "physics/primitives/circle.hpp"
 #include "physics/primitives/box.hpp"
+
+#include <iostream>
 
 using std::vector;
 
@@ -32,7 +35,7 @@ namespace {
             float x = vertices[i].x - origin.x;
             float y = vertices[i].y - origin.y;
             vertices[i].x = origin.x + ((x * rCos) - (y * rSin));
-            vertices[i].x = origin.y + ((x * rSin) + (y * rCos));
+            vertices[i].y = origin.y + ((x * rSin) + (y * rCos));
         }
     }
 
@@ -75,18 +78,75 @@ namespace {
         vector<vec2> inside;
         vector<vec2> outside;
         for (vec2 v : bVertices) {
-            if (v.x > aMin.x && v.x < aMax.x && v.y > aMin.y && v.y < aMax.y) {inside.push_back(v);}
+            if (v.x >= aMin.x && v.x <= aMax.x && v.y >= aMin.y && v.y <= aMax.y) {inside.push_back(v);}
             else {outside.push_back(v);}
         }
 
         // Find the size that minimises the straight line distance of all points to an edge.
         if (inside.size() == 1 || inside.size() == 2) {
 
+            float best = FLT_MAX;
+            float distance;
+            float depth;
+            vec2 normal;
+            vec2 average;
+            vec2 contactPoint;
+            
+            // Top side.
+            average = vec2(0.0f, 0.0f);
+            distance = 0.0f;
+            for (vec2 v : inside) {average += v; distance += aMax.y - v.y;}
+            average = average / (float) inside.size();
+            if (distance < best) {
+                normal = vec2(0.0f, 1.0f); 
+                depth = (distance / (float) inside.size()) * 0.5f;
+                contactPoint = vec2(average.x, average.y + depth);
+                best = distance;
+            }
+
+            // Bottom side.
+            average = vec2(0.0f, 0.0f);
+            distance = 0.0f;
+            for (vec2 v : inside) {average += v; distance += v.y - aMin.y;}
+            average = average / (float) inside.size();
+            if (distance < best) {
+                normal = vec2(0.0f, -1.0f); 
+                depth = (distance / (float) inside.size()) * 0.5f;
+                contactPoint = vec2(average.x, average.y - depth);
+                best = distance;
+            }
+
+            // Right side.
+            average = vec2(0.0f, 0.0f);
+            distance = 0.0f;
+            for (vec2 v : inside) {average += v; distance += aMax.x - v.x;}
+            average = average / (float) inside.size();
+            if (distance < best) {
+                normal = vec2(1.0f, 0.0f); 
+                depth = (distance / (float) inside.size()) * 0.5f;
+                contactPoint = vec2(average.x + depth, average.y);
+                best = distance;
+            }
+
+            // left side.
+            average = vec2(0.0f, 0.0f);
+            distance = 0.0f;
+            for (vec2 v : inside) {average += v; distance += v.x - aMin.x;}
+            average = average / (float) inside.size();
+            if (distance < best) {
+                normal = vec2(-1.0f, 0.0f); 
+                depth = (distance / (float) inside.size()) * 0.5f;
+                contactPoint = vec2(average.x - depth, average.y);
+                best = distance;
+            }
+
+            if (flip) {normal = -normal;}                        
+            return new CollisionManifold(normal, contactPoint, depth);
         } 
 
         // Find the edge the outside vertex is.
         if (inside.size() == 3) {
-
+            // TODO: Probably not needed however.
         }
 
         // Either no collision or all inside the shape.
@@ -106,33 +166,50 @@ namespace {
         vec2 bMin = b->getMin();
         vec2 bMax = b->getMax();
 
-        // Rotate the vertices of b, such that we can treat a as an aabb.
+        // Cache the trig ratios for rotational use.
+        float aCos = cosf(aRotation);
+        float aSin = sinf(aRotation);
+        float bCos = cosf(bRotation);
+        float bSin = sinf(bRotation);
+
+        // Get the vertices of b.
         vector<vec2> vertices;
         vertices.push_back(vec2(bMin.x, bMin.y));
         vertices.push_back(vec2(bMin.x, bMax.y));
+        vertices.push_back(vec2(bMax.x, bMin.y));
         vertices.push_back(vec2(bMax.x, bMax.y));
-        vertices.push_back(vec2(bMin.x, bMax.y));
+        rotate(vertices, bPos, bCos, bSin);
 
-        float rCos = cosf(-aRotation);
-        float rSin = sinf(-aRotation);
-        rotate(vertices, aPos, rCos, rSin);
+        // Rotate the vertices of b, such that we can treat a as an aabb.
+        rotate(vertices, aPos, aCos, -aSin);
 
         // Check for collisions where a is an aabb.
         CollisionManifold* result = findCollisionFeaturesAABBAndBox(aMin, aMax, vertices, false);
-        if (result != NULL) {return result;}
+        if (result != NULL) {
+            rotate(result->normal, vec2(0.0f, 0.0f), aCos, aSin);
+            rotate(result->contactPoint, aPos, aCos, aSin);
+            return result;
+        }
 
         // Rotate the vertices of a, such that we can treat a as an aabb.
         vertices.clear();
         vertices.push_back(vec2(aMin.x, aMin.y));
         vertices.push_back(vec2(aMin.x, aMax.y));
+        vertices.push_back(vec2(aMax.x, aMin.y));
         vertices.push_back(vec2(aMax.x, aMax.y));
-        vertices.push_back(vec2(aMin.x, aMax.y));
+        rotate(vertices, aPos, aCos, aSin);
 
-        rotate(vertices, bPos, rCos, -rSin);
+        // Rotate the vertices of a, such that we can treat b as an aabb.
+        rotate(vertices, bPos, bCos, -bSin);
 
         // Check for collision where b is an aabb.
-        return findCollisionFeaturesAABBAndBox(bMin, bMax, vertices, true);
+        result = findCollisionFeaturesAABBAndBox(bMin, bMax, vertices, true);
+        if (result != NULL) {
+            rotate(result->normal, vec2(0.0f, 0.0f), bCos, bSin);
+            rotate(result->contactPoint, bPos, bCos, bSin);
+        }
 
+        return result;
     }
 
     CollisionManifold* findCollisionFeaturesCircleAndBox(Circle* c, Box* b, bool flip) {
