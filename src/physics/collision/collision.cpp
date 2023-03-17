@@ -72,7 +72,7 @@ namespace {
         return new CollisionManifold(normal, contactPoint, depth);
     }
 
-    CollisionManifold* findCollisionFeaturesBoxAndBox(Box* a, Box* b, bool flip) {
+    CollisionManifold* findCollisionFeaturesBoxAndBox(Box* a, Box* b) {
 
         // Store all the information that is required.
         float aRotation = a->getRotation();
@@ -204,17 +204,10 @@ namespace {
             CollisionManifold* result = new CollisionManifold(normal, contactPoint, depth);
             rotate(result->normal, vec2(0.0f, 0.0f), aCos, aSin);
             rotate(result->contactPoint, aPos, aCos, aSin);
-            if (flip) {result->normal = -result->normal;}
             return result;
         }
 
         return NULL;
-    }
-
-    CollisionManifold* findCollisionFeaturesBoxAndBox(Box* a, Box* b) {
-        CollisionManifold* result = findCollisionFeaturesBoxAndBox(a, b, false);
-        if (result != NULL) {return result;}
-        return findCollisionFeaturesBoxAndBox(b, a, true);
     }
 
     CollisionManifold* findCollisionFeaturesCircleAndBox(Circle* c, Box* b, bool flip) {
