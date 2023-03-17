@@ -48,7 +48,6 @@ Scene::Scene(string name) {
     box = new Box();
     box->setMass(1.0f);
     box->setSize(vec2(1.0f, 1.0f));
-    box->setRotationOffset(0.5f);
     rigidbody->addCollider(box);
 
     entity->addComponent(spriterenderer);
