@@ -1,4 +1,5 @@
 #include <cmath>
+#include <vector>
 #include <algorithm>
 #include <glm/glm.hpp>
 #include <glm/geometric.hpp>
@@ -6,13 +7,45 @@
 #include "physics/primitives/circle.hpp"
 #include "physics/primitives/box.hpp"
 
+using std::vector;
+
 namespace {
+
+    bool xSort(const glm::vec2& a, const glm::vec2& b) {
+        return a.x < b.x;
+    }
+
+    bool ySort(const glm::vec2& a, const glm::vec2& b) {
+        return a.y < b.y;
+    }
 
     void rotate(vec2& vec, vec2 origin, float rCos, float rSin) {
         float x = vec.x - origin.x;
         float y = vec.y - origin.y;
         vec.x = origin.x + ((x * rCos) - (y * rSin));
         vec.y = origin.y + ((x * rSin) + (y * rCos));
+    }
+
+    void rotate(vector<vec2>& vertices, vec2 origin, float rCos, float rSin) {
+        int n = vertices.size();
+        for (int i = 0; i < n; i++) {
+            float x = vertices[i].x - origin.x;
+            float y = vertices[i].y - origin.y;
+            vertices[i].x = origin.x + ((x * rCos) - (y * rSin));
+            vertices[i].x = origin.y + ((x * rSin) + (y * rCos));
+        }
+    }
+
+    bool intersects(vec2 aStart, vec2 aEnd, vec2 bStart, vec2 bEnd) {
+        float dx0 = aEnd.x - aStart.x;
+        float dx1 = bEnd.x - bStart.x;
+        float dy0 = aEnd.y - aStart.y;
+        float dy1 = bEnd.y - bStart.y;
+        float p0 = dy1 * (bEnd.x - aStart.x) - dx1 *(bEnd.y - aStart.y);
+        float p1 = dy1 * (bEnd.x - aEnd.x)   - dx1 *(bEnd.y - aEnd.y);
+        float p2 = dy0 * (aEnd.x - bStart.x) - dx0 *(aEnd.y - bStart.y);
+        float p3 = dy0 * (aEnd.x - bEnd.x)   - dx0 *(aEnd.y - bEnd.y);
+        return (p0 * p1 <= 0) && (p2 * p3 <= 0);
     }
 
     CollisionManifold* findCollisionFeaturesCircleAndCircle(Circle* a, Circle* b) {
@@ -36,139 +69,70 @@ namespace {
         return new CollisionManifold(normal, contactPoint, depth);
     }
 
+    CollisionManifold* findCollisionFeaturesAABBAndBox(vec2 aMin, vec2 aMax, vector<vec2> bVertices, bool flip) {
+        
+        // Find all the vertices in b that are inside a's aabb.
+        vector<vec2> inside;
+        vector<vec2> outside;
+        for (vec2 v : bVertices) {
+            if (v.x > aMin.x && v.x < aMax.x && v.y > aMin.y && v.y < aMax.y) {inside.push_back(v);}
+            else {outside.push_back(v);}
+        }
+
+        // Find the size that minimises the straight line distance of all points to an edge.
+        if (inside.size() == 1 || inside.size() == 2) {
+
+        } 
+
+        // Find the edge the outside vertex is.
+        if (inside.size() == 3) {
+
+        }
+
+        // Either no collision or all inside the shape.
+        return NULL;
+    }
+
     CollisionManifold* findCollisionFeaturesBoxAndBox(Box* a, Box* b) {
 
+        // Store all the information that is required.
+        float aRotation = a->getRotation();
+        vec2 aPos = a->getPosition();
         vec2 aMin = a->getMin();
-        vec2 bMin = b->getMin();
         vec2 aMax = a->getMax();
+
+        float bRotation = b->getRotation();
+        vec2 bPos = b->getPosition();
+        vec2 bMin = b->getMin();
         vec2 bMax = b->getMax();
 
-        bool colliding = aMax.x > bMin.x && bMax.x > aMin.x && aMax.y > bMin.y && bMax.y > aMin.y;
-        if (!colliding) {return NULL;}
+        // Rotate the vertices of b, such that we can treat a as an aabb.
+        vector<vec2> vertices;
+        vertices.push_back(vec2(bMin.x, bMin.y));
+        vertices.push_back(vec2(bMin.x, bMax.y));
+        vertices.push_back(vec2(bMax.x, bMax.y));
+        vertices.push_back(vec2(bMin.x, bMax.y));
 
-        float xDepths[2];
-        float yDepths[2];
+        float rCos = cosf(-aRotation);
+        float rSin = sinf(-aRotation);
+        rotate(vertices, aPos, rCos, rSin);
 
-        xDepths[0] = fabsf(bMax.x - aMin.x);
-        xDepths[1] = fabsf(bMin.x - aMax.x);
-        yDepths[0] = fabsf(bMax.y - aMin.y);
-        yDepths[1] = fabsf(bMin.y - aMax.y);
+        // Check for collisions where a is an aabb.
+        CollisionManifold* result = findCollisionFeaturesAABBAndBox(aMin, aMax, vertices, false);
+        if (result != NULL) {return result;}
 
-        float minXDepth = std::min(xDepths[0], xDepths[1]);
-        float minYDepth = std::min(yDepths[0], yDepths[1]);
+        // Rotate the vertices of a, such that we can treat a as an aabb.
+        vertices.clear();
+        vertices.push_back(vec2(aMin.x, aMin.y));
+        vertices.push_back(vec2(aMin.x, aMax.y));
+        vertices.push_back(vec2(aMax.x, aMax.y));
+        vertices.push_back(vec2(aMin.x, aMax.y));
 
-        vec2 aPosition = a->getPosition();
-        vec2 bPosition = b->getPosition();
+        rotate(vertices, bPos, rCos, -rSin);
 
-        float depth;
-        vec2 normal;
-        vec2 contactPoint;
+        // Check for collision where b is an aabb.
+        return findCollisionFeaturesAABBAndBox(bMin, bMax, vertices, true);
 
-        if (minXDepth < minYDepth) {
-
-            // Determine the normal of collision
-            normal.x = (bPosition.x > aPosition.x) ? 1.0f : -1.0f;
-            normal.y = 0.0f;
-
-            // Find the middle of the contact point
-            float yValues[4];
-            float aY[2];
-            float bY[2];
-            aY[0] = aMin.y;
-            aY[1] = aMax.y;
-            bY[0] = bMin.y;
-            bY[1] = bMax.y;
-
-            int k = 0;
-            int i = 0;
-            int j = 0;
-
-            // Combine two sorted arrays
-            while (i < 2 && j < 2) {
-                
-                if (i >= 2) {
-                    yValues[k] = bY[j];
-                    j++;
-                }
-
-                else if (j >= 2) {
-                    yValues[k] = aY[i];
-                    i++;
-                }
-
-                else if (aY[i] < bY[j]) {
-                    yValues[k] = aY[i];
-                    i++;
-                }
-
-                else {
-                    yValues[k] = bY[j];
-                    j++;
-                }
-
-                k++;
-            }
-
-            float yMid = (yValues[2] - yValues[1]) * 0.5f;
-            if (xDepths[0] < xDepths[1]) {contactPoint.x = aMin.x + normal.x * depth;} 
-            else {contactPoint.x = aMax.x + normal.x * depth;}
-            contactPoint.y = yMid;
-
-        }
-
-        else {
-
-            // Determine the normal of collision
-            normal.x = 0.0f;
-            normal.y = (bPosition.y > aPosition.y) ? 1.0f : -1.0f;
-
-            // Find the middle of the contact point
-            float xValues[4];
-            float aX[2];
-            float bX[2];
-            aX[0] = aMin.x;
-            aX[1] = aMax.x;
-            bX[0] = bMin.x;
-            bX[1] = bMax.x;
-
-            int k = 0;
-            int i = 0;
-            int j = 0;
-
-            // Combine two sorted arrays
-            while (i < 2 && j < 2) {
-                
-                if (i >= 2) {
-                    xValues[k] = bX[j];
-                    j++;
-                }
-
-                else if (j >= 2) {
-                    xValues[k] = aX[i];
-                    i++;
-                }
-
-                else if (aX[i] < bX[j]) {
-                    xValues[k] = aX[i];
-                    i++;
-                }
-
-                else {
-                    xValues[k] = bX[j];
-                    j++;
-                }
-
-                k++;
-            }
-
-            float xMid = (xValues[2] - xValues[1]) * 0.5f;
-            if (yDepths[0] < yDepths[1]) {contactPoint.y = aMin.y + normal.y * depth;} 
-            else {contactPoint.y = aMax.y + normal.y * depth;}
-            contactPoint.x = xMid;
-
-        }
-
-        return new CollisionManifold(normal, contactPoint, depth);
     }
 
     CollisionManifold* findCollisionFeaturesCircleAndBox(Circle* c, Box* b, bool flip) {
