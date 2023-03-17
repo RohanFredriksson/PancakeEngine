@@ -72,52 +72,17 @@ namespace {
         return new CollisionManifold(normal, contactPoint, depth);
     }
 
-    CollisionManifold* findCollisionFeaturesBoxAndBox(Box* a, Box* b) {
+    CollisionManifold* findCollisionFeaturesAABBAndBox(Box* a, vector<vec2> bVertices, vector<bool> aInsideB, vec2 rPos, float rCos, float rSin, bool flip) {
 
-        // Store all the information that is required.
-        float aRotation = a->getRotation();
-        vec2 aPos = a->getPosition();
+        // Get required information.
         vec2 aMin = a->getMin();
         vec2 aMax = a->getMax();
 
-        float bRotation = b->getRotation();
-        vec2 bPos = b->getPosition();
-        vec2 bMin = b->getMin();
-        vec2 bMax = b->getMax();
-
-        // Cache the trig ratios for rotational use.
-        float aCos = cosf(aRotation);
-        float aSin = sinf(aRotation);
-        float bCos = cosf(bRotation);
-        float bSin = sinf(bRotation);
-
-        // Get the vertices of a.
-        vector<vec2> aVertices;
-        aVertices.push_back(vec2(aMin.x, aMin.y)); // Bottom Left
-        aVertices.push_back(vec2(aMin.x, aMax.y)); // Top Left
-        aVertices.push_back(vec2(aMax.x, aMin.y)); // Bottom Right
-        aVertices.push_back(vec2(aMax.x, aMax.y)); // Top Right
-        rotate(aVertices, aPos, aCos, aSin);
-
-        // Rotate the vertices of a, such that we can treat b as an aabb.
-        rotate(aVertices, bPos, bCos, -bSin);
-
-        // Determine which vertices of a are inside b.
-        bool bl = aVertices[0].x >= bMin.x && aVertices[0].x <= bMax.x && aVertices[0].y >= bMin.y && aVertices[0].y <= aMax.y;
-        bool tl = aVertices[1].x >= bMin.x && aVertices[1].x <= bMax.x && aVertices[1].y >= bMin.y && aVertices[1].y <= aMax.y;
-        bool br = aVertices[2].x >= bMin.x && aVertices[2].x <= bMax.x && aVertices[2].y >= bMin.y && aVertices[2].y <= aMax.y;
-        bool tr = aVertices[3].x >= bMin.x && aVertices[3].x <= bMax.x && aVertices[3].y >= bMin.y && aVertices[3].y <= aMax.y;
-
-        // Get the vertices of b.
-        vector<vec2> bVertices;
-        bVertices.push_back(vec2(bMin.x, bMin.y)); // Bottom Left
-        bVertices.push_back(vec2(bMin.x, bMax.y)); // Top Left
-        bVertices.push_back(vec2(bMax.x, bMin.y)); // Bottom Right
-        bVertices.push_back(vec2(bMax.x, bMax.y)); // Top Right
-        rotate(bVertices, bPos, bCos, bSin);
-
-        // Rotate the vertices of b, such that we can treat a as an aabb.
-        rotate(bVertices, aPos, aCos, -aSin);
+        // These variables represent which vertices of a are inside b.
+        bool bl = aInsideB[0];
+        bool tl = aInsideB[1];
+        bool br = aInsideB[2];
+        bool tr = aInsideB[3];
 
         // Find all the vertices in b that are inside a's aabb.
         vector<vec2> inside;
@@ -202,12 +167,76 @@ namespace {
             }
 
             CollisionManifold* result = new CollisionManifold(normal, contactPoint, depth);
-            rotate(result->normal, vec2(0.0f, 0.0f), aCos, aSin);
-            rotate(result->contactPoint, aPos, aCos, aSin);
+            rotate(result->normal, vec2(0.0f, 0.0f), rCos, rSin);
+            rotate(result->contactPoint, rPos, rCos, rSin);
+            if (flip) {result->normal = -result->normal;}
             return result;
         }
 
         return NULL;
+    }
+
+    CollisionManifold* findCollisionFeaturesBoxAndBox(Box* a, Box* b) {
+
+        // Store all the information that is required.
+        float aRotation = a->getRotation();
+        vec2 aPos = a->getPosition();
+        vec2 aMin = a->getMin();
+        vec2 aMax = a->getMax();
+
+        float bRotation = b->getRotation();
+        vec2 bPos = b->getPosition();
+        vec2 bMin = b->getMin();
+        vec2 bMax = b->getMax();
+
+        // Cache the trig ratios for rotational use.
+        float aCos = cosf(aRotation);
+        float aSin = sinf(aRotation);
+        float bCos = cosf(bRotation);
+        float bSin = sinf(bRotation);
+
+        // Get the vertices of a.
+        vector<vec2> aVertices;
+        aVertices.push_back(vec2(aMin.x, aMin.y)); // Bottom Left
+        aVertices.push_back(vec2(aMin.x, aMax.y)); // Top Left
+        aVertices.push_back(vec2(aMax.x, aMin.y)); // Bottom Right
+        aVertices.push_back(vec2(aMax.x, aMax.y)); // Top Right
+        rotate(aVertices, aPos, aCos, aSin);
+        rotate(aVertices, bPos, bCos, -bSin);
+
+        // Get the vertices of b.
+        vector<vec2> bVertices;
+        bVertices.push_back(vec2(bMin.x, bMin.y)); // Bottom Left
+        bVertices.push_back(vec2(bMin.x, bMax.y)); // Top Left
+        bVertices.push_back(vec2(bMax.x, bMin.y)); // Bottom Right
+        bVertices.push_back(vec2(bMax.x, bMax.y)); // Top Right
+        rotate(bVertices, bPos, bCos, bSin);
+        rotate(bVertices, aPos, aCos, -aSin);
+
+        // Determine which vertices of a are inside b.
+        vector<bool> aInsideB;
+        int aInsideBCount = 0;
+        for (int i = 0; i < 4; i++) {
+            bool current = aVertices[i].x >= bMin.x && aVertices[i].x <= bMax.x && aVertices[i].y >= bMin.y && aVertices[i].y <= bMax.y;
+            if (current) {aInsideBCount++;}
+            aInsideB.push_back(current);
+        }
+
+        // Determine which vertices of b are inside a.
+        vector<bool> bInsideA;
+        int bInsideACount = 0;
+        for (int i = 0; i < 4; i++) {
+            bool current = bVertices[i].x >= aMin.x && bVertices[i].x <= aMax.x && bVertices[i].y >= aMin.y && bVertices[i].y <= aMax.y;
+            if (current) {bInsideACount++;}
+            bInsideA.push_back(current);
+        }
+
+        std::cout << bInsideACount << ", " << aInsideBCount << "\n";
+
+        // Call find collision features on the most appropriate aabb.
+        if (bInsideACount <= aInsideBCount) {return findCollisionFeaturesAABBAndBox(b, aVertices, bInsideA, bPos, bCos, bSin, true);}
+        return findCollisionFeaturesAABBAndBox(a, bVertices, aInsideB, aPos, aCos, aSin, false);
+        
     }
 
     CollisionManifold* findCollisionFeaturesCircleAndBox(Circle* c, Box* b, bool flip) {

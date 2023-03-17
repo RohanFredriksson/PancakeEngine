@@ -33,6 +33,27 @@ Scene::Scene(string name) {
     Rigidbody* rigidbody;
     TextRenderer* textrenderer;
 
+    // BOX 1
+    entity = new Entity(vec2(0.0f, 5.0f), vec2(1.0f, 1.0f), 0.0f);
+
+    texture = TexturePool::get("assets/textures/armaan.png");
+    sprite = new Sprite("armaan", texture);
+    spriterenderer = new SpriteRenderer();
+    spriterenderer->setSprite(sprite);
+
+    rigidbody = new Rigidbody();
+    rigidbody->setRestitution(0.5f);
+    rigidbody->setFriction(0.5f);
+
+    box = new Box();
+    box->setMass(1.0f);
+    box->setSize(vec2(1.0f, 1.0f));
+    rigidbody->addCollider(box);
+
+    entity->addComponent(spriterenderer);
+    entity->addComponent(rigidbody);
+    this->addEntity(entity);
+
     // BOX 2
     entity = new Entity(vec2(0.0f, 0.0f), vec2(7.0f, 1.0f), 0.0f);
 
@@ -48,27 +69,6 @@ Scene::Scene(string name) {
     box = new Box();
     box->setMass(0.0f);
     box->setSize(vec2(7.0f, 1.0f));
-    rigidbody->addCollider(box);
-
-    entity->addComponent(spriterenderer);
-    entity->addComponent(rigidbody);
-    this->addEntity(entity);
-
-    // BOX 1
-    entity = new Entity(vec2(3.5f, 5.0f), vec2(1.0f, 1.0f), 0.0f);
-
-    texture = TexturePool::get("assets/textures/armaan.png");
-    sprite = new Sprite("armaan", texture);
-    spriterenderer = new SpriteRenderer();
-    spriterenderer->setSprite(sprite);
-
-    rigidbody = new Rigidbody();
-    rigidbody->setRestitution(0.5f);
-    rigidbody->setFriction(0.5f);
-
-    box = new Box();
-    box->setMass(1.0f);
-    box->setSize(vec2(1.0f, 1.0f));
     rigidbody->addCollider(box);
 
     entity->addComponent(spriterenderer);
