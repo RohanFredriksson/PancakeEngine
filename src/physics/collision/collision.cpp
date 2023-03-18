@@ -213,6 +213,12 @@ namespace {
         rotate(bVertices, bPos, bCos, bSin);
         rotate(bVertices, aPos, aCos, -aSin);
 
+        // Get the positions of each box in their local spaces.
+        vec2 aPosInB = aPos;
+        vec2 bPosInA = bPos;
+        rotate(aPosInB, bPos, bCos, -bSin);
+        rotate(bPosInA, aPos, aCos, -aSin);
+
         // Determine which vertices of a are inside b.
         vector<bool> aInsideB;
         int aInsideBCount = 0;
@@ -231,11 +237,204 @@ namespace {
             bInsideA.push_back(current);
         }
 
-        std::cout << bInsideACount << ", " << aInsideBCount << "\n";
+        if (aInsideBCount > 0 || bInsideACount > 0) {std::cout << aInsideBCount << ", " << bInsideACount << "\n";}
 
-        // Call find collision features on the most appropriate aabb.
-        if (bInsideACount <= aInsideBCount) {return findCollisionFeaturesAABBAndBox(b, aVertices, bInsideA, bPos, bCos, bSin, true);}
-        return findCollisionFeaturesAABBAndBox(a, bVertices, aInsideB, aPos, aCos, aSin, false);
+        // Special case for 1 and 1.
+        if (aInsideBCount == 1 && bInsideACount == 1) {
+
+            // Collision manifold variables.
+            vec2 normal;
+            vec2 contactPoint;
+            float depth;
+
+            // Find the vertices that are in each other.
+            vec2 aVertexInB;
+            vec2 bVertexInA;
+            for (int i = 0; i < 4; i++) {if (aInsideB[i]) {aVertexInB = aVertices[i]; break;}}
+            for (int i = 0; i < 4; i++) {if (bInsideA[i]) {bVertexInA = bVertices[i]; break;}}
+
+            // Find the manifold that minimises distance.
+            float distance;
+            float best = FLT_MAX;
+            vec2 rPos;
+            float rCos;
+            float rSin;
+
+            // Top of a
+            distance = aMax.y - bVertexInA.y;
+            if (distance < best && bPosInA.y >= aMax.y) {
+                std::cout << "TOP A " << distance << "\n";
+                normal = vec2(0.0f, 1.0f); 
+                depth = distance * 0.5f;
+                contactPoint = vec2(std::max(std::min(bPosInA.x, aMax.x), aMin.x), bVertexInA.y + depth);
+                best = distance; rPos = aPos; rCos = aCos; rSin = aSin;
+            }
+
+            // Bottom of a
+            distance = bVertexInA.y - aMin.y;
+            if (distance < best && bPosInA.y <= aMin.y) {
+                std::cout << "BOTTOM A " << distance << "\n";
+                normal = vec2(0.0f, -1.0f); 
+                depth = distance * 0.5f;
+                contactPoint = vec2(std::max(std::min(bPosInA.x, aMax.x), aMin.x), bVertexInA.y - depth);
+                best = distance; rPos = aPos; rCos = aCos; rSin = aSin;
+            }
+
+            // Right of a
+            distance = aMax.x - bVertexInA.x;
+            if (distance < best && bPosInA.x >= aMax.x) {
+                std::cout << "RIGHT A " << distance << "\n";
+                normal = vec2(1.0f, 0.0f); 
+                depth = distance * 0.5f;
+                contactPoint = vec2(bVertexInA.x + depth, std::max(std::min(bPosInA.y, aMax.y), aMin.y));
+                best = distance; rPos = aPos; rCos = aCos; rSin = aSin;
+            }
+
+            // Left of a
+            distance = bVertexInA.x - aMin.x;
+            if (distance < best && bPosInA.x <= aMin.x) {
+                std::cout << "LEFT A " << distance << "\n";
+                normal = vec2(-1.0f, 0.0f); 
+                depth = distance * 0.5f;
+                contactPoint = vec2(bVertexInA.x - depth, std::max(std::min(bPosInA.y, aMax.y), aMin.y));
+                best = distance; rPos = aPos; rCos = aCos; rSin = aSin;
+            }
+
+            // Top of b
+            distance = bMax.y - aVertexInB.y;
+            if (distance < best && aPosInB.y >= bMax.y) {
+                std::cout << "TOP B " << distance << "\n";
+                normal = vec2(0.0f, -1.0f); 
+                depth = distance * 0.5f;
+                contactPoint = vec2(std::max(std::min(aPosInB.x, bMax.x), bMin.x), aVertexInB.y + depth);
+                best = distance; rPos = bPos; rCos = bCos; rSin = bSin;
+            }
+
+            // Bottom of b
+            distance = aVertexInB.y - bMin.y;
+            if (distance < best && aPosInB.y <= bMin.y) {
+                std::cout << "BOTTOM B " << distance << "\n";
+                normal = vec2(0.0f, 1.0f); 
+                depth = distance * 0.5f;
+                contactPoint = vec2(std::max(std::min(aPosInB.x, bMax.x), bMin.x), aVertexInB.y - depth);
+                best = distance; rPos = bPos; rCos = bCos; rSin = bSin;
+            }
+
+            // Right of b
+            distance = bMax.x - aVertexInB.x;
+            if (distance < best && aPosInB.x >= bMax.x) {
+                std::cout << "RIGHT B " << distance << "\n";
+                normal = vec2(-1.0f, 0.0f); 
+                depth = distance * 0.5f;
+                contactPoint = vec2(aVertexInB.x + depth, std::max(std::min(aPosInB.y, bMax.y), bMin.y));
+                best = distance; rPos = bPos; rCos = bCos; rSin = bSin;
+            }
+
+            // Left of b
+            distance = aVertexInB.x - bMin.x;
+            if (distance < best && aPosInB.x <= bMin.x) {
+                std::cout << "LEFT B " << distance << "\n";
+                normal = vec2(1.0f, 0.0f); 
+                depth = distance * 0.5f;
+                contactPoint = vec2(aVertexInB.x - depth, std::max(std::min(aPosInB.y, bMax.y), bMin.y));
+                best = distance; rPos = bPos; rCos = bCos; rSin = bSin;
+            }
+            std::cout << "\n";
+
+            rotate(normal, vec2(0.0f, 0.0f), rCos, rSin);
+            rotate(contactPoint, rPos, rCos, rSin);
+            return new CollisionManifold(normal, contactPoint, depth);
+        }
+
+        bool flip = false;
+        if (aInsideBCount > bInsideACount) {
+            
+            flip = true;
+            aMax = bMax;
+            aMin = bMin;
+            aPos = bPos;
+            aCos = bCos;
+            aSin = bSin;
+            bInsideA = aInsideB;
+            bVertices = aVertices;
+
+            int tmp = aInsideBCount;
+            aInsideBCount = bInsideACount;
+            bInsideACount = tmp;
+
+        }
+
+        if (aInsideBCount == 0 && bInsideACount == 1 || bInsideACount == 2) {
+            
+            // Collision manifold variables.
+            vec2 normal;
+            vec2 contactPoint;
+            float depth;
+
+            // Get all vertices of b inside a.
+            vector<vec2> inside;
+            for (int i = 0; i < 4; i++) {if (bInsideA[i]) {inside.push_back(bVertices[i]);}}
+
+            // Find the side that minimises the distance.
+            vec2 average;
+            float best = FLT_MAX;
+            float distance;
+
+            // Top
+            average = vec2(0.0f, 0.0f);
+            distance = 0.0f;
+            for (vec2 v : inside) {average += v; distance += aMax.y - v.y;}
+            average = average / (float) inside.size();
+            if (distance < best) {
+                normal = vec2(0.0f, 1.0f); 
+                depth = (distance / (float) inside.size()) * 0.5f;
+                contactPoint = vec2(average.x, average.y + depth);
+                best = distance;
+            }
+            
+            // Bottom
+            average = vec2(0.0f, 0.0f);
+            distance = 0.0f;
+            for (vec2 v : inside) {average += v; distance += v.y - aMin.y;}
+            average = average / (float) inside.size();
+            if (distance < best) {
+                normal = vec2(0.0f, -1.0f); 
+                depth = (distance / (float) inside.size()) * 0.5f;
+                contactPoint = vec2(average.x, average.y - depth);
+                best = distance;
+            }
+
+            // Right
+            average = vec2(0.0f, 0.0f);
+            distance = 0.0f;
+            for (vec2 v : inside) {average += v; distance += aMax.x - v.x;}
+            average = average / (float) inside.size();
+            if (distance < best) {
+                normal = vec2(1.0f, 0.0f); 
+                depth = (distance / (float) inside.size()) * 0.5f;
+                contactPoint = vec2(average.x + depth, average.y);
+                best = distance;
+            }
+            
+            // Left
+            average = vec2(0.0f, 0.0f);
+            distance = 0.0f;
+            for (vec2 v : inside) {average += v; distance += v.x - aMin.x;}
+            average = average / (float) inside.size();
+            if (distance < best) {
+                normal = vec2(-1.0f, 0.0f); 
+                depth = (distance / (float) inside.size()) * 0.5f;
+                contactPoint = vec2(average.x - depth, average.y);
+                best = distance;
+            }
+
+            rotate(normal, vec2(0.0f, 0.0f), aCos, aSin);
+            rotate(contactPoint, aPos, aCos, aSin);
+            if (flip) {normal = -normal;}
+            return new CollisionManifold(normal, contactPoint, depth);
+        }
+
+        return NULL;
         
     }
 
