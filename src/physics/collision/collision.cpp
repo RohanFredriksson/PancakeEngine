@@ -8,8 +8,6 @@
 #include "physics/primitives/circle.hpp"
 #include "physics/primitives/box.hpp"
 
-#include <iostream>
-
 using std::vector;
 
 namespace {
@@ -110,110 +108,6 @@ namespace {
         vec2 contactPoint = distanceToPoint * normal + aPosition;
 
         return new CollisionManifold(normal, contactPoint, depth);
-    }
-
-    CollisionManifold* findCollisionFeaturesAABBAndBox(Box* a, vector<vec2> bVertices, vector<bool> aInsideB, vec2 rPos, float rCos, float rSin, bool flip) {
-
-        // Get required information.
-        vec2 aMin = a->getMin();
-        vec2 aMax = a->getMax();
-
-        // These variables represent which vertices of a are inside b.
-        bool bl = aInsideB[0];
-        bool tl = aInsideB[1];
-        bool br = aInsideB[2];
-        bool tr = aInsideB[3];
-
-        // Find all the vertices in b that are inside a's aabb.
-        vector<vec2> inside;
-        for (vec2 v : bVertices) {if (v.x >= aMin.x && v.x <= aMax.x && v.y >= aMin.y && v.y <= aMax.y) {inside.push_back(v);}}
-
-        // Find the size that minimises the straight line distance of all points to an edge.
-        if (inside.size() == 1 || inside.size() == 2) {
-
-            float best = FLT_MAX;
-            float distance;
-            float depth;
-            vec2 normal;
-            vec2 average;
-            vec2 contactPoint;
-            
-            // Top side.
-            average = vec2(0.0f, 0.0f);
-            distance = 0.0f;
-            for (vec2 v : inside) {average += v; distance += aMax.y - v.y;}
-            average = average / (float) inside.size();
-            if (distance < best) {
-
-                normal = vec2(0.0f, 1.0f); 
-                depth = (distance / (float) inside.size()) * 0.5f;
-                best = distance;
-
-                if (tl) {contactPoint = vec2(aMin.x, average.y + depth);}
-                else if (tr) {contactPoint = vec2(aMax.x, average.y + depth);}
-                else {contactPoint = vec2(average.x, average.y + depth);}
-
-            }
-
-            // Bottom side.
-            average = vec2(0.0f, 0.0f);
-            distance = 0.0f;
-            for (vec2 v : inside) {average += v; distance += v.y - aMin.y;}
-            average = average / (float) inside.size();
-            if (distance < best) {
-
-                normal = vec2(0.0f, -1.0f); 
-                depth = (distance / (float) inside.size()) * 0.5f;
-                best = distance;
-                
-                if (bl) {contactPoint = vec2(aMin.x, average.y - depth);}
-                else if (br) {contactPoint = vec2(aMax.x, average.y - depth);}
-                else {contactPoint = vec2(average.x, average.y - depth);}
-                
-            }
-
-            // Right side.
-            average = vec2(0.0f, 0.0f);
-            distance = 0.0f;
-            for (vec2 v : inside) {average += v; distance += aMax.x - v.x;}
-            average = average / (float) inside.size();
-            if (distance < best) {
-
-                normal = vec2(1.0f, 0.0f); 
-                depth = (distance / (float) inside.size()) * 0.5f;
-                best = distance;
-
-                if (br) {contactPoint = vec2(average.x + depth, aMin.y);}
-                else if (tr) {contactPoint = vec2(average.x + depth, aMax.y);}
-                else {contactPoint = vec2(average.x + depth, average.y);}
-
-            }
-
-            // Left side.
-            average = vec2(0.0f, 0.0f);
-            distance = 0.0f;
-            for (vec2 v : inside) {average += v; distance += v.x - aMin.x;}
-            average = average / (float) inside.size();
-            if (distance < best) {
-
-                normal = vec2(-1.0f, 0.0f); 
-                depth = (distance / (float) inside.size()) * 0.5f;
-                best = distance;
-                
-                if (bl) {contactPoint = vec2(average.x - depth, aMin.y);}
-                else if (tl) {contactPoint = vec2(average.x - depth, aMax.y);}
-                else {contactPoint = vec2(average.x - depth, average.y);}
-
-            }
-
-            CollisionManifold* result = new CollisionManifold(normal, contactPoint, depth);
-            rotate(result->normal, vec2(0.0f, 0.0f), rCos, rSin);
-            rotate(result->contactPoint, rPos, rCos, rSin);
-            if (flip) {result->normal = -result->normal;}
-            return result;
-        }
-
-        return NULL;
     }
 
     CollisionManifold* findCollisionFeaturesBoxAndBox(Box* a, Box* b) {

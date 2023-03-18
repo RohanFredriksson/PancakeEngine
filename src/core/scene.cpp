@@ -34,7 +34,7 @@ Scene::Scene(string name) {
     TextRenderer* textrenderer;
 
     // BOX 1
-    entity = new Entity(vec2(-3.0f, 5.0f), vec2(1.0f, 1.0f), 0.0f);
+    entity = new Entity(vec2(-3.1f, 5.0f), vec2(1.0f, 1.0f), 0.0f);
 
     texture = TexturePool::get("assets/textures/armaan.png");
     sprite = new Sprite("armaan", texture);
@@ -43,7 +43,8 @@ Scene::Scene(string name) {
 
     rigidbody = new Rigidbody();
     rigidbody->setRestitution(0.5f);
-    rigidbody->setFriction(0.3f);
+    rigidbody->setFriction(1.0f);
+    //rigidbody->setFixedOrientation(true);
 
     box = new Box();
     box->setMass(1.0f);

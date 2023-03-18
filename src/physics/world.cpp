@@ -10,6 +10,8 @@
 #include "physics/primitives/circle.hpp"
 #include "graphics/renderer/debugdraw.hpp"
 
+#include <iostream>
+
 namespace {
     
     const int IMPULSE_ITERATIONS = 6;
@@ -28,6 +30,7 @@ namespace {
         if (a->hasInfiniteMass() && b->hasInfiniteMass()) {return;}
 
         DebugDraw::drawBox(m->contactPoint, vec2(0.1f, 0.1f), 0.0f, vec3(1.0f, 0.0f, 0.0f), 10);
+        DebugDraw::drawLine(m->contactPoint, m->contactPoint + m->normal * 0.3f, vec3(0.0f, 0.0f, 1.0f), 10);
 
         float invMassA = a->getInverseMass();
         float invMassB = b->getInverseMass();
@@ -63,6 +66,7 @@ namespace {
         // Calculate friction.
         if (friction > 0.0f && vreg > 0.0f) {
 
+            std::cout << friction << "\n";
             float max = fabsf(vreg) / (invMassA + invMassB + (invMoiA * rAproj * rAproj) + (invMoiB * rBproj * rBproj));
             float sign = vreg < 0.0f ? -1.0f : 1.0f;
             impulse = friction * fabsf(impulse);
@@ -77,11 +81,16 @@ namespace {
         }
 
         // Position correction.
-        const float slop = 0.01f;
-        const float percent = 0.2f;
-        vec2 correction = std::max(m->depth - slop, 0.0f) / (invMassA + invMassB) * percent * m->normal;
-        a->getEntity()->addPosition(-correction * invMassA);
-        b->getEntity()->addPosition(correction * invMassB);
+        if (!a->hasInfiniteMass() && !b->hasInfiniteMass()) {
+            const float slop = 0.01f;
+            const float percent = 0.2f;
+            vec2 correction = std::max(m->depth - slop, 0.0f) / (invMassA + invMassB) * percent * m->normal;
+            a->getEntity()->addPosition(-correction * invMassA);
+            b->getEntity()->addPosition(correction * invMassB);
+        }
+        
+        if (b->hasInfiniteMass()) {a->getEntity()->addPosition(1.01f * -m->depth * m->normal);}
+        if (a->hasInfiniteMass()) {b->getEntity()->addPosition(1.01f *  m->depth * m->normal);}
 
     }
 

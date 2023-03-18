@@ -1,7 +1,12 @@
+#include <cmath>
 #include <limits>
 #include <iostream>
 #include "physics/primitives/rigidbody.hpp"
 #include "window/window.hpp"
+
+namespace {
+    const float threshold = 0.00001f;
+}
 
 Rigidbody::Rigidbody() : Component() {
 
@@ -259,6 +264,7 @@ void Rigidbody::addVelocity(vec2 velocity) {
 
 void Rigidbody::addAngularVelocity(float angularVelocity) {
     if (this->hasInfiniteMass() || this->fixedOrientation) {return;}
+    if (fabsf(angularVelocity) < threshold) {return;}
     this->angularVelocity += angularVelocity;
 }
 
