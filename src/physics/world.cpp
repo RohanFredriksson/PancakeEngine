@@ -10,8 +10,6 @@
 #include "physics/primitives/circle.hpp"
 #include "graphics/renderer/debugdraw.hpp"
 
-#include <iostream>
-
 namespace {
     
     const int IMPULSE_ITERATIONS = 6;
@@ -64,9 +62,8 @@ namespace {
         a->addAngularVelocity(impulse * invMoiA * rAreg);
 
         // Calculate friction.
-        if (friction > 0.0f && vreg > 0.0f) {
+        if (friction > 0.0f) {
 
-            std::cout << friction << "\n";
             float max = fabsf(vreg) / (invMassA + invMassB + (invMoiA * rAproj * rAproj) + (invMoiB * rBproj * rBproj));
             float sign = vreg < 0.0f ? -1.0f : 1.0f;
             impulse = friction * fabsf(impulse);
