@@ -39,6 +39,12 @@ namespace {
         }
     }
 
+    vec2 project(const vec2& v, const vec2& target) {
+        vec2 targetUnit = glm::normalize(target);
+        float projection = glm::dot(v, targetUnit);
+        return projection * targetUnit;
+    }
+
     bool intersects(vec2 aStart, vec2 aEnd, vec2 bStart, vec2 bEnd) {
         float dx0 = aEnd.x - aStart.x;
         float dx1 = bEnd.x - bStart.x;
@@ -305,20 +311,25 @@ namespace {
             else if (intersects(vertex, right, vec2(aMin.x, aMax.y), vec2(aMax.x, aMax.y))) {rd = distance(vertex, right, vec2(aMin.x, aMax.y), vec2(aMax.x, aMax.y));}
             else if (intersects(vertex, right, vec2(aMax.x, aMin.y), vec2(aMax.x, aMax.y))) {rd = distance(vertex, right, vec2(aMax.x, aMin.y), vec2(aMax.x, aMax.y));}
 
-            // TEMPORARY
+            // Calculate the normal.
             if (ld > rd) {
                 normal = glm::normalize(left - vertex);
-                rotate(normal, vec2(0.0f, 0.0f), cosf(-M_PI * 0.5f), sinf(-M_PI * 0.5f));
-                contactPoint = vertex;
-                depth = 0.0f;
-            }
-
-            else {
+                rotate(normal, vec2(0.0f, 0.0f), cosf(-M_PI * 0.5f), sinf(-M_PI * 0.5f)); 
+            } else {
                 normal = glm::normalize(right - vertex);
                 rotate(normal, vec2(0.0f, 0.0f), cosf(M_PI * 0.5f), sinf(M_PI * 0.5f));
-                contactPoint = vertex;
-                depth = 0.0f;
             }
+
+            // Calculate the contact point.
+            vec2 corner;
+            if      (aInsideB[0]) {corner = vec2(aMin.x, aMin.y);}
+            else if (aInsideB[1]) {corner = vec2(aMin.x, aMax.y);}
+            else if (aInsideB[2]) {corner = vec2(aMax.x, aMax.y);}
+            else if (aInsideB[3]) {corner = vec2(aMax.x, aMin.y);}
+            contactPoint = (corner + vertex) / 2.0f;
+
+            // Calculate depth.
+            depth = glm::length(project(corner - contactPoint, normal));
 
             rotate(normal, vec2(0.0f, 0.0f), aCos, aSin);
             rotate(contactPoint, aPos, aCos, aSin);
@@ -414,7 +425,6 @@ namespace {
         }
 
         return NULL;
-        
     }
 
     CollisionManifold* findCollisionFeaturesCircleAndBox(Circle* c, Box* b, bool flip) {
@@ -548,6 +558,7 @@ namespace {
 
             return new CollisionManifold(normal, contactPoint, depth);
         }
+        
         return NULL;
     }
 

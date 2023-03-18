@@ -34,7 +34,7 @@ Scene::Scene(string name) {
     TextRenderer* textrenderer;
 
     // BOX 1
-    entity = new Entity(vec2(-3.5f, 5.0f), vec2(1.0f, 1.0f), 0.0f);
+    entity = new Entity(vec2(-3.0f, 5.0f), vec2(1.0f, 1.0f), 0.0f);
 
     texture = TexturePool::get("assets/textures/armaan.png");
     sprite = new Sprite("armaan", texture);
