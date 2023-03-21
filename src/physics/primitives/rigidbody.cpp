@@ -6,12 +6,21 @@
 
 Rigidbody::Rigidbody() : Component() {
 
-    this->force = glm::vec2(0.0f, 0.0f);
-    this->velocity = glm::vec2(0.0f, 0.0f);
+    this->force = vec2(0.0f, 0.0f);
+    this->velocity = vec2(0.0f, 0.0f);
     this->torque = 0.0f;
     this->angularVelocity = 0.0f;
+
     this->restitution = 1.0f;
     this->friction = 0.0f;
+
+    this->centroid = vec2(0.0f, 0.0f);
+    this->mass = 0.0f;
+    this->moment = 0.0f;
+    this->centroidDirty = true;
+    this->massDirty = true;
+    this->momentDirty = true;
+
     this->sensor = false;
     this->fixedOrientation = false;
 
@@ -33,6 +42,8 @@ vec2 Rigidbody::getVelocity() {
 
 vec2 Rigidbody::getCentroid() {
 
+    if (!this->centroidDirty) {return this->getEntity()->getPosition() + this->centroid;}
+
     // If the rigidbody has infinite mass, get the average of all bodies.
     if (this->hasInfiniteMass()) {
 
@@ -42,11 +53,13 @@ vec2 Rigidbody::getCentroid() {
 
         vec2 points = vec2(0.0f, 0.0f);
         for (Collider* c : this->colliders) {
-            points += c->getPosition();
+            points += c->getPositionOffset();
         }
 
         vec2 average = points * (1.0f / this->colliders.size());
-        return average;
+        this->centroid = average;
+        this->centroidDirty = false;
+        return this->getEntity()->getPosition() + average;
     }
     
     // Get the weighted sum of objects.
@@ -57,10 +70,12 @@ vec2 Rigidbody::getCentroid() {
         
         for (Collider* c : this->colliders) {
             mass += c->getMass();
-            weighted += c->getPosition() * c->getMass();
+            weighted += c->getPositionOffset() * c->getMass();
         }
 
-        return weighted / mass;
+        this->centroid = weighted / mass;
+        this->centroidDirty = false;
+        return this->getEntity()->getPosition() + this->centroid;
     }
 
 }
@@ -79,8 +94,24 @@ float Rigidbody::getFriction() {
 }
 
 float Rigidbody::getMass() {
+
+    if (!this->massDirty) {return this->mass;}
+    
     float mass = 0.0f;
-    for (Collider* c : this->colliders) {mass += c->getMass();}
+    for (Collider* c : this->colliders) {
+
+        float m = c->getMass();
+        if (m <= 0.0f) {
+            this->mass = 0.0f;
+            this->massDirty = false;
+            return this->mass;
+        }
+
+        mass += m;
+    }
+
+    this->mass = mass;
+    this->massDirty = false;
     return mass;
 }
 
@@ -91,7 +122,13 @@ float Rigidbody::getInverseMass() {
 
 float Rigidbody::getMomentOfInertia() {
 
-    if (this->hasInfiniteMass()) {return FLT_MAX;}
+    if (!this->momentDirty) {return this->moment;}
+
+    if (this->hasInfiniteMass()) {
+        this->moment = FLT_MAX; 
+        this->momentDirty = false;
+        return this->moment;
+    }
     
     float moment = 0.0f;
     float mass = this->getMass();
@@ -102,6 +139,8 @@ float Rigidbody::getMomentOfInertia() {
         moment += c->getMomentOfInertia() + rr * mass;
     }
 
+    this->moment = moment;
+    this->momentDirty = false;
     return moment;
 }
 
@@ -122,6 +161,9 @@ Rigidbody* Rigidbody::addCollider(Collider* collider) {
     if (collider != NULL) {
         this->colliders.push_back(collider);
         collider->setRigidbody(this);
+        this->centroidDirty = true;
+        this->massDirty = true;
+        this->momentDirty = true;
     }
     return this;
 }
@@ -140,6 +182,9 @@ Rigidbody* Rigidbody::removeCollider(Collider* collider) {
         if (this->colliders[i] == collider) {
             this->colliders.erase(this->colliders.begin() + i);
             delete collider;
+            this->centroidDirty = true;
+            this->massDirty = true;
+            this->momentDirty = true;
             break;
         }
     }
@@ -172,6 +217,9 @@ Rigidbody* Rigidbody::clearColliders() {
         delete this->colliders[i];
     }
     this->colliders.clear();
+    this->centroidDirty = true;
+    this->massDirty = true;
+    this->momentDirty = true;
     return this;
 }
 
@@ -211,6 +259,21 @@ Rigidbody* Rigidbody::setFixedOrientation(bool orientation) {
     return this;
 }
 
+Rigidbody* Rigidbody::setCentroidDirty() {
+    this->centroidDirty = true;
+    return this;
+}
+
+Rigidbody* Rigidbody::setMassDirty() {
+    this->massDirty = true;
+    return this;
+}
+
+Rigidbody* Rigidbody::setMomentDirty() {
+    this->momentDirty = true;
+    return this;
+}
+
 void Rigidbody::clearAccumulators() {
     this->force.x = 0;
     this->force.y = 0;
@@ -242,7 +305,7 @@ void Rigidbody::physicsUpdate(float dt) {
             vec2 offset = c->getPositionOffset();
             float x = (offset.x * rCos) - (offset.y * rSin);
             float y = (offset.x * rSin) + (offset.y * rCos);
-            c->setPositionOffset(vec2(x, y));
+            c->setPositionOffset(vec2(x, y), false);
         }
 
         // Note: There is no need to update collider rotation offsets since they are updated in the entity.
@@ -282,7 +345,7 @@ void Rigidbody::zeroTorque() {
 }
 
 bool Rigidbody::hasInfiniteMass() {
-    for (Collider* c : this->colliders) {if (c->hasInfiniteMass()) {return true;}}
-    if (this->colliders.size() == 0) {return true;}
+    float mass = this->getMass();
+    if (mass <= 0.0f) {return true;}
     return false;
 }

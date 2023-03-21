@@ -50,17 +50,58 @@ Collider* Collider::setRigidbody(Rigidbody* rigidbody) {
 }
 
 Collider* Collider::setMass(float mass) {
+
+    if (this->rigidbody != NULL) {
+        this->rigidbody->setCentroidDirty();
+        this->rigidbody->setMomentDirty();
+        this->rigidbody->setMassDirty();
+    }
+
     if (mass < 0.0f) {std::cout << "WARNING::COLLIDER::SET_MASS::NEGATIVE_MASS\n";}
     this->mass = mass;
     return this;
 }
 
 Collider* Collider::setPositionOffset(vec2 offset){
+
+    if (this->rigidbody != NULL) {
+        this->rigidbody->setCentroidDirty();
+        this->rigidbody->setMomentDirty();
+    }
+
     this->positionOffset = offset;
     return this;
 }
 
 Collider* Collider::setRotationOffset(float offset) {
+
+    if (this->rigidbody != NULL) {
+        this->rigidbody->setCentroidDirty();
+        this->rigidbody->setMomentDirty();
+    }
+
+    this->rotationOffset = offset;
+    return this;
+}
+
+Collider* Collider::setPositionOffset(vec2 offset, bool update) {
+
+    if (update && this->rigidbody != NULL) {
+        this->rigidbody->setCentroidDirty();
+        this->rigidbody->setMomentDirty();
+    }
+
+    this->positionOffset = offset;
+    return this;
+}
+
+Collider* Collider::setRotationOffset(float offset, bool update) {
+
+    if (update && this->rigidbody != NULL) {
+        this->rigidbody->setCentroidDirty();
+        this->rigidbody->setMomentDirty();
+    }
+
     this->rotationOffset = offset;
     return this;
 }

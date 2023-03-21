@@ -14,13 +14,24 @@ class Rigidbody : public Component {
     private:
 
         vector<Collider*> colliders;
+
         vec2 force;
         vec2 velocity;
         float torque;
         float angularVelocity;
+
         float restitution;
         float friction;
+
+        vec2 centroid;
+        float mass;
+        float moment;
+        bool centroidDirty;
+        bool massDirty;
+        bool momentDirty;
+        
         bool sensor;
+        bool infiniteMass;
         bool fixedOrientation;
 
     public:
@@ -56,6 +67,9 @@ class Rigidbody : public Component {
         Rigidbody* setFriction(float cof);
         Rigidbody* setSensor(bool sensor);
         Rigidbody* setFixedOrientation(bool orientation);
+        Rigidbody* setCentroidDirty();
+        Rigidbody* setMassDirty();
+        Rigidbody* setMomentDirty();
 
         void physicsUpdate(float dt);
 

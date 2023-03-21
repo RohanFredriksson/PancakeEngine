@@ -12,14 +12,6 @@ using std::vector;
 
 namespace {
 
-    bool xSort(const glm::vec2& a, const glm::vec2& b) {
-        return a.x < b.x;
-    }
-
-    bool ySort(const glm::vec2& a, const glm::vec2& b) {
-        return a.y < b.y;
-    }
-
     void rotate(vec2& vec, vec2 origin, float rCos, float rSin) {
         float x = vec.x - origin.x;
         float y = vec.y - origin.y;

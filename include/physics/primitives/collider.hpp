@@ -34,6 +34,8 @@ class Collider {
         Collider* setMass(float mass);
         Collider* setPositionOffset(vec2 offset);
         Collider* setRotationOffset(float offset);
+        Collider* setPositionOffset(vec2 offset, bool update);
+        Collider* setRotationOffset(float offset, bool update);
 
 };
 
