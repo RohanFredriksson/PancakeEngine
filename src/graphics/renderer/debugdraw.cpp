@@ -1,9 +1,9 @@
 #include <vector>
 #include <algorithm>
 #include <cstdlib>
-#include "graphics/primitives/shader.hpp"
-#include "graphics/renderer/debugdraw.hpp"
-#include "window/window.hpp"
+#include "pancake/graphics/primitives/shader.hpp"
+#include "pancake/graphics/renderer/debugdraw.hpp"
+#include "pancake/window/window.hpp"
 
 using std::vector;
 

@@ -1,7 +1,7 @@
 #include <cmath>
 #include <deque>
-#include "core/entity.hpp"
-#include "core/component.hpp"
+#include "pancake/core/entity.hpp"
+#include "pancake/core/component.hpp"
 
 using std::deque;
 

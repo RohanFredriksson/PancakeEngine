@@ -1,5 +1,5 @@
-#include "core/component.hpp"
-#include "core/entity.hpp"
+#include "pancake/core/component.hpp"
+#include "pancake/core/entity.hpp"
 
 namespace {
     int nextId = 0;

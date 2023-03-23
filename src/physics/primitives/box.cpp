@@ -1,5 +1,5 @@
 #include <limits>
-#include "physics/primitives/box.hpp"
+#include "pancake/physics/primitives/box.hpp"
 
 Box::Box() : Collider()  {
     this->size = vec2(1.0f, 1.0f);

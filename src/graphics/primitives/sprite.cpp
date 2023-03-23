@@ -1,4 +1,4 @@
-#include "graphics/primitives/sprite.hpp"
+#include "pancake/graphics/primitives/sprite.hpp"
 
 void Sprite::init(string name, Texture* texture, vec2 texCoords[4]) {
     

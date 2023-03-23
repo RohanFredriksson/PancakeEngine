@@ -2,7 +2,7 @@
 #include <vector>
 #include <deque>
 #include <glm/glm.hpp>
-#include "core/scene.hpp"
+#include "pancake/core/scene.hpp"
 
 using std::deque;
 using std::pair;
@@ -24,6 +24,18 @@ Scene::Scene(string name, string filename) {
     this->camera = new Camera(vec2(0.0f, 0.0f), vec2(12.0f, 12.0f), 1.0f);
     this->renderer = new Renderer();
     this->physics = new World(1.0f / 60.0f, vec2(0.0f, -10.0f));
+    // Load scene from file
+
+}
+
+Scene::Scene(string name, string filename, void (*init)(Scene* scene)) {
+
+    this->name = name;
+    this->camera = new Camera(vec2(0.0f, 0.0f), vec2(12.0f, 12.0f), 1.0f);
+    this->renderer = new Renderer();
+    this->physics = new World(1.0f / 60.0f, vec2(0.0f, -10.0f));
+    // Load scene from file
+    if (init != NULL) {init(this);}
 
 }
 

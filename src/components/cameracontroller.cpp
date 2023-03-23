@@ -1,7 +1,7 @@
 #include <math.h>
 #include <glm/geometric.hpp>
-#include "components/cameracontroller.hpp"
-#include "window/window.hpp"
+#include "pancake/components/cameracontroller.hpp"
+#include "pancake/window/window.hpp"
 
 CameraController::CameraController() : Component() {
 

@@ -1,8 +1,8 @@
 #include <cmath>
 #include <limits>
 #include <iostream>
-#include "physics/primitives/rigidbody.hpp"
-#include "window/window.hpp"
+#include "pancake/physics/primitives/rigidbody.hpp"
+#include "pancake/window/window.hpp"
 
 Rigidbody::Rigidbody() : Component() {
 

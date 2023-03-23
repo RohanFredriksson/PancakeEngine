@@ -5,16 +5,14 @@
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
 
-#include "window/window.hpp"
-#include "window/listener.hpp"
-#include "audio/audioengine.hpp"
-#include "audio/audiowave.hpp"
-#include "graphics/primitives/shader.hpp"
-#include "graphics/primitives/framebuffer.hpp"
-#include "graphics/renderer/debugdraw.hpp"
-#include "util/assetpool.hpp"
-
-#include "scenes/title.hpp"
+#include "pancake/window/window.hpp"
+#include "pancake/window/listener.hpp"
+#include "pancake/audio/audioengine.hpp"
+#include "pancake/audio/audiowave.hpp"
+#include "pancake/graphics/primitives/shader.hpp"
+#include "pancake/graphics/primitives/framebuffer.hpp"
+#include "pancake/graphics/renderer/debugdraw.hpp"
+#include "pancake/util/assetpool.hpp"
 
 namespace {
 
@@ -26,51 +24,7 @@ namespace {
     Shader* entityShader;
     Framebuffer* entityTexture;
 
-    void update(float dt) {
-        
-        scene->update(dt);
-
-        if (MouseListener::isMouseDragging()) {
-            if (MouseListener::getDx() != 0) {scene->getCamera()->addPosition(vec2(-MouseListener::getWorldDx(), 0.0f));}
-            if (MouseListener::getDy() != 0) {scene->getCamera()->addPosition(vec2(0.0f, MouseListener::getWorldDy()));}
-        }
-
-        if (MouseListener::isMouseButtonBeginDown(GLFW_MOUSE_BUTTON_LEFT)) {
-            std::cout << Window::readPixel(MouseListener::getX(), MouseListener::getY());
-        }
-
-    }
-
-    void render() {
-
-        // Render the scene to the entity picking texture.
-        glDisable(GL_BLEND);
-        entityTexture->bind();
-        glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT);
-        Renderer::bindShader(entityShader);
-        scene->render();
-        entityTexture->unbind();
-        glEnable(GL_BLEND);
-
-        // Render the scene to the window.
-        glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT);
-        Renderer::bindShader(defaultShader);
-        scene->render();
-
-        // Debug draw
-        DebugDraw::render();
-
-        glfwSwapBuffers(window);
-
-    }
-
-}
-
-namespace Window {
-
-    bool init() {
+    bool start() {
 
         // Initialise GLFW
         if (!glfwInit()) {
@@ -124,8 +78,72 @@ namespace Window {
         entityTexture = new Framebuffer(GL_RGB32F, width, height, GL_RGB, GL_FLOAT);
 
         DebugDraw::init();
+        return true;
+
+    }
+
+    void update(float dt) {
         
-        scene = new Scene("Title", TitleInit);
+        scene->update(dt);
+
+        if (MouseListener::isMouseDragging()) {
+            if (MouseListener::getDx() != 0) {scene->getCamera()->addPosition(vec2(-MouseListener::getWorldDx(), 0.0f));}
+            if (MouseListener::getDy() != 0) {scene->getCamera()->addPosition(vec2(0.0f, MouseListener::getWorldDy()));}
+        }
+
+        if (MouseListener::isMouseButtonBeginDown(GLFW_MOUSE_BUTTON_LEFT)) {
+            std::cout << Window::readPixel(MouseListener::getX(), MouseListener::getY());
+        }
+
+    }
+
+    void render() {
+
+        // Render the scene to the entity picking texture.
+        glDisable(GL_BLEND);
+        entityTexture->bind();
+        glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+        glClear(GL_COLOR_BUFFER_BIT);
+        Renderer::bindShader(entityShader);
+        scene->render();
+        entityTexture->unbind();
+        glEnable(GL_BLEND);
+
+        // Render the scene to the window.
+        glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+        glClear(GL_COLOR_BUFFER_BIT);
+        Renderer::bindShader(defaultShader);
+        scene->render();
+
+        // Debug draw
+        DebugDraw::render();
+
+        glfwSwapBuffers(window);
+
+    }
+
+}
+
+namespace Window {
+
+    bool init(string name, string filename, void(*init)(Scene* scene)) {
+        if (!start()) {return false;}
+        try {scene = new Scene(name, filename, init);}
+        catch (...) {return false;}
+        return true;
+    }
+
+    bool init(string name, void(*init)(Scene* scene)) {
+        if (!start()) {return false;}
+        try {scene = new Scene(name, init);}
+        catch (...) {return false;}
+        return true;
+    }
+
+    bool init(string name, string filename) {
+        if (!start()) {return false;}
+        try {scene = new Scene(name, filename);}
+        catch (...) {return false;}
         return true;
     }
 

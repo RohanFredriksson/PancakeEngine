@@ -1,13 +1,6 @@
-#include "audio/audioengine.hpp"
-#include "window/window.hpp"
+#include "pancake/core/engine.hpp"
+#include "pancake/scenes/title.hpp"
 
 int main() {
-
-    AudioEngine::init();
-
-    Window::init();
-    Window::loop();
-    Window::destroy();
-
-    AudioEngine::destroy();
+    return Engine::run("Title", TitleInit);
 }

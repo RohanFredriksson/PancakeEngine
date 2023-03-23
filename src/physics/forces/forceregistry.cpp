@@ -1,4 +1,4 @@
-#include "physics/forces/forceregistry.hpp"
+#include "pancake/physics/forces/forceregistry.hpp"
 
 ForceRegistration::ForceRegistration(ForceGenerator* generator, Rigidbody* rigidbody) {
     this->generator = generator;

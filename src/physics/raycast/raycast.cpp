@@ -1,9 +1,9 @@
 #include <cmath>
 #include <algorithm>
-#include "physics/raycast/raycast.hpp"
-#include "physics/primitives/collider.hpp"
-#include "physics/primitives/box.hpp"
-#include "physics/primitives/circle.hpp"
+#include "pancake/physics/raycast/raycast.hpp"
+#include "pancake/physics/primitives/collider.hpp"
+#include "pancake/physics/primitives/box.hpp"
+#include "pancake/physics/primitives/circle.hpp"
 
 Ray::Ray(vec2 origin, vec2 direction) {
     this->origin = origin;

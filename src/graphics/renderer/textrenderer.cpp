@@ -1,7 +1,7 @@
 #include <string.h>
-#include "graphics/renderer/textrenderer.hpp"
-#include "graphics/renderer/spriterenderer.hpp"
-#include "util/assetpool.hpp"
+#include "pancake/graphics/renderer/textrenderer.hpp"
+#include "pancake/graphics/renderer/spriterenderer.hpp"
+#include "pancake/util/assetpool.hpp"
 
 TextRenderer::TextRenderer() : TransformableComponent() {
     

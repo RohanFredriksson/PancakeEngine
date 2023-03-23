@@ -1,5 +1,5 @@
 #include <iostream>
-#include "graphics/primitives/framebuffer.hpp"
+#include "pancake/graphics/primitives/framebuffer.hpp"
 
 void Framebuffer::init(GLint internal, int width, int height, GLenum format, GLenum type) {
 

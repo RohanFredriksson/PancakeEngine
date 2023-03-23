@@ -1,6 +1,6 @@
 #include <iostream>
 #include <glad/glad.h>
-#include "graphics/primitives/texture.hpp"
+#include "pancake/graphics/primitives/texture.hpp"
 
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb/stb_image.h>

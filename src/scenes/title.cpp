@@ -1,9 +1,9 @@
-#include "scenes/title.hpp"
-#include "physics/primitives/box.hpp"
-#include "physics/primitives/circle.hpp"
-#include "graphics/primitives/font.hpp"
-#include "graphics/renderer/textrenderer.hpp"
-#include "util/assetpool.hpp"
+#include "pancake/scenes/title.hpp"
+#include "pancake/physics/primitives/box.hpp"
+#include "pancake/physics/primitives/circle.hpp"
+#include "pancake/graphics/primitives/font.hpp"
+#include "pancake/graphics/renderer/textrenderer.hpp"
+#include "pancake/util/assetpool.hpp"
 
 using glm::vec2;
 using glm::vec4;

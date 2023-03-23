@@ -1,6 +1,6 @@
 #include <algorithm>
 #include <stb/stb_vorbis.h>
-#include "audio/audiowave.hpp"
+#include "pancake/audio/audiowave.hpp"
 
 using std::min;
 using std::max;

@@ -1,4 +1,4 @@
-#include "physics/forces/gravity.hpp"
+#include "pancake/physics/forces/gravity.hpp"
 
 Gravity::Gravity(vec2 gravity) {
     this->gravity = gravity;

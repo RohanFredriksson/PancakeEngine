@@ -1,7 +1,7 @@
-#include "graphics/renderer/spriterenderer.hpp"
-#include "window/window.hpp"
-#include "core/scene.hpp"
-#include "util/assetpool.hpp"
+#include "pancake/graphics/renderer/spriterenderer.hpp"
+#include "pancake/window/window.hpp"
+#include "pancake/core/scene.hpp"
+#include "pancake/util/assetpool.hpp"
 
 SpriteRenderer::SpriteRenderer() : TransformableComponent() {
     

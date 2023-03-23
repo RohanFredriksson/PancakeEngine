@@ -1,5 +1,5 @@
 #include <math.h>
-#include "physics/collision/collisionmanifold.hpp"
+#include "pancake/physics/collision/collisionmanifold.hpp"
 
 CollisionManifold::CollisionManifold() {
     this->normal = glm::vec2(0.0f, 0.0f);

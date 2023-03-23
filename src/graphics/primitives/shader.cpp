@@ -2,7 +2,7 @@
 #include <cstdlib>
 #include <glad/glad.h>
 #include <glm/gtc/type_ptr.hpp>
-#include "graphics/primitives/shader.hpp"
+#include "pancake/graphics/primitives/shader.hpp"
 
 using glm::value_ptr;
 

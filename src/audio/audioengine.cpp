@@ -1,5 +1,5 @@
 #include <soloud/include/soloud.h>
-#include "audio/audioengine.hpp"
+#include "pancake/audio/audioengine.hpp"
 
 namespace {
     SoLoud::Soloud engine;

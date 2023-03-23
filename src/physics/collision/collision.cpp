@@ -4,9 +4,9 @@
 #include <algorithm>
 #include <glm/glm.hpp>
 #include <glm/geometric.hpp>
-#include "physics/collision/collision.hpp"
-#include "physics/primitives/circle.hpp"
-#include "physics/primitives/box.hpp"
+#include "pancake/physics/collision/collision.hpp"
+#include "pancake/physics/primitives/circle.hpp"
+#include "pancake/physics/primitives/box.hpp"
 
 using std::vector;
 

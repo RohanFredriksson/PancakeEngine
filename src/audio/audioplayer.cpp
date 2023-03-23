@@ -1,5 +1,5 @@
-#include "audio/audioplayer.hpp"
-#include "audio/audioengine.hpp"
+#include "pancake/audio/audioplayer.hpp"
+#include "pancake/audio/audioengine.hpp"
 
 AudioPlayer::AudioPlayer() {
     this->audio = NULL;
