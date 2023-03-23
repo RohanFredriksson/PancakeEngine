@@ -1,4 +1,4 @@
-#include "pancake/renderer/debugdraw.hpp"
-#include "pancake/renderer/renderer.hpp"
-#include "pancake/renderer/spriterenderer.hpp"
-#include "pancake/renderer/textrenderer.hpp"
+#include "pancake/graphics/renderer/debugdraw.hpp"
+#include "pancake/graphics/renderer/renderer.hpp"
+#include "pancake/graphics/renderer/spriterenderer.hpp"
+#include "pancake/graphics/renderer/textrenderer.hpp"
