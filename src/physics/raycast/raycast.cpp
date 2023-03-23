@@ -1,4 +1,4 @@
-#include <math.h>
+#include <cmath>
 #include <algorithm>
 #include "physics/raycast/raycast.hpp"
 #include "physics/primitives/collider.hpp"
