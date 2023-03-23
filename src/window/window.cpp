@@ -14,6 +14,8 @@
 #include "graphics/renderer/debugdraw.hpp"
 #include "util/assetpool.hpp"
 
+#include "scenes/title.hpp"
+
 namespace {
 
     GLFWwindow* window;
@@ -122,15 +124,15 @@ namespace Window {
         entityTexture = new Framebuffer(GL_RGB32F, width, height, GL_RGB, GL_FLOAT);
 
         DebugDraw::init();
-
-        scene = new Scene("Title");
+        
+        scene = new Scene("Title", TitleInit);
         return true;
     }
 
     void loop() {
 
         // Temporary audio test.
-        AudioEngine::play(AudioPool::get("assets/audio/ui.mp3"));
+        //AudioEngine::play(AudioPool::get("assets/audio/ui.mp3"));
 
         float beginTime = (float)glfwGetTime();
         float endTime = (float)glfwGetTime();

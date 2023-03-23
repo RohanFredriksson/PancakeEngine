@@ -4,78 +4,26 @@
 #include <glm/glm.hpp>
 #include "core/scene.hpp"
 
-#include "physics/primitives/box.hpp"
-#include "physics/primitives/circle.hpp"
-#include "graphics/primitives/font.hpp"
-#include "graphics/renderer/textrenderer.hpp"
-
-#include "util/assetpool.hpp"
-
 using std::deque;
 using std::pair;
 using glm::vec2;
 
-using glm::vec4;
-
-Scene::Scene(string name) {
+Scene::Scene(string name, void (*init)(Scene* scene)) {
 
     this->name = name;
     this->camera = new Camera(vec2(0.0f, 0.0f), vec2(12.0f, 12.0f), 1.0f);
     this->renderer = new Renderer();
     this->physics = new World(1.0f / 60.0f, vec2(0.0f, -10.0f));
+    if (init != NULL) {init(this);}
 
-    Entity* entity;
-    Texture* texture;
-    Sprite* sprite;
-    SpriteRenderer* spriterenderer;
-    Box* box;
-    Circle* circle;
-    Rigidbody* rigidbody;
-    TextRenderer* textrenderer;
+}
 
-    // BOX 1
-    entity = new Entity(vec2(-4.5f, 5.0f), vec2(1.0f, 1.0f), 0.0f);
+Scene::Scene(string name, string filename) {
 
-    texture = TexturePool::get("assets/textures/armaan.png");
-    sprite = new Sprite("armaan", texture);
-    spriterenderer = new SpriteRenderer();
-    spriterenderer->setSprite(sprite);
-
-    rigidbody = new Rigidbody();
-    rigidbody->setRestitution(0.2f);
-    rigidbody->setFriction(0.0f);
-    rigidbody->setVelocity(vec2(1.0f, 0.0f));
-    rigidbody->setFixedOrientation(true);
-
-    box = new Box();
-    box->setMass(1.0f);
-    box->setSize(vec2(1.0f, 1.0f));
-    rigidbody->addCollider(box);
-
-    entity->addComponent(spriterenderer);
-    entity->addComponent(rigidbody);
-    this->addEntity(entity);
-
-    // BOX 2
-    entity = new Entity(vec2(0.0f, 0.0f), vec2(11.0f, 1.0f), 0.0f);
-
-    texture = TexturePool::get("assets/textures/ainsley.png");
-    sprite = new Sprite("ainsley", texture);
-    spriterenderer = new SpriteRenderer();
-    spriterenderer->setSprite(sprite);
-    
-    rigidbody = new Rigidbody();
-    rigidbody->setRestitution(1.0f);
-    rigidbody->setFriction(0.0f);
-    
-    box = new Box();
-    box->setMass(0.0f);
-    box->setSize(vec2(11.0f, 1.0f));
-    rigidbody->addCollider(box);
-
-    entity->addComponent(spriterenderer);
-    entity->addComponent(rigidbody);
-    this->addEntity(entity);
+    this->name = name;
+    this->camera = new Camera(vec2(0.0f, 0.0f), vec2(12.0f, 12.0f), 1.0f);
+    this->renderer = new Renderer();
+    this->physics = new World(1.0f / 60.0f, vec2(0.0f, -10.0f));
 
 }
 
