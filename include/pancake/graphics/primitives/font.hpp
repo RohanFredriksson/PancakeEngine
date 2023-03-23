@@ -22,7 +22,7 @@ class Font {
         vector<Sprite*> sprites;
         Texture* texture;
 
-        void load(unsigned char* fontBuffer, float size);
+        void load(const unsigned char* fontBuffer, float size);
 
     public:
 

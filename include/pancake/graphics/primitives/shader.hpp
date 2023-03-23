@@ -17,11 +17,13 @@ class Shader {
         string vertex;
         string fragment;
         
-        static char* loadSource(const char * filename);
-        
+        static char* loadSource(const char* filename);
+        void load(const char* vertexCode, const char* fragmentCode);
+
     public:
 
-        Shader(string vertex, string fragment);
+        Shader(string vertexFile, string fragmentFile);
+        Shader(string vertexName, string fragmentName, const char* vertexCode, const char* fragmentCode);
         ~Shader();
 
         void bind();

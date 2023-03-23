@@ -7,12 +7,11 @@
 
 #include "pancake/window/window.hpp"
 #include "pancake/window/listener.hpp"
-#include "pancake/audio/audioengine.hpp"
-#include "pancake/audio/audiowave.hpp"
 #include "pancake/graphics/primitives/shader.hpp"
 #include "pancake/graphics/primitives/framebuffer.hpp"
 #include "pancake/graphics/renderer/debugdraw.hpp"
 #include "pancake/util/assetpool.hpp"
+#include "pancake/util/shaders.hpp"
 
 namespace {
 
@@ -73,8 +72,8 @@ namespace {
         // Initialise the asset pool.
         AssetPool::init();
 
-        defaultShader = new Shader("assets/shaders/default.vert", "assets/shaders/default.frag");
-        entityShader = new Shader("assets/shaders/default.vert", "assets/shaders/entity.frag");
+        defaultShader = new Shader("default", "default", DEFAULT_VERTEX, DEFAULT_FRAGMENT);
+        entityShader = new Shader("default", "entity", DEFAULT_VERTEX, ENTITY_FRAGMENT);
         entityTexture = new Framebuffer(GL_RGB32F, width, height, GL_RGB, GL_FLOAT);
 
         DebugDraw::init();

@@ -1,6 +1,6 @@
 #include <iostream>
 #include "pancake/graphics/primitives/font.hpp"
-#include "pancake/util/pixellari.h"
+#include "pancake/util/fonts.hpp"
 
 //#define STB_IMAGE_WRITE_IMPLEMENTATION
 //#include "stb/stb_image_write.h"
@@ -12,7 +12,7 @@ namespace {
     int NUM_CHARACTERS = 128;
 }
 
-void Font::load(unsigned char* fontBuffer, float size) {
+void Font::load(const unsigned char* fontBuffer, float size) {
 
     // Prepare the font
     stbtt_fontinfo info;
@@ -161,7 +161,7 @@ Font::Font(string filename, float size) {
     fclose(fontFile);
 
     // Load the font.
-    this->load(fontBuffer, this->size);    
+    this->load((const unsigned char*) fontBuffer, this->size);    
 
     // Debug output
     //stbi_write_png("out.png", width, height, 4, image, width * 4);
@@ -173,7 +173,7 @@ Font::Font(string filename, float size) {
 Font::Font(float size) {
     this->filename = "default";
     this->size = size;
-    unsigned char* buffer = reinterpret_cast<unsigned char*>(Pixellari_ttf);
+    const unsigned char* buffer = reinterpret_cast<const unsigned char*>(PIXELLARI);
     this->load(buffer, this->size);
 }
 

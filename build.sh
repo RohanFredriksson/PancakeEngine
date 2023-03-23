@@ -11,5 +11,3 @@ rm windows 2> /dev/null
 touch posix
 cmake ..
 make
-rm -rf assets 2> /dev/null
-cp -r ../assets assets

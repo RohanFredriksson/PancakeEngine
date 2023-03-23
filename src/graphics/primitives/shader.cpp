@@ -41,16 +41,7 @@ char* Shader::loadSource(const char * filename) {
 
 }
 
-Shader::Shader(string vertex, string fragment) {
-    
-    this->vertex = vertex;
-    this->fragment = fragment;
-
-    // Load shader code
-    char* vertexCode = Shader::loadSource(vertex.c_str());
-    char* fragmentCode = Shader::loadSource(fragment.c_str());
-    if (vertexCode == NULL) {std::cout << "ERROR::SHADER::COMPILE::VERTEX_SOURCE_NOT_FOUND\n";}
-    if (vertexCode == NULL) {std::cout << "ERROR::SHADER::COMPILE::FRAGMENT_SOURCE_NOT_FOUND\n";}
+void Shader::load(const char* vertexCode, const char* fragmentCode) {
 
     GLuint v, f;
     GLint success;
@@ -93,12 +84,37 @@ Shader::Shader(string vertex, string fragment) {
         std::cout << "ERROR::SHADER::PROGRAM::LINKING_FAILED\n" << infoLog << "\n";
     }
 
+    glDeleteShader(v);
+    glDeleteShader(f);
+
+}
+
+Shader::Shader(string vertexFile, string fragmentFile) {
+    
+    this->vertex = vertexFile;
+    this->fragment = fragmentFile;
+
+    // Load shader code
+    char* vertexCode = Shader::loadSource(vertexFile.c_str());
+    char* fragmentCode = Shader::loadSource(fragmentFile.c_str());
+    if (vertexCode == NULL) {std::cout << "ERROR::SHADER::COMPILE::VERTEX_SOURCE_NOT_FOUND\n";}
+    if (vertexCode == NULL) {std::cout << "ERROR::SHADER::COMPILE::FRAGMENT_SOURCE_NOT_FOUND\n";}
+
+    // Load the shader.
+    this->load((const char*) vertexCode, (const char*) fragmentCode);
+
     // Free the data.
     free(vertexCode);
     free(fragmentCode);
-    glDeleteShader(v);
-    glDeleteShader(f);
     
+}
+
+Shader::Shader(string vertexName, string fragmentName, const char* vertexCode, const char* fragmentCode) {
+
+    this->vertex = vertexName;
+    this->fragment = fragmentName;
+    this->load(vertexCode, fragmentCode);
+
 }
 
 Shader::~Shader() {

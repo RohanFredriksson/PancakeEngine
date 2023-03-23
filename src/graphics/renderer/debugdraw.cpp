@@ -4,6 +4,7 @@
 #include "pancake/graphics/primitives/shader.hpp"
 #include "pancake/graphics/renderer/debugdraw.hpp"
 #include "pancake/window/window.hpp"
+#include "pancake/util/shaders.hpp"
 
 using std::vector;
 
@@ -62,7 +63,7 @@ namespace DebugDraw {
     void init() {
 
         // Initialise required data.
-        shader = new Shader("assets/shaders/debug.vert", "assets/shaders/debug.frag");
+        shader = new Shader("debug", "debug", DEBUG_VERTEX, DEBUG_FRAGMENT);
         vertices = (float*) malloc(VERTEX_ARRAY_LENGTH * sizeof(float));
 
         // Generate and bind a Vertex Array Object
