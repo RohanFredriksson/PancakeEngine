@@ -1,5 +1,6 @@
 #include <iostream>
 #include "pancake/graphics/primitives/font.hpp"
+#include "pancake/util/pixellari.h"
 
 //#define STB_IMAGE_WRITE_IMPLEMENTATION
 //#include "stb/stb_image_write.h"
@@ -11,25 +12,7 @@ namespace {
     int NUM_CHARACTERS = 128;
 }
 
-Font::Font(string filename, float size) {
-    
-    this->filename = filename;
-    this->size = size;
-
-    // Read the contents of the file.
-    long fileSize;
-    unsigned char* fontBuffer;
-    FILE* fontFile = fopen(filename.c_str(), "rb");
-    if (fontFile == NULL) {
-        std::cout << "ERROR::FONT::INIT::FILE_NOT_FOUND\n";
-        throw "ERROR::FONT::INIT::FILE_NOT_FOUND";
-    }
-    fseek(fontFile, 0, SEEK_END);
-    fileSize = ftell(fontFile);
-    fseek(fontFile, 0, SEEK_SET);
-    fontBuffer = (unsigned char*) malloc(fileSize);
-    fread(fontBuffer, fileSize, 1, fontFile);
-    fclose(fontFile);
+void Font::load(unsigned char* fontBuffer, float size) {
 
     // Prepare the font
     stbtt_fontinfo info;
@@ -151,13 +134,47 @@ Font::Font(string filename, float size) {
         this->sprites[i]->setTexture(this->texture);
     }
 
-    // Debug output
-    //stbi_write_png("out.png", width, height, 4, image, width * 4);
-
-    free(fontBuffer);
+    // Free the allocated memory.
     free(mask);
     free(image);
 
+}
+
+Font::Font(string filename, float size) {
+    
+    this->filename = filename;
+    this->size = size;
+
+    // Read the contents of the file.
+    long fileSize;
+    unsigned char* fontBuffer;
+    FILE* fontFile = fopen(filename.c_str(), "rb");
+    if (fontFile == NULL) {
+        std::cout << "ERROR::FONT::INIT::FILE_NOT_FOUND\n";
+        throw "ERROR::FONT::INIT::FILE_NOT_FOUND";
+    }
+    fseek(fontFile, 0, SEEK_END);
+    fileSize = ftell(fontFile);
+    fseek(fontFile, 0, SEEK_SET);
+    fontBuffer = (unsigned char*) malloc(fileSize);
+    fread(fontBuffer, fileSize, 1, fontFile);
+    fclose(fontFile);
+
+    // Load the font.
+    this->load(fontBuffer, this->size);    
+
+    // Debug output
+    //stbi_write_png("out.png", width, height, 4, image, width * 4);
+
+    // Free the font buffer.
+    free(fontBuffer);
+}
+
+Font::Font(float size) {
+    this->filename = "default";
+    this->size = size;
+    unsigned char* buffer = reinterpret_cast<unsigned char*>(Pixellari_ttf);
+    this->load(buffer, this->size);
 }
 
 Font::~Font() {

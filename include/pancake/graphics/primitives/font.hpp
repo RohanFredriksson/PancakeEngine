@@ -22,9 +22,12 @@ class Font {
         vector<Sprite*> sprites;
         Texture* texture;
 
+        void load(unsigned char* fontBuffer, float size);
+
     public:
 
         Font(string filename, float size);
+        Font(float size);
         ~Font();
         
         string getFilename();

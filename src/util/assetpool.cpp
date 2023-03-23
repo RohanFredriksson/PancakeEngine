@@ -126,9 +126,11 @@ void SpritePool::put(Sprite* sprite) {
 void FontPool::init() {
 
     // Add the default font to the pool.
-    Font* font = new Font("assets/fonts/Pixellari.ttf", 64);
-    pair<string, Font*> p("default", font);
-    fonts.insert(p);
+    Font* font = new Font(64);
+    pair<string, Font*> p1("default", font);
+    pair<string, Font*> p2("pixellari", font);
+    fonts.insert(p1);
+    fonts.insert(p2);
 
 }
 
