@@ -1,7 +1,7 @@
 #include "pancake/audio/audioplayer.hpp"
 #include "pancake/audio/audioengine.hpp"
 
-AudioPlayer::AudioPlayer() {
+AudioPlayer::AudioPlayer() : Component("AudioPlayer") {
     this->audio = NULL;
 }
 

@@ -3,7 +3,7 @@
 #include "pancake/graphics/renderer/spriterenderer.hpp"
 #include "pancake/util/assetpool.hpp"
 
-TextRenderer::TextRenderer() : TransformableComponent() {
+TextRenderer::TextRenderer() : TransformableComponent("TextRenderer") {
     
     this->text = "";
     this->font = FontPool::get("default");

@@ -3,7 +3,7 @@
 #include "pancake/core/scene.hpp"
 #include "pancake/util/assetpool.hpp"
 
-SpriteRenderer::SpriteRenderer() : TransformableComponent() {
+SpriteRenderer::SpriteRenderer() : TransformableComponent("SpriteRenderer") {
     
     this->sprite = SpritePool::get("empty");
     this->colour = vec4(1.0f, 1.0f, 1.0f, 1.0f);
