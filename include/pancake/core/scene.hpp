@@ -18,13 +18,21 @@ class Scene {
         string name;
         unordered_map<int, Entity*> entities;
         unordered_map<int, Component*> components;
+
+        unordered_map<int, Component*> keyPressComponents;
+        unordered_map<int, Component*> keyBeginPressComponents;
+        unordered_map<int, Component*> mouseDownComponents;
+        unordered_map<int, Component*> mouseBeginDownComponents;
+        unordered_map<int, Component*> mouseDraggingComponents;
+        
         Camera* camera;
         Renderer* renderer;
         World* physics;
 
         void addNewComponents();
         void removeDeadComponents();
-        
+        void updateCallbackComponents();
+
     public:
 
         Scene(string name, void (*init)(Scene* scene));
