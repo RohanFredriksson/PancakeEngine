@@ -3,10 +3,13 @@
 #include "pancake/core/camera.hpp"
 #include "pancake/window/window.hpp"
 
+#include <iostream>
+
 namespace {
 
     bool keyPressed[350] = {0};
     bool keyBeginPress[350] = {0};
+    int keyPressCount = 0;
 
     double scrollX = 0.0;
     double scrollY = 0.0;
@@ -20,19 +23,23 @@ namespace {
     double lastWorldY = 0.0;
     bool mouseButtonDown[9] = {0};
     bool mouseButtonBeginDown[9] = {0};
+    int mouseButtonDownCount = 0;
     bool isDragging = 0;
-    int mouseButtonsDown = 0;
-
+    
 }
 
 void KeyListener::keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods) {
 
+    if (key < 0 || key > 349) {return;}
+
     if (action == GLFW_PRESS) {
+        keyPressCount++;
         keyPressed[key] = true;
         keyBeginPress[key] = true;
     }
 
     else if (action == GLFW_RELEASE) {
+        keyPressCount--;
         keyPressed[key] = false;
         keyBeginPress[key] = false;
     }
@@ -40,18 +47,24 @@ void KeyListener::keyCallback(GLFWwindow* window, int key, int scancode, int act
 }
 
 bool KeyListener::isKeyPressed(int key) {
+    if (key < 0 || key > 349) {return false;}
     return keyPressed[key];
+}
+
+bool KeyListener::isKeyPressed() {
+    return keyPressCount > 0;
 }
 
 bool KeyListener::isKeyBeginPress(int key) {
 
-    bool result = keyBeginPress[key];
-    if (result) {
+    if (key < 0 || key > 349) {return false;}
+
+    if (keyBeginPress[key]) {
         keyBeginPress[key] = false;
+        return true;
     }
 
-    return result;
-
+    return false;
 }
 
 void WindowListener::resizeCallback(GLFWwindow* window, int screenWidth, int screenHeight) {
@@ -82,7 +95,7 @@ void MouseListener::calcOrthoY() {
 
 void MouseListener::mousePosCallback(GLFWwindow* window, double xPos, double yPos) {
 
-    if (mouseButtonsDown > 0) {
+    if (mouseButtonDownCount > 0) {
         isDragging = true;
     }
 
@@ -99,27 +112,19 @@ void MouseListener::mousePosCallback(GLFWwindow* window, double xPos, double yPo
 
 void MouseListener::mouseButtonCallback(GLFWwindow* window, int button, int action, int mods) {
 
+    if (button > 8 || button < 0) {return;}
+
     if (action == GLFW_PRESS) {
-
-        mouseButtonsDown++;
-
-        if (button < 9) {
-            mouseButtonDown[button] = true;
-            mouseButtonBeginDown[button] = true;
-        }
-
+        mouseButtonDownCount++;
+        mouseButtonDown[button] = true;
+        mouseButtonBeginDown[button] = true;
     }
 
     else if (action == GLFW_RELEASE) {
-
-        mouseButtonsDown--;
-
-        if (button < 9) {
-            mouseButtonDown[button] = false;
-            mouseButtonBeginDown[button] = false;
-            isDragging = false;
-        }
-
+        mouseButtonDownCount--;
+        mouseButtonDown[button] = false;
+        mouseButtonBeginDown[button] = false;
+        isDragging = false;
     }
 
 }
@@ -130,25 +135,24 @@ void MouseListener::mouseScrollCallback(GLFWwindow* window, double xOffset, doub
 }
 
 bool MouseListener::isMouseButtonDown(int button) {
+    if (button < 0 || button > 9) {return false;}
+    return mouseButtonDown[button];
+}
 
-    if (button < 9) {
-        return mouseButtonDown[button];
-    }
-    return 0;
-
+bool MouseListener::isMouseButtonDown() {
+    return mouseButtonDownCount > 0;
 }
 
 bool MouseListener::isMouseButtonBeginDown(int button) {
 
-    if (button < 9) {
-        bool result = mouseButtonBeginDown[button];
-        if (result) {
-            mouseButtonBeginDown[button] = false;
-        }
-        return result;
-    }
-    return false;
+    if (button < 0 || button > 8) {return false;}
 
+    if (mouseButtonBeginDown[button]) {
+        mouseButtonBeginDown[button] = false;
+        return true;
+    }
+
+    return false;
 }
 
 bool MouseListener::isMouseDragging() {

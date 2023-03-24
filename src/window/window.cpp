@@ -90,9 +90,9 @@ namespace {
             if (MouseListener::getDy() != 0) {scene->getCamera()->addPosition(vec2(0.0f, MouseListener::getWorldDy()));}
         }
 
-        if (MouseListener::isMouseButtonBeginDown(GLFW_MOUSE_BUTTON_LEFT)) {
-            std::cout << Window::readPixel(MouseListener::getX(), MouseListener::getY());
-        }
+        //if (MouseListener::isMouseButtonBeginDown(GLFW_MOUSE_BUTTON_LEFT)) {
+        //    std::cout << Window::readPixel(MouseListener::getX(), MouseListener::getY());
+        //}
 
     }
 

@@ -12,11 +12,8 @@ Component::Component() {
     this->dead = false;
 
     this->keyPress = NULL;
-    this->keyBeginPress = NULL;
-    this->mouseDown = NULL;
-    this->mouseBeginDown = NULL;
-    this->mouseDownOnComponent = NULL;
-    this->mouseBeginDownOnComponent = NULL;
+    this->mouseButtonDown = NULL;
+    //this->mouseButtonDownOnComponent = NULL;
     this->mouseDragging = NULL;
     this->callbackUpdate = false;
 
@@ -51,28 +48,16 @@ bool Component::isDead() {
     return this->dead;
 }
 
-void Component::keyPressCallback(int key) {
-    if (this->keyPress != NULL) {this->keyPress(this, key);}
+void Component::keyPressCallback() {
+    if (this->keyPress != NULL) {this->keyPress(this);}
 }
 
-void Component::keyBeginPressCallback(int key) {
-    if (this->keyBeginPress != NULL) {this->keyBeginPress(this, key);}
-}
+//void Component::mouseButtonDownOnComponentCallback(int button) {
+//    if (this->mouseButtonDownOnComponent != NULL) {this->mouseButtonDownOnComponent(this, button);}
+//}
 
-void Component::mouseDownOnComponentCallback(int button) {
-    if (this->mouseDownOnComponent != NULL) {this->mouseDownOnComponent(this, button);}
-}
-
-void Component::mouseBeginDownOnComponentCallback(int button) {
-    if (this->mouseBeginDownOnComponent != NULL) {this->mouseBeginDownOnComponent(this, button);}
-}
-
-void Component::mouseDownCallback(int button) {
-    if (this->mouseDown != NULL) {this->mouseDown(this, button);}
-}
-
-void Component::mouseBeginDownCallback(int button) {
-    if (this->mouseBeginDown != NULL) {this->mouseBeginDown(this, button);}
+void Component::mouseButtonDownCallback() {
+    if (this->mouseButtonDown != NULL) {this->mouseButtonDown(this);}
 }
 
 void Component::mouseDraggingCallback() {
@@ -83,24 +68,12 @@ bool Component::hasKeyPressCallback() {
     return this->keyPress != NULL;
 }
 
-bool Component::hasKeyBeginPressCallback() {
-    return this->keyBeginPress != NULL;
-}
+//bool Component::hasMouseButtonDownOnComponentCallback() {
+//    return this->mouseButtonDownOnComponent != NULL;
+//}
 
-bool Component::hasMouseDownOnComponentCallback() {
-    return this->mouseDownOnComponent != NULL;
-}
-
-bool Component::hasMouseBeginDownOnComponentCallback() {
-    return this->mouseBeginDownOnComponent != NULL;
-}
-
-bool Component::hasMouseDownCallback() {
-    return this->mouseDown != NULL;
-}
-
-bool Component::hasMouseBeginDownCallback() {
-    return this->mouseBeginDown != NULL;
+bool Component::hasMouseButtonDownCallback() {
+    return this->mouseButtonDown != NULL;
 }
 
 bool Component::hasMouseDraggingCallback() {
@@ -119,33 +92,18 @@ void Component::setEntity(Entity* entity) {
     this->entity = entity;
 }
 
-void Component::setKeyPressCallback(void (*callback)(Component* component, int key)) {
+void Component::setKeyPressCallback(void (*callback)(Component* component)) {
     this->keyPress = callback;
     this->callbackUpdate = true;
 }
 
-void Component::setKeyBeginPressCallback(void (*callback)(Component* component, int key)) {
-    this->keyBeginPress = callback;
-    this->callbackUpdate = true;
-}
+//void Component::setMouseButtonDownOnComponentCallback(void (*callback)(Component* component)) {
+//    this->mouseButtonDownOnComponent = callback;
+//    this->callbackUpdate = true;
+//}
 
-void Component::setMouseDownOnComponentCallback(void (*callback)(Component* component, int button)) {
-    this->mouseDownOnComponent = callback;
-    this->callbackUpdate = true;
-}
-
-void Component::setMouseBeginDownOnComponentCallback(void (*callback)(Component* component, int button)) {
-    this->mouseBeginDownOnComponent = callback;
-    this->callbackUpdate = true;
-}
-
-void Component::setMouseDownCallback(void (*callback)(Component* component, int button)) {
-    this->mouseDown = callback;
-    this->callbackUpdate = true;
-}
-
-void Component::setMouseBeginDownCallback(void (*callback)(Component* component, int button)) {
-    this->mouseBeginDown = callback;
+void Component::setMouseButtonDownCallback(void (*callback)(Component* component)) {
+    this->mouseButtonDown = callback;
     this->callbackUpdate = true;
 }
 

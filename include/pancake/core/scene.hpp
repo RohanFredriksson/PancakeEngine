@@ -21,8 +21,8 @@ class Scene {
 
         unordered_map<int, Component*> keyPressComponents;
         unordered_map<int, Component*> keyBeginPressComponents;
-        unordered_map<int, Component*> mouseDownComponents;
-        unordered_map<int, Component*> mouseBeginDownComponents;
+        unordered_map<int, Component*> mouseButtonDownComponents;
+        unordered_map<int, Component*> mouseButtonBeginDownComponents;
         unordered_map<int, Component*> mouseDraggingComponents;
         
         Camera* camera;

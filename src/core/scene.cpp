@@ -64,19 +64,14 @@ void Scene::updateCallbackComponents() {
         for (Component* c : e->getCallbackUpdatedComponents()) {
             
             // Remove the component from all sets.
-            std::cout << "ATTEMPTING TO ADD " << c->getId() << " TO EVENT MAPS\n";
             this->keyPressComponents.erase(c->getId());
-            this->keyBeginPressComponents.erase(c->getId());
-            this->mouseDownComponents.erase(c->getId());
-            this->mouseBeginDownComponents.erase(c->getId());
+            this->mouseButtonDownComponents.erase(c->getId());
             this->mouseDraggingComponents.erase(c->getId());
 
             // Add the component to the maps that it belongs to.
-            if (c->hasKeyPressCallback())       {this->keyPressComponents[c->getId()] = c; std::cout << "ADDED KEY PRESS\n";}
-            if (c->hasKeyBeginPressCallback())  {this->keyBeginPressComponents[c->getId()] = c; std::cout << "ADDED KEY BEGIN PRESS\n";}
-            if (c->hasMouseDownCallback())      {this->mouseDownComponents[c->getId()] = c; std::cout << "ADDED MOUSE DOWN\n";}
-            if (c->hasMouseBeginDownCallback()) {this->mouseBeginDownComponents[c->getId()] = c; std::cout << "ADDED MOUSE BEGIN DOWN\n";}
-            if (c->hasMouseDraggingCallback())  {this->mouseDraggingComponents[c->getId()] = c; std::cout << "ADDED MOUSE DRAGGING\n";}
+            if (c->hasKeyPressCallback())       {this->keyPressComponents[c->getId()] = c; std::cout << "A\n";}
+            if (c->hasMouseButtonDownCallback())      {this->mouseButtonDownComponents[c->getId()] = c;  std::cout << "C\n";}
+            if (c->hasMouseDraggingCallback())  {this->mouseDraggingComponents[c->getId()] = c;  std::cout << "E\n";}
             c->clearCallbackUpdate();
 
         }
@@ -115,9 +110,7 @@ void Scene::removeDeadComponents() {
         for (int id : e->getDeadComponentIds()) {
             this->components.erase(id);
             this->keyPressComponents.erase(id);
-            this->keyBeginPressComponents.erase(id);
-            this->mouseDownComponents.erase(id);
-            this->mouseBeginDownComponents.erase(id);
+            this->mouseButtonDownComponents.erase(id);
             this->mouseDraggingComponents.erase(id);
         }
         e->clearDeadComponentIds();
@@ -136,25 +129,17 @@ void Scene::update(float dt) {
     this->physics->update(dt); // This will update colliding components
 
     // Check for events.
+    if (KeyListener::isKeyPressed()) {for (const auto& pair : this->keyPressComponents) {
+        pair.second->keyPressCallback();
+    }}
+
+    if (MouseListener::isMouseButtonDown()) {for (const auto& pair : this->mouseButtonDownComponents) {
+        pair.second->mouseButtonDownCallback();
+    }}
+
     if (MouseListener::isMouseDragging()) {for (const auto& pair : this->mouseDraggingComponents) {
         pair.second->mouseDraggingCallback();
     }}
-
-    //if (MouseListener::isMouseDown()) {for (const auto& pair : this->mouseDownComponents) {
-    //    pair.second->mouseDownCallback();
-    //}}
-
-    //if (MouseListener::isMouseBeginDown()) {for (const auto& pair : this->mouseDraggingComponents) {
-    //    pair.second->mouseBeginDownCallback();
-    //}}
-
-    //if (KeyListener::isKeyPress()) {for (const auto& pair : this->mouseDraggingComponents) {
-    //    pair.second->mouseDraggingCallback();
-    //}}
-
-    //if (KeyListener::isKeyBeginPress()) {for (const auto& pair : this->keyBeginPressComponents) {
-    //    pair.second->keyBeginPressCallback();
-    //}}
 
     // Update all the entities.
     deque<int> deadIds;
@@ -185,9 +170,7 @@ void Scene::update(float dt) {
             std::cout << "DELETED " << c->getId() << "\n";
             this->components.erase(c->getId());
             this->keyPressComponents.erase(c->getId());
-            this->keyBeginPressComponents.erase(c->getId());
-            this->mouseDownComponents.erase(c->getId());
-            this->mouseBeginDownComponents.erase(c->getId());
+            this->mouseButtonDownComponents.erase(c->getId());
             this->mouseDraggingComponents.erase(c->getId());
         }
 

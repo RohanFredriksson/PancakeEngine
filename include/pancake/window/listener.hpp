@@ -5,6 +5,7 @@
 namespace KeyListener {
     void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods);
     bool isKeyPressed(int key);
+    bool isKeyPressed();
     bool isKeyBeginPress(int key);
 }
 
@@ -19,6 +20,7 @@ namespace MouseListener {
     void mouseButtonCallback(GLFWwindow* window, int button, int action, int mods);
     void mouseScrollCallback(GLFWwindow* window, double xOffset, double yOffset);
     bool isMouseButtonDown(int button);
+    bool isMouseButtonDown();
     bool isMouseButtonBeginDown(int button);
     bool isMouseDragging();
     double getX();
