@@ -9,6 +9,16 @@ Camera::Camera(vec2 position, vec2 projectionSize, float zoom) {
     this->position = position;
     this->projectionSize = projectionSize;
     this->zoom = zoom;
+
+    this->moving = false;
+    this->initialPosition = glm::vec2(0.0f, 0.0f);
+    this->finalPosition = glm::vec2(0.0f, 0.0f);
+    this->normal = glm::vec2(0.0f, 0.0f);
+    this->timeCurrent = 0.0f;
+    this->timeTotal = 0.0f;
+    this->timeHalf = 0.0f;
+    this->distance = 0.0f;
+    this->maxVelocity = 0.0f;
     
     this->adjustProjection();
 
@@ -18,6 +28,61 @@ void Camera::adjustProjection() {
     this->projectionSize.x = this->projectionSize.y * Window::getAspectRatio();
     this->projection = glm::ortho(0.0f, this->projectionSize.x / this->zoom, 0.0f, this->projectionSize.y / this->zoom, 0.0f, 100.0f);
     this->inverseProjection = glm::inverse(this->projection);
+}
+
+void Camera::update(float dt) {
+
+    // If the camera is moving, smoothly move the camera.
+    if (this->moving) {
+
+        // If the camera has moved to the end, set the position exactly
+        if (this->timeCurrent >= this->timeTotal) {
+            this->moving = false;
+            this->position = this->finalPosition;
+        }
+
+        // If the camera is still moving, calculate its new position
+        else {
+
+            // Calculate the current velocity of coefficient.
+            float tmp = (this->timeCurrent - this->timeHalf) / this->timeHalf;
+            float velocityFactor = sqrtf(1 - (tmp * tmp));
+
+            // Displace the camera.
+            vec2 currentDisplacement = this->normal * this->maxVelocity * velocityFactor * dt;
+            this->position += currentDisplacement;
+
+        }
+        this->timeCurrent += dt;
+    }
+
+}
+
+void Camera::move(vec2 to, float t) {
+
+    // If the time required to move is zero, move the camera immediately.
+    if (t <= 0.0f) {
+        this->position = to;
+        this->moving = false;
+        return;
+    }
+
+    this->initialPosition = this->position;
+    this->finalPosition = to;
+    this->distance = glm::distance(this->initialPosition, this->finalPosition);
+
+    // If the camera, doesn't need to move, don't move it.
+    if (this->distance == 0.0f) {return;}
+
+    this->normal = glm::normalize(this->finalPosition - this->initialPosition);
+    this->timeCurrent = 0.0f;
+    this->timeTotal = t;
+    this->timeHalf = t/2;
+
+    // Define the max velocity, and raise the moving flag.
+    this->maxVelocity = (2 * this->distance) / (M_PI * this->timeHalf);
+    this->moving = true;
+
 }
 
 vec2 Camera::getPosition() {

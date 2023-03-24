@@ -126,6 +126,7 @@ void Scene::update(float dt) {
 
     // Adjust the projection and step the physics engine.
     this->camera->adjustProjection();
+    this->camera->update(dt);
     this->physics->update(dt); // This will update colliding components
 
     // Check for events.

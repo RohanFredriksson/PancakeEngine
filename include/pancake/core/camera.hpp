@@ -17,11 +17,23 @@ class Camera {
         mat4 view;
         mat4 inverseProjection;
         mat4 inverseView;
+
+        bool moving;
+        vec2 initialPosition;
+        vec2 finalPosition;
+        vec2 normal;
+        float timeCurrent;
+        float timeTotal;
+        float timeHalf;
+        float distance;
+        float maxVelocity;
         
     public:
 
         Camera(vec2 position, vec2 projectionSize, float zoom);
         void adjustProjection();
+        void update(float dt);
+        void move(vec2 to, float t);
 
         vec2 getPosition();
         vec2 getProjectionSize();
