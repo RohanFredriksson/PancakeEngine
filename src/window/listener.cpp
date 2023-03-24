@@ -3,8 +3,6 @@
 #include "pancake/core/camera.hpp"
 #include "pancake/window/window.hpp"
 
-#include <iostream>
-
 namespace {
 
     bool keyPressed[350] = {0};
@@ -46,16 +44,16 @@ void KeyListener::keyCallback(GLFWwindow* window, int key, int scancode, int act
 
 }
 
-bool KeyListener::isKeyPressed(int key) {
+bool KeyListener::isKeyDown(int key) {
     if (key < 0 || key > 349) {return false;}
     return keyPressed[key];
 }
 
-bool KeyListener::isKeyPressed() {
+bool KeyListener::isKeyDown() {
     return keyPressCount > 0;
 }
 
-bool KeyListener::isKeyBeginPress(int key) {
+bool KeyListener::isKeyBeginDown(int key) {
 
     if (key < 0 || key > 349) {return false;}
 
@@ -134,16 +132,16 @@ void MouseListener::mouseScrollCallback(GLFWwindow* window, double xOffset, doub
     scrollY = yOffset;
 }
 
-bool MouseListener::isMouseButtonDown(int button) {
+bool MouseListener::isMouseDown(int button) {
     if (button < 0 || button > 9) {return false;}
     return mouseButtonDown[button];
 }
 
-bool MouseListener::isMouseButtonDown() {
+bool MouseListener::isMouseDown() {
     return mouseButtonDownCount > 0;
 }
 
-bool MouseListener::isMouseButtonBeginDown(int button) {
+bool MouseListener::isMouseBeginDown(int button) {
 
     if (button < 0 || button > 8) {return false;}
 

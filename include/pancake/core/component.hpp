@@ -16,9 +16,9 @@ class Component {
         Entity* entity;
         bool dead;
 
-        void (*keyPress)(Component* component);
-        void (*mouseButtonDown)(Component* component);
-        //void (*mouseButtonDownOnComponent)(Component* component);
+        void (*keyDown)(Component* component);
+        void (*mouseDown)(Component* component);
+        //void (*mouseDownOnComponent)(Component* component);
         void (*mouseDragging)(Component* component);
         bool callbackUpdate;
 
@@ -34,23 +34,23 @@ class Component {
         Entity* getEntity();
         bool isDead();
         
-        void keyPressCallback();
-        //void mouseButtonDownOnComponentCallback();
-        void mouseButtonDownCallback();
+        void keyDownCallback();
+        //void mouseDownOnComponentCallback();
+        void mouseDownCallback();
         void mouseDraggingCallback();
 
-        bool hasKeyPressCallback();
-        //bool hasMouseButtonDownOnComponentCallback();
-        bool hasMouseButtonDownCallback();
+        bool hasKeyDownCallback();
+        //bool hasMouseDownOnComponentCallback();
+        bool hasMouseDownCallback();
         bool hasMouseDraggingCallback();
         bool isCallbackUpdated();
         
         void setId(int id);
         void setEntity(Entity* entity);
     
-        void setKeyPressCallback(void (*callback)(Component* component));
-        //void setMouseButtonDownOnComponentCallback(void (*callback)(Component* component));
-        void setMouseButtonDownCallback(void (*callback)(Component* component));
+        void setKeyDownCallback(void (*callback)(Component* component));
+        //void setMouseDownOnComponentCallback(void (*callback)(Component* component));
+        void setMouseDownCallback(void (*callback)(Component* component));
         void setMouseDraggingCallback(void (*callback)(Component* component));
         void clearCallbackUpdate();
 

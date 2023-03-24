@@ -11,9 +11,9 @@ Component::Component() {
     this->entity = NULL;
     this->dead = false;
 
-    this->keyPress = NULL;
-    this->mouseButtonDown = NULL;
-    //this->mouseButtonDownOnComponent = NULL;
+    this->keyDown = NULL;
+    this->mouseDown = NULL;
+    //this->mouseDownOnComponent = NULL;
     this->mouseDragging = NULL;
     this->callbackUpdate = false;
 
@@ -48,32 +48,32 @@ bool Component::isDead() {
     return this->dead;
 }
 
-void Component::keyPressCallback() {
-    if (this->keyPress != NULL) {this->keyPress(this);}
+void Component::keyDownCallback() {
+    if (this->keyDown != NULL) {this->keyDown(this);}
 }
 
-//void Component::mouseButtonDownOnComponentCallback(int button) {
-//    if (this->mouseButtonDownOnComponent != NULL) {this->mouseButtonDownOnComponent(this, button);}
+//void Component::mouseDownOnComponentCallback(int button) {
+//    if (this->mouseDownOnComponent != NULL) {this->mouseDownOnComponent(this, button);}
 //}
 
-void Component::mouseButtonDownCallback() {
-    if (this->mouseButtonDown != NULL) {this->mouseButtonDown(this);}
+void Component::mouseDownCallback() {
+    if (this->mouseDown != NULL) {this->mouseDown(this);}
 }
 
 void Component::mouseDraggingCallback() {
     if (this->mouseDragging != NULL) {this->mouseDragging(this);}
 }
 
-bool Component::hasKeyPressCallback() {
-    return this->keyPress != NULL;
+bool Component::hasKeyDownCallback() {
+    return this->keyDown != NULL;
 }
 
-//bool Component::hasMouseButtonDownOnComponentCallback() {
-//    return this->mouseButtonDownOnComponent != NULL;
+//bool Component::hasMouseDownOnComponentCallback() {
+//    return this->mouseDownOnComponent != NULL;
 //}
 
-bool Component::hasMouseButtonDownCallback() {
-    return this->mouseButtonDown != NULL;
+bool Component::hasMouseDownCallback() {
+    return this->mouseDown != NULL;
 }
 
 bool Component::hasMouseDraggingCallback() {
@@ -92,18 +92,18 @@ void Component::setEntity(Entity* entity) {
     this->entity = entity;
 }
 
-void Component::setKeyPressCallback(void (*callback)(Component* component)) {
-    this->keyPress = callback;
+void Component::setKeyDownCallback(void (*callback)(Component* component)) {
+    this->keyDown = callback;
     this->callbackUpdate = true;
 }
 
-//void Component::setMouseButtonDownOnComponentCallback(void (*callback)(Component* component)) {
-//    this->mouseButtonDownOnComponent = callback;
+//void Component::setMouseDownOnComponentCallback(void (*callback)(Component* component)) {
+//    this->mouseDownOnComponent = callback;
 //    this->callbackUpdate = true;
 //}
 
-void Component::setMouseButtonDownCallback(void (*callback)(Component* component)) {
-    this->mouseButtonDown = callback;
+void Component::setMouseDownCallback(void (*callback)(Component* component)) {
+    this->mouseDown = callback;
     this->callbackUpdate = true;
 }
 

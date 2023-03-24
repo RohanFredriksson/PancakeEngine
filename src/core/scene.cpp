@@ -64,14 +64,14 @@ void Scene::updateCallbackComponents() {
         for (Component* c : e->getCallbackUpdatedComponents()) {
             
             // Remove the component from all sets.
-            this->keyPressComponents.erase(c->getId());
-            this->mouseButtonDownComponents.erase(c->getId());
+            this->keyDownComponents.erase(c->getId());
+            this->mouseDownComponents.erase(c->getId());
             this->mouseDraggingComponents.erase(c->getId());
 
             // Add the component to the maps that it belongs to.
-            if (c->hasKeyPressCallback())       {this->keyPressComponents[c->getId()] = c; std::cout << "A\n";}
-            if (c->hasMouseButtonDownCallback())      {this->mouseButtonDownComponents[c->getId()] = c;  std::cout << "C\n";}
-            if (c->hasMouseDraggingCallback())  {this->mouseDraggingComponents[c->getId()] = c;  std::cout << "E\n";}
+            if (c->hasKeyDownCallback())       {this->keyDownComponents[c->getId()] = c;}
+            if (c->hasMouseDownCallback())      {this->mouseDownComponents[c->getId()] = c;}
+            if (c->hasMouseDraggingCallback())  {this->mouseDraggingComponents[c->getId()] = c;}
             c->clearCallbackUpdate();
 
         }
@@ -109,8 +109,8 @@ void Scene::removeDeadComponents() {
         Entity* e = x.second;
         for (int id : e->getDeadComponentIds()) {
             this->components.erase(id);
-            this->keyPressComponents.erase(id);
-            this->mouseButtonDownComponents.erase(id);
+            this->keyDownComponents.erase(id);
+            this->mouseDownComponents.erase(id);
             this->mouseDraggingComponents.erase(id);
         }
         e->clearDeadComponentIds();
@@ -129,12 +129,12 @@ void Scene::update(float dt) {
     this->physics->update(dt); // This will update colliding components
 
     // Check for events.
-    if (KeyListener::isKeyPressed()) {for (const auto& pair : this->keyPressComponents) {
-        pair.second->keyPressCallback();
+    if (KeyListener::isKeyDown()) {for (const auto& pair : this->keyDownComponents) {
+        pair.second->keyDownCallback();
     }}
 
-    if (MouseListener::isMouseButtonDown()) {for (const auto& pair : this->mouseButtonDownComponents) {
-        pair.second->mouseButtonDownCallback();
+    if (MouseListener::isMouseDown()) {for (const auto& pair : this->mouseDownComponents) {
+        pair.second->mouseDownCallback();
     }}
 
     if (MouseListener::isMouseDragging()) {for (const auto& pair : this->mouseDraggingComponents) {
@@ -169,8 +169,8 @@ void Scene::update(float dt) {
         for (Component* c : e->getComponents()) {
             std::cout << "DELETED " << c->getId() << "\n";
             this->components.erase(c->getId());
-            this->keyPressComponents.erase(c->getId());
-            this->mouseButtonDownComponents.erase(c->getId());
+            this->keyDownComponents.erase(c->getId());
+            this->mouseDownComponents.erase(c->getId());
             this->mouseDraggingComponents.erase(c->getId());
         }
 
