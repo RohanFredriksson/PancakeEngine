@@ -2,4 +2,5 @@
 #include "pancake/core/component.hpp"
 #include "pancake/core/engine.hpp"
 #include "pancake/core/entity.hpp"
+#include "pancake/core/factory.hpp"
 #include "pancake/core/scene.hpp"

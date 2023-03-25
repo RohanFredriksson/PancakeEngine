@@ -4,7 +4,7 @@
 #include "pancake/physics/primitives/rigidbody.hpp"
 #include "pancake/window/window.hpp"
 
-Rigidbody::Rigidbody() : Component("Rigidbody") {
+Rigidbody::Rigidbody() : Component() {
 
     this->force = vec2(0.0f, 0.0f);
     this->velocity = vec2(0.0f, 0.0f);

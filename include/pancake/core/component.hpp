@@ -15,7 +15,6 @@ class Component {
     private:
 
         int id;
-        string type;
         Entity* entity;
         bool dead;
 
@@ -27,7 +26,7 @@ class Component {
 
     public:
 
-        Component(string type);
+        Component();
         virtual ~Component();
         virtual void update(float dt);
         virtual void onCollision(Component* with);
@@ -69,7 +68,7 @@ class TransformableComponent : public Component {
 
     public:
 
-        TransformableComponent(string type);
+        TransformableComponent();
 
         vec2 getPosition();
         vec2 getSize();

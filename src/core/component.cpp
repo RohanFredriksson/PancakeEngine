@@ -1,16 +1,13 @@
 #include "pancake/core/component.hpp"
 #include "pancake/core/entity.hpp"
 
-#include <iostream>
-
 namespace {
     int nextId = 0;
 }
 
-Component::Component(string type) {
+Component::Component() {
 
     this->id = nextId;
-    this->type = type;
     this->entity = NULL;
     this->dead = false;
 
@@ -19,8 +16,6 @@ Component::Component(string type) {
     //this->mouseDownOnComponent = NULL;
     this->mouseDragging = NULL;
     this->callbackUpdate = false;
-
-    std::cout << this->type << "\n";
 
     nextId++;
 }
@@ -121,7 +116,7 @@ void Component::clearCallbackUpdate() {
     this->callbackUpdate = false;
 }
 
-TransformableComponent::TransformableComponent(string type) : Component(type) {
+TransformableComponent::TransformableComponent() : Component() {
     this->positionOffset = glm::vec2(0.0f, 0.0f);
     this->sizeScale = glm::vec2(1.0f, 1.0f);
     this->rotationOffset = 0.0f;
