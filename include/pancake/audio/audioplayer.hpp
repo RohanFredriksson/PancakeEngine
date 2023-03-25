@@ -10,6 +10,7 @@ class AudioPlayer : public Component {
 
     public:
 
+        static Component* create();
         AudioPlayer();
  
         AudioWave* getAudioWave();

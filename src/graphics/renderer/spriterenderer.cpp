@@ -3,6 +3,10 @@
 #include "pancake/core/scene.hpp"
 #include "pancake/util/assetpool.hpp"
 
+Component* SpriteRenderer::create() {
+    return new SpriteRenderer();
+}
+
 SpriteRenderer::SpriteRenderer() : TransformableComponent() {
     
     this->sprite = SpritePool::get("empty");

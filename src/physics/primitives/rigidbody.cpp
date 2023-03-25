@@ -4,6 +4,10 @@
 #include "pancake/physics/primitives/rigidbody.hpp"
 #include "pancake/window/window.hpp"
 
+Component* Rigidbody::create() {
+    return new Rigidbody();
+}
+
 Rigidbody::Rigidbody() : Component() {
 
     this->force = vec2(0.0f, 0.0f);

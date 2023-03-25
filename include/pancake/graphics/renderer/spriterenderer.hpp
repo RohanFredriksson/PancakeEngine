@@ -26,9 +26,9 @@ class SpriteRenderer : public TransformableComponent {
 
     public:
 
+        static Component* create();
         SpriteRenderer();
         ~SpriteRenderer() override;
-
         void update(float dt) override;
         
         // Getters

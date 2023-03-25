@@ -3,6 +3,10 @@
 #include "pancake/graphics/renderer/spriterenderer.hpp"
 #include "pancake/util/assetpool.hpp"
 
+Component* TextRenderer::create() {
+    return new TextRenderer();
+}
+
 TextRenderer::TextRenderer() : TransformableComponent() {
     
     this->text = "";

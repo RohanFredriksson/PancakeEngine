@@ -34,9 +34,9 @@ class TextRenderer : public TransformableComponent {
 
     public:
 
+        static Component* create();
         TextRenderer();
         ~TextRenderer() override;
-
         void update(float dt) override;
         
         // Getters

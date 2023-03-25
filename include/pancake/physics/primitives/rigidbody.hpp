@@ -36,8 +36,9 @@ class Rigidbody : public Component {
 
     public:
 
+        static Component* create();
         Rigidbody();
-        ~Rigidbody();
+        ~Rigidbody() override;
 
         vector<Collider*> getColliders();
         vec2 getVelocity();
