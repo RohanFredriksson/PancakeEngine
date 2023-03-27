@@ -11,6 +11,7 @@ class Circle : public Collider {
     public:
 
         Circle();
+        json serialise() override;
 
         float getMomentOfInertia() override;
         float getRadius();

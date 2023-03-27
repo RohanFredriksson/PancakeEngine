@@ -40,7 +40,7 @@ json Rigidbody::serialise() {
     
     j.emplace("colliders", json::array());
     for (Collider* c : this->colliders) {
-        //j["colliders"].push_back(c->serialise());    
+        j["colliders"].push_back(c->serialise());    
     }
 
     j.emplace("force", json::array());

@@ -15,6 +15,7 @@ class Box : public Collider {
     public:
 
         Box();
+        json serialise() override;
 
         float getMomentOfInertia() override;
         vec2 getSize();

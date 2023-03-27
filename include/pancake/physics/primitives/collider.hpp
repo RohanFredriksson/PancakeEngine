@@ -20,6 +20,7 @@ class Collider {
 
         Collider();
         virtual ~Collider();
+        virtual json serialise();
 
         Rigidbody* getRigidbody();
         float getMass();

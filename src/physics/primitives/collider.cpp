@@ -12,6 +12,16 @@ Collider::~Collider() {
     
 }
 
+json Collider::serialise() {
+    json j;
+    j.emplace("mass", this->mass);
+    j.emplace("positionOffset", json::array());
+    j["positionOffset"].push_back(this->positionOffset.x);
+    j["positionOffset"].push_back(this->positionOffset.y);
+    j.emplace("rotationOffset", this->rotationOffset);
+    return j;
+}
+
 Rigidbody* Collider::getRigidbody() {
     return this->rigidbody;
 }

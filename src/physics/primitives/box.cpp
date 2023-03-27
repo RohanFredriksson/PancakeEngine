@@ -6,6 +6,14 @@ Box::Box() : Collider()  {
     this->halfSize = this->size * 0.5f;
 }
 
+json Box::serialise() {
+    json j = this->Collider::serialise();
+    j.emplace("size", json::array());
+    j["size"].push_back(this->size.x);
+    j["size"].push_back(this->size.y);
+    return j;
+}
+
 float Box::getMomentOfInertia() {
     if (this->mass <= 0.0f) {return FLT_MAX;}
     return this->mass * (this->size.x * this->size.x + this->size.y * this->size.y) / 12.0f;
