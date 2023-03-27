@@ -2,6 +2,8 @@
 
 #include <string>
 #include <unordered_map>
+#include <nlohmann/json.hpp>
+
 #include "pancake/core/camera.hpp"
 #include "pancake/core/entity.hpp"
 #include "pancake/core/component.hpp"
@@ -10,6 +12,7 @@
 
 using std::string;
 using std::unordered_map;
+using json = nlohmann::json;
 
 class Scene {
 
@@ -39,6 +42,7 @@ class Scene {
 
         void update(float dt);
         void render();
+        json serialise();
 
         Camera* getCamera();
         Renderer* getRenderer();

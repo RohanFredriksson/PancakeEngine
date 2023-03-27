@@ -264,3 +264,11 @@ RaycastResult World::raycast(Ray* ray) {
     return best;
 
 }
+
+vec2 World::getGravity() {
+    return this->gravity->getGravity();
+}
+
+void World::setGravity(vec2 gravity) {
+    this->gravity->setGravity(gravity);
+}

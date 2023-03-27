@@ -2,8 +2,10 @@
 #include <vector>
 #include <deque>
 #include <glm/glm.hpp>
+
 #include "pancake/core/scene.hpp"
 #include "pancake/window/listener.hpp"
+#include "pancake/util/assetpool.hpp"
 
 using std::deque;
 using std::pair;
@@ -171,6 +173,29 @@ void Scene::update(float dt) {
 void Scene::render() {
     this->renderer->render();
     this->physics->render();
+}
+
+json Scene::serialise() {
+
+    json j;
+    j.emplace("name", this->name);
+    j.emplace("camera", this->camera->serialise());
+    
+    j.emplace("gravity", json::array());
+    j["gravity"].push_back(this->physics->getGravity().x);
+    j["gravity"].push_back(this->physics->getGravity().y);
+
+    j.emplace("fonts", FontPool::serialise());
+    j.emplace("sprites", SpritePool::serialise());
+
+    j.emplace("entities", json::array());
+    for (auto const& x : this->entities) {
+        Entity* e = x.second;
+        j["entities"].push_back(e->serialise());
+    }
+
+    return j;
+
 }
 
 Camera* Scene::getCamera() {

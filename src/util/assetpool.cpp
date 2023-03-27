@@ -102,6 +102,17 @@ void SpritePool::destroy() {
     SpritePool::clear();
 }
 
+json SpritePool::serialise() {
+    json j = json::array();
+    for (auto const& x : sprites) {
+        Sprite* s = x.second;
+        if (s->getName() == "empty") {continue;}
+        if (s->getName() == "missing") {continue;}
+        j.push_back(s->serialise());
+    }
+    return j;
+}
+
 Sprite* SpritePool::get(string name) {
     
     // If the sprite already exists, return the sprite. 
@@ -145,6 +156,17 @@ void FontPool::clear() {
 
 void FontPool::destroy() {
     FontPool::clear();
+}
+
+json FontPool::serialise() {
+    json j = json::array();
+    for (auto const& x : fonts) {
+        Font* f = x.second;
+        if (f->getFilename() == "default") {continue;}
+        if (f->getFilename() == "pixellari") {continue;}
+        j.push_back(f->serialise());
+    }
+    return j;
 }
 
 Font* FontPool::get(string name) {

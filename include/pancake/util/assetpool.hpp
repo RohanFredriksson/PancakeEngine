@@ -1,12 +1,15 @@
 #pragma once
 
 #include <cstring>
+#include <nlohmann/json.hpp>
+
 #include "pancake/graphics/primitives/texture.hpp"
 #include "pancake/graphics/primitives/sprite.hpp"
 #include "pancake/graphics/primitives/font.hpp"
 #include "pancake/audio/audiowave.hpp"
 
 using std::string;
+using json = nlohmann::json;
 
 namespace AssetPool {
 
@@ -30,6 +33,7 @@ namespace SpritePool {
     void init();
     void clear();
     void destroy();
+    json serialise();
     Sprite* get(string name);
     bool has(string name);
     void put(Sprite* sprite);
@@ -41,6 +45,7 @@ namespace FontPool {
     void init();
     void clear();
     void destroy();
+    json serialise();
     Font* get(string name);
 
 }

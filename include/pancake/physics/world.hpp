@@ -35,4 +35,7 @@ class World {
         void remove(Rigidbody* rigidbody);
         RaycastResult raycast(Ray* ray);
 
+        vec2 getGravity();
+        void setGravity(vec2 gravity);
+
 };
