@@ -2,9 +2,11 @@
 
 #include <vector>
 #include <glm/glm.hpp>
+#include <nlohmann/json.hpp>
 
 using std::vector;
 using glm::vec2;
+using json = nlohmann::json;
 
 class Component;
 
@@ -28,8 +30,8 @@ class Entity {
 
         Entity(vec2 position, vec2 size, float radians);
         ~Entity();
-
         void update(float dt);
+        json serialise();
         void onCollision(Component* with);
         void kill();
 

@@ -36,12 +36,8 @@ Rigidbody::~Rigidbody() {
 }
 
 json Rigidbody::serialise() {
-    json j = this->Component::serialise();
     
-    j.emplace("colliders", json::array());
-    for (Collider* c : this->colliders) {
-        j["colliders"].push_back(c->serialise());    
-    }
+    json j = this->Component::serialise();
 
     j.emplace("force", json::array());
     j["force"].push_back(this->force.x);
@@ -57,6 +53,11 @@ json Rigidbody::serialise() {
     j.emplace("friction", this->friction);
     j.emplace("sensor", this->sensor);
     j.emplace("fixedOrientation", this->fixedOrientation);
+
+    j.emplace("colliders", json::array());
+    for (Collider* c : this->colliders) {
+        j["colliders"].push_back(c->serialise());    
+    }
     
     return j;
 }

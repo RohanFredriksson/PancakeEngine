@@ -61,6 +61,29 @@ void Entity::update(float dt) {
 
 }
 
+json Entity::serialise() {
+    
+    json j;
+    j.emplace("id", this->id);
+
+    j.emplace("position", json::array());
+    j["position"].push_back(this->position.x);
+    j["position"].push_back(this->position.y);
+    
+    j.emplace("size", json::array());
+    j["size"].push_back(this->size.x);
+    j["size"].push_back(this->size.y);
+    
+    j.emplace("rotation", this->rotation);
+    
+    j.emplace("components", json::array());
+    for (Component* c : this->components) {
+        j["components"].push_back(c->serialise());
+    }
+
+    return j;
+}
+
 void Entity::onCollision(Component* with) {
     for (Component* c : this->components) {
         c->onCollision(with);
