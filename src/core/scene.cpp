@@ -1,6 +1,7 @@
+#include <deque>
 #include <string>
 #include <vector>
-#include <deque>
+#include <fstream>
 #include <glm/glm.hpp>
 
 #include "pancake/core/scene.hpp"
@@ -196,6 +197,13 @@ json Scene::serialise() {
 
     return j;
 
+}
+
+void Scene::save(string filename) {
+    string contents = this->serialise().dump();
+    std::ofstream file(filename);
+    file << contents;
+    file.close();
 }
 
 Camera* Scene::getCamera() {
