@@ -9,6 +9,8 @@ void Texture::init(string name, unsigned char* image, int width, int height, int
     
     // Store the required variables
     this->name = name;
+    this->width = width;
+    this->height = height;
 
     if (image != NULL) {
 
@@ -126,4 +128,12 @@ string Texture::getName() {
 
 unsigned int Texture::getId() {
     return this->id;
+}
+
+int Texture::getWidth() {
+    return this->width;
+}
+
+int Texture::getHeight() {
+    return this->height;
 }
