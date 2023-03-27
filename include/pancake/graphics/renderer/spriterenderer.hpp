@@ -30,6 +30,7 @@ class SpriteRenderer : public TransformableComponent {
         SpriteRenderer();
         ~SpriteRenderer() override;
         void update(float dt) override;
+        json serialise() override;
         
         // Getters
         Sprite* getSprite();

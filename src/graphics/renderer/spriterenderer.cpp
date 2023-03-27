@@ -7,7 +7,7 @@ Component* SpriteRenderer::create() {
     return new SpriteRenderer();
 }
 
-SpriteRenderer::SpriteRenderer() : TransformableComponent() {
+SpriteRenderer::SpriteRenderer() : TransformableComponent("SpriteRenderer") {
     
     this->sprite = SpritePool::get("empty");
     this->colour = vec4(1.0f, 1.0f, 1.0f, 1.0f);
@@ -57,6 +57,18 @@ void SpriteRenderer::update(float dt) {
         this->dirty = true;
     }
 
+}
+
+json SpriteRenderer::serialise() {
+    json j = this->TransformableComponent::serialise();
+    j.emplace("sprite", this->sprite->getName());
+    j.emplace("colour", json::array());
+    j["colour"].push_back(this->colour.x);
+    j["colour"].push_back(this->colour.y);
+    j["colour"].push_back(this->colour.z);
+    j["colour"].push_back(this->colour.w);
+    j.emplace("zIndex", this->zIndex);
+    return j;
 }
 
 Sprite* SpriteRenderer::getSprite() {

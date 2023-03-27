@@ -7,7 +7,7 @@ Component* TextRenderer::create() {
     return new TextRenderer();
 }
 
-TextRenderer::TextRenderer() : TransformableComponent() {
+TextRenderer::TextRenderer() : TransformableComponent("TextRenderer") {
     
     this->text = "";
     this->font = FontPool::get("default");
@@ -118,6 +118,19 @@ void TextRenderer::update(float dt) {
 
     }
     this->dirty = false;
+}
+
+json TextRenderer::serialise() {
+    json j = this->TransformableComponent::serialise();
+    j.emplace("text", this->text);
+    j.emplace("font", this->font->getFilename());
+    j.emplace("colour", json::array());
+    j["colour"].push_back(this->colour.x);
+    j["colour"].push_back(this->colour.y);
+    j["colour"].push_back(this->colour.z);
+    j["colour"].push_back(this->colour.w);
+    j.emplace("zIndex", this->zIndex);
+    return j;
 }
 
 string TextRenderer::getText() {

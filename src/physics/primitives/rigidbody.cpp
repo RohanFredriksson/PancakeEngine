@@ -8,7 +8,7 @@ Component* Rigidbody::create() {
     return new Rigidbody();
 }
 
-Rigidbody::Rigidbody() : Component() {
+Rigidbody::Rigidbody() : Component("Rigidbody") {
 
     this->force = vec2(0.0f, 0.0f);
     this->velocity = vec2(0.0f, 0.0f);
@@ -33,6 +33,32 @@ Rigidbody::Rigidbody() : Component() {
 Rigidbody::~Rigidbody() {
     Window::getScene()->getPhysics()->remove(this);
     this->clearColliders();
+}
+
+json Rigidbody::serialise() {
+    json j = this->Component::serialise();
+    
+    j.emplace("colliders", json::array());
+    for (Collider* c : this->colliders) {
+        //j["colliders"].push_back(c->serialise());    
+    }
+
+    j.emplace("force", json::array());
+    j["force"].push_back(this->force.x);
+    j["force"].push_back(this->force.y);
+    
+    j.emplace("velocity", json::array());
+    j["velocity"].push_back(this->velocity.x);
+    j["velocity"].push_back(this->velocity.y);
+    
+    j.emplace("torque", this->torque);
+    j.emplace("angularVelocity", this->angularVelocity);
+    j.emplace("restitution", this->restitution);
+    j.emplace("friction", this->friction);
+    j.emplace("sensor", this->sensor);
+    j.emplace("fixedOrientation", this->fixedOrientation);
+    
+    return j;
 }
 
 vector<Collider*> Rigidbody::getColliders() {

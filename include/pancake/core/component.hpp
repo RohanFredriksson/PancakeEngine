@@ -3,10 +3,12 @@
 #include <vector>
 #include <string>
 #include <glm/glm.hpp>
+#include <nlohmann/json.hpp>
 
 using std::vector;
 using std::string;
 using glm::vec2;
+using json = nlohmann::json;
 
 class Entity;
 
@@ -15,6 +17,7 @@ class Component {
     private:
 
         int id;
+        string type;
         Entity* entity;
         bool dead;
 
@@ -26,9 +29,10 @@ class Component {
 
     public:
 
-        Component();
+        Component(string type);
         virtual ~Component();
         virtual void update(float dt);
+        virtual json serialise();
         virtual void onCollision(Component* with);
         void kill();
         
@@ -68,7 +72,8 @@ class TransformableComponent : public Component {
 
     public:
 
-        TransformableComponent();
+        TransformableComponent(string type);
+        virtual json serialise();
 
         vec2 getPosition();
         vec2 getSize();

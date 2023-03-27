@@ -5,9 +5,10 @@ namespace {
     int nextId = 0;
 }
 
-Component::Component() {
+Component::Component(string type) {
 
     this->id = nextId;
+    this->type = type;
     this->entity = NULL;
     this->dead = false;
 
@@ -26,6 +27,13 @@ Component::~Component() {
 
 void Component::update(float dt) {
 
+}
+
+json Component::serialise() {
+    json j;
+    j.emplace("id", this->id);
+    j.emplace("type", this->type);
+    return j;
 }
 
 void Component::onCollision(Component* with) {
@@ -116,10 +124,22 @@ void Component::clearCallbackUpdate() {
     this->callbackUpdate = false;
 }
 
-TransformableComponent::TransformableComponent() : Component() {
+TransformableComponent::TransformableComponent(string type) : Component(type) {
     this->positionOffset = glm::vec2(0.0f, 0.0f);
     this->sizeScale = glm::vec2(1.0f, 1.0f);
     this->rotationOffset = 0.0f;
+}
+
+json TransformableComponent::serialise() {
+    json j = this->Component::serialise();
+    j.emplace("positionOffset", json::array());
+    j["positionOffset"].push_back(this->positionOffset.x);
+    j["positionOffset"].push_back(this->positionOffset.y);
+    j.emplace("sizeScale", json::array());
+    j["sizeScale"].push_back(this->sizeScale.x);
+    j["sizeScale"].push_back(this->sizeScale.y);
+    j.emplace("rotationOffset", this->rotationOffset);
+    return j;
 }
 
 vec2 TransformableComponent::getPosition() {

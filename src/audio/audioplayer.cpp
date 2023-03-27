@@ -5,8 +5,16 @@ Component* AudioPlayer::create() {
     return new AudioPlayer();
 }
 
-AudioPlayer::AudioPlayer() : Component() {
+AudioPlayer::AudioPlayer() : Component("AudioPlayer") {
     this->audio = NULL;
+}
+
+json AudioPlayer::serialise() {
+    json j = this->Component::serialise();
+    j.emplace("filename", this->getFilename());
+    j.emplace("volume", this->getVolume());
+    j.emplace("looping", this->isLooping());
+    return j;
 }
 
 AudioWave* AudioPlayer::getAudioWave() {
