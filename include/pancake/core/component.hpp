@@ -21,12 +21,6 @@ class Component {
         Entity* entity;
         bool dead;
 
-        void (*keyDown)(Component* component);
-        void (*mouseDown)(Component* component);
-        //void (*mouseDownOnComponent)(Component* component);
-        void (*mouseDragging)(Component* component);
-        bool callbackUpdate;
-
     public:
 
         Component(string type);
@@ -40,25 +34,8 @@ class Component {
         Entity* getEntity();
         bool isDead();
         
-        void keyDownCallback();
-        //void mouseDownOnComponentCallback();
-        void mouseDownCallback();
-        void mouseDraggingCallback();
-
-        bool hasKeyDownCallback();
-        //bool hasMouseDownOnComponentCallback();
-        bool hasMouseDownCallback();
-        bool hasMouseDraggingCallback();
-        bool isCallbackUpdated();
-        
         void setId(int id);
         void setEntity(Entity* entity);
-    
-        void setKeyDownCallback(void (*callback)(Component* component));
-        //void setMouseDownOnComponentCallback(void (*callback)(Component* component));
-        void setMouseDownCallback(void (*callback)(Component* component));
-        void setMouseDraggingCallback(void (*callback)(Component* component));
-        void clearCallbackUpdate();
 
 };
 
@@ -90,6 +67,21 @@ class TransformableComponent : public Component {
         void addSizeScale(vec2 scale);
         void addRotationOffset(float offset);
 
+};
+
+class KeyDown {
+    public: 
+        virtual void keyDownCallback();
+};
+
+class MouseDown {
+    public: 
+        virtual void mouseDownCallback();
+};
+
+class MouseDragging {
+    public: 
+        virtual void mouseDraggingCallback();
 };
 
 #include "pancake/core/entity.hpp"

@@ -29,7 +29,6 @@ class Scene {
 
         void addNewComponents();
         void removeDeadComponents();
-        void updateCallbackComponents();
 
     public:
 

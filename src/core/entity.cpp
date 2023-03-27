@@ -35,18 +35,8 @@ void Entity::update(float dt) {
     deque<int> deadIndices;
     int index = 0;
     for (Component* c : this->components) {
-
-        // If the component is not dead, update it.
-        if (!c->isDead()) {
-            c->update(dt);
-            if (c->isCallbackUpdated()) {
-                this->callbackUpdatedComponents.push_back(c);
-                c->clearCallbackUpdate();
-            }
-        } else {
-            deadIndices.push_front(index);
-        }
-
+        if (!c->isDead()) {c->update(dt);} 
+        else {deadIndices.push_front(index);}
         index++;
     }
 
@@ -104,10 +94,6 @@ vector<Component*> Entity::getComponents() {
 
 vector<Component*> Entity::getNewComponents() {
     return this->newComponents;
-}
-
-vector<Component*> Entity::getCallbackUpdatedComponents() {
-    return this->callbackUpdatedComponents;
 }
 
 vector<int> Entity::getDeadComponentIds() {
@@ -216,15 +202,10 @@ void Entity::addComponent(Component* component) {
     component->setEntity(this);
     this->components.push_back(component);
     this->newComponents.push_back(component);
-    this->callbackUpdatedComponents.push_back(component);
 }
 
 void Entity::clearNewComponents() {
     this->newComponents.clear();
-}
-
-void Entity::clearCallbackUpdatedComponents() {
-    this->callbackUpdatedComponents.clear();
 }
 
 void Entity::clearDeadComponentIds() {

@@ -57,29 +57,6 @@ Scene::~Scene() {
 
 }
 
-void Scene::updateCallbackComponents() {
-
-    for (auto const& x : this->entities) {
-        Entity* e = x.second;
-        for (Component* c : e->getCallbackUpdatedComponents()) {
-            
-            // Remove the component from all sets.
-            this->keyDownComponents.erase(c->getId());
-            this->mouseDownComponents.erase(c->getId());
-            this->mouseDraggingComponents.erase(c->getId());
-
-            // Add the component to the maps that it belongs to.
-            if (c->hasKeyDownCallback())       {this->keyDownComponents[c->getId()] = c;}
-            if (c->hasMouseDownCallback())      {this->mouseDownComponents[c->getId()] = c;}
-            if (c->hasMouseDraggingCallback())  {this->mouseDraggingComponents[c->getId()] = c;}
-            c->clearCallbackUpdate();
-
-        }
-        e->clearCallbackUpdatedComponents();
-    }
-
-}
-
 void Scene::addNewComponents() {
 
     // For each entity, check their new component list.
@@ -93,6 +70,11 @@ void Scene::addNewComponents() {
             if (dynamic_cast<SpriteRenderer*>(c) != nullptr) {this->renderer->add((SpriteRenderer*) c);}
             if (dynamic_cast<Rigidbody*>(c) != nullptr) {this->physics->add((Rigidbody*) c);}
 
+            // If the component has an event register it to the event system.
+            if (dynamic_cast<KeyDown*>(c) != nullptr) {this->keyDownComponents[c->getId()] = c;}
+            if (dynamic_cast<MouseDown*>(c) != nullptr) {this->mouseDownComponents[c->getId()] = c;}
+            if (dynamic_cast<MouseDragging*>(c) != nullptr) {this->mouseDraggingComponents[c->getId()] = c;}
+            
             // Add the component to the map for quick lookups.
             this->components[c->getId()] = c;
         }
@@ -122,7 +104,6 @@ void Scene::update(float dt) {
 
     // Add all new components to their specific systems.
     this->addNewComponents(); 
-    this->updateCallbackComponents();
 
     // Adjust the projection and step the physics engine.
     this->camera->adjustProjection();
@@ -131,15 +112,15 @@ void Scene::update(float dt) {
 
     // Check for events.
     if (KeyListener::isKeyDown()) {for (const auto& pair : this->keyDownComponents) {
-        pair.second->keyDownCallback();
+        dynamic_cast<KeyDown*>(pair.second)->keyDownCallback();
     }}
 
     if (MouseListener::isMouseDown()) {for (const auto& pair : this->mouseDownComponents) {
-        pair.second->mouseDownCallback();
+        dynamic_cast<MouseDown*>(pair.second)->mouseDownCallback();
     }}
 
     if (MouseListener::isMouseDragging()) {for (const auto& pair : this->mouseDraggingComponents) {
-        pair.second->mouseDraggingCallback();
+        dynamic_cast<MouseDragging*>(pair.second)->mouseDraggingCallback();
     }}
 
     // Update all the entities.
@@ -168,7 +149,6 @@ void Scene::update(float dt) {
 
         // Remove all components associated with the entity from the map.
         for (Component* c : e->getComponents()) {
-            std::cout << "DELETED " << c->getId() << "\n";
             this->components.erase(c->getId());
             this->keyDownComponents.erase(c->getId());
             this->mouseDownComponents.erase(c->getId());

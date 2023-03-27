@@ -17,7 +17,6 @@ class Entity {
         int id;
         vector<Component*> components;
         vector<Component*> newComponents;
-        vector<Component*> callbackUpdatedComponents;
         vector<int> deadComponentIds;
         vec2 position;
         vec2 size;
@@ -39,7 +38,6 @@ class Entity {
         int getId();
         vector<Component*> getComponents();
         vector<Component*> getNewComponents();
-        vector<Component*> getCallbackUpdatedComponents();
         vector<int> getDeadComponentIds();
         vec2 getPosition();
         vec2 getSize();
@@ -60,7 +58,6 @@ class Entity {
         // Component Methods
         void addComponent(Component* component);
         void clearNewComponents();
-        void clearCallbackUpdatedComponents();
         void clearDeadComponentIds();
 
 };
