@@ -1,5 +1,7 @@
 #include "pancake/graphics/primitives/sprite.hpp"
 
+#include <iostream>
+
 void Sprite::init(string name, Texture* texture, vec2 texCoords[4]) {
     
     this->name = name;
@@ -41,7 +43,7 @@ json Sprite::serialise() {
         json v = json::array();
         v.push_back(this->texCoords[i].x);
         v.push_back(this->texCoords[i].y);
-        j.push_back(v);
+        j["texCoords"].push_back(v);
     }
     return j;
 }
