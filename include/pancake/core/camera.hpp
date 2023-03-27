@@ -1,9 +1,11 @@
 #pragma once
 
 #include <glm/glm.hpp>
+#include <nlohmann/json.hpp>
 
 using glm::vec2;
 using glm::mat4;
+using json = nlohmann::json;
 
 class Camera {
 
@@ -34,6 +36,7 @@ class Camera {
         void adjustProjection();
         void update(float dt);
         void move(vec2 to, float t);
+        json serialise();
 
         vec2 getPosition();
         vec2 getProjectionSize();

@@ -2,10 +2,13 @@
 
 #include <string>
 #include <vector>
+#include <nlohmann/json.hpp>
+
 #include "pancake/graphics/primitives/sprite.hpp"
 #include "pancake/graphics/primitives/texture.hpp"
 
 using std::vector;
+using json = nlohmann::json;
 
 class Font {
 
@@ -29,6 +32,7 @@ class Font {
         Font(string filename, float size);
         Font(float size);
         ~Font();
+        json serialise();
         
         string getFilename();
         float getSize();

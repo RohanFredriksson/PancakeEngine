@@ -184,6 +184,13 @@ Font::~Font() {
     delete this->texture;
 }
 
+json Font::serialise() {
+    json j;
+    j.emplace("filename", this->filename);
+    j.emplace("size", this->size);
+    return j;
+}
+
 string Font::getFilename() {
     return this->filename;
 }

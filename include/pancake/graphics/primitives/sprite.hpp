@@ -3,11 +3,14 @@
 #include <array>
 #include <string>
 #include <glm/glm.hpp>
+#include <nlohmann/json.hpp>
+
 #include "pancake/graphics/primitives/texture.hpp"
 
 using std::array;
 using std::string;
 using glm::vec2;
+using json = nlohmann::json;
 
 class Sprite {
 
@@ -24,6 +27,7 @@ class Sprite {
         Sprite();
         Sprite(string name, Texture* texture);
         Sprite(string name, Texture* texture, vec2 texCoords[4]);
+        json serialise();
 
         string getName();
         Texture* getTexture();

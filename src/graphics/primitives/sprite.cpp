@@ -32,6 +32,20 @@ Sprite::Sprite(string name, Texture* texture, vec2 texCoords[4]) {
     this->init(name, texture, texCoords);
 }
 
+json Sprite::serialise() {
+    json j;
+    j.emplace("name", this->name);
+    j.emplace("texture", this->texture->getName());
+    j.emplace("texCoords", json::array());
+    for (int i = 0; i < 4; i++) {
+        json v = json::array();
+        v.push_back(this->texCoords[i].x);
+        v.push_back(this->texCoords[i].y);
+        j.push_back(v);
+    }
+    return j;
+}
+
 string Sprite::getName() {
     return this->name;
 }

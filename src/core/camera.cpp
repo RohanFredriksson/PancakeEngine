@@ -85,6 +85,43 @@ void Camera::move(vec2 to, float t) {
 
 }
 
+json Camera::serialise() {
+    
+    json j;
+    
+    j.emplace("position", json::array());
+    j["position"].push_back(this->position.x);
+    j["position"].push_back(this->position.y);
+
+    j.emplace("projectionSize", json::array());
+    j["projectionSize"].push_back(this->projectionSize.x);
+    j["projectionSize"].push_back(this->projectionSize.y);
+
+    j.emplace("zoom", this->zoom);
+    j.emplace("moving", this->moving);
+    
+    j.emplace("initialPosition", json::array());
+    j["initialPosition"].push_back(this->initialPosition.x);
+    j["initialPosition"].push_back(this->initialPosition.y);
+
+    j.emplace("finalPosition", json::array());
+    j["finalPosition"].push_back(this->finalPosition.x);
+    j["finalPosition"].push_back(this->finalPosition.y);
+
+    j.emplace("normal", json::array());
+    j["normal"].push_back(this->normal.x);
+    j["normal"].push_back(this->normal.y);
+
+    j.emplace("timeCurrent", this->timeCurrent);
+    j.emplace("timeTotal", this->timeTotal);
+    j.emplace("timeHalf", this->timeHalf);
+    j.emplace("distance", this->distance);
+    j.emplace("maxVelocity", this->maxVelocity);
+
+    return j;
+    
+}
+
 vec2 Camera::getPosition() {
     return this->position;
 }
