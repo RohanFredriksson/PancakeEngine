@@ -28,6 +28,7 @@ class Sprite {
         Sprite(string name, Texture* texture);
         Sprite(string name, Texture* texture, vec2 texCoords[4]);
         json serialise();
+        Sprite* load(json j);
 
         string getName();
         Texture* getTexture();

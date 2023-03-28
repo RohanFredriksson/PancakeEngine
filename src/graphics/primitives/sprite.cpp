@@ -1,4 +1,5 @@
 #include "pancake/graphics/primitives/sprite.hpp"
+#include "pancake/util/assetpool.hpp"
 
 void Sprite::init(string name, Texture* texture, vec2 texCoords[4]) {
     
@@ -44,6 +45,37 @@ json Sprite::serialise() {
         j["texCoords"].push_back(v);
     }
     return j;
+}
+
+Sprite* load(json j) {
+
+    if (!j.contains("name") || !j["name"].is_string()) {return NULL;}
+    if (!j.contains("texture") || !j["texture"].is_string()) {return NULL;}
+    if (!j.contains("texCoords") || !j["texCoords"].is_array()) {return NULL;}
+    if (j["texCoords"].size() != 4) {return NULL;}
+
+    for (int i = 0; i < 4; i++) {
+        if (!j["texCoords"][i].is_array()) {return NULL;}
+        if (!j["texCoords"][i][0].is_number()) {return NULL;}
+        if (!j["texCoords"][i][1].is_number()) {return NULL;}
+    }
+    
+    // Check if the sprite already exists.
+    if (SpritePool::has(j["name"])) {return SpritePool::get(j["name"]);}
+
+    // Create the new sprite object.
+    string name = j["name"];
+    string texName = j["texture"];
+    Texture* texture = TexturePool::get(texName);
+    vec2 texCoords[4];
+    for (int i = 0; i < 4; i++) {
+        texCoords[i] = vec2(j["texCoords"][i][0], j["texCoords"][i][1]);
+    }
+
+    Sprite* sprite = new Sprite(name, texture, texCoords);
+    SpritePool::put(sprite);
+    return sprite;
+
 }
 
 string Sprite::getName() {
