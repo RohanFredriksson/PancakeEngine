@@ -48,6 +48,8 @@ namespace FontPool {
     json serialise();
     Font* get(string name);
     Font* get(string name, float size);
+    bool has(string name);
+    bool has(string name, float size);
 
 }
 

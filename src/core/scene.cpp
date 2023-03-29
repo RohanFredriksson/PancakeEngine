@@ -223,12 +223,12 @@ void load(string filename) {
     if (j.contains("fonts") && j["fonts"].is_array()) {
         for (auto element : j["fonts"]) {
             if (element.is_object()) {
-                //Font::load(element);
+                Font::load(element);
             }
         }
     }
 
-    // Load sprites into the spritepool.
+    // Load sprites into the sprite pool.
     if (j.contains("sprites") && j["sprites"].is_array()) {
         for (auto element : j["sprites"]) {
             if (element.is_object()) {

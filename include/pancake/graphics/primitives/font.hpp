@@ -33,6 +33,7 @@ class Font {
         Font(float size);
         ~Font();
         json serialise();
+        static void load(json j);
         
         string getFilename();
         float getSize();

@@ -197,6 +197,16 @@ Font* FontPool::get(string name, float size) {
 
 }
 
+bool FontPool::has(string name) {
+    return FontPool::has(name, DEFAULT_FONT_SIZE);
+}
+
+bool FontPool::has(string name, float size) {
+    tuple<string, float> key(name, size);
+    auto search = fonts.find(key);
+    return search != fonts.end();
+}
+
 void AudioPool::init() {
 
 }

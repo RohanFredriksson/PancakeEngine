@@ -1,5 +1,6 @@
 #include <iostream>
 #include "pancake/graphics/primitives/font.hpp"
+#include "pancake/util/assetpool.hpp"
 #include "pancake/util/fonts.hpp"
 
 //#define STB_IMAGE_WRITE_IMPLEMENTATION
@@ -200,6 +201,16 @@ json Font::serialise() {
     j.emplace("filename", this->filename);
     j.emplace("size", this->size);
     return j;
+}
+
+void Font::load(json j) {
+
+    if (!j.contains("filename") || !j["filename"].is_string()) {return;}
+    if (!j.contains("size") || !j["size"].is_number()) {return;}
+
+    // Use the fontpool to create the font if it doesn't exist.
+    FontPool::get(j["filename"], j["size"]);
+    
 }
 
 string Font::getFilename() {
