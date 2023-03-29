@@ -17,8 +17,13 @@ void Font::load(const unsigned char* fontBuffer, float size) {
     // Prepare the font
     stbtt_fontinfo info;
     if (!stbtt_InitFont(&info, fontBuffer, 0)) {
-        std::cout << "ERROR::FONT::INIT::FONT_LOADING_FAILED\n";
-        throw "ERROR::FONT::INIT::FONT_LOADING_FAILED";
+
+        // If the load fails, just load the default font in it's place.
+        std::cout << "ERROR::FONT::INIT::FONT_LOADING_FAILED: '" << this->filename << "'\n";
+        const unsigned char* buffer = reinterpret_cast<const unsigned char*>(PIXELLARI);
+        this->load(buffer, this->size);
+
+        return;
     }
 
     // Find the scale for a certain pixel height.
@@ -150,9 +155,15 @@ Font::Font(string filename, float size) {
     unsigned char* fontBuffer;
     FILE* fontFile = fopen(filename.c_str(), "rb");
     if (fontFile == NULL) {
-        std::cout << "ERROR::FONT::INIT::FILE_NOT_FOUND\n";
-        throw "ERROR::FONT::INIT::FILE_NOT_FOUND";
+
+        // If the file could not be found, just load the default font in it's place.
+        std::cout << "ERROR::FONT::INIT::FILE_NOT_FOUND: '" << filename << "'\n";
+        const unsigned char* buffer = reinterpret_cast<const unsigned char*>(PIXELLARI);
+        this->load(buffer, this->size);
+
+        return;
     }
+
     fseek(fontFile, 0, SEEK_END);
     fileSize = ftell(fontFile);
     fseek(fontFile, 0, SEEK_SET);

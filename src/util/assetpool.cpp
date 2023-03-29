@@ -168,18 +168,11 @@ Font* FontPool::get(string name) {
     auto search = fonts.find(name);
     if (search != fonts.end()) {return search->second;}
 
-    // Attempt to initialise the font.
-    try {
-        Font* font = new Font(name, 64);
-        pair<string, Font*> p(font->getFilename(), font);
-        fonts.insert(p);
-        return font;
-    } 
-    
-    // If the texture could not be initialise return the missing texture.
-    catch (...) {
-        return FontPool::get("default");
-    }
+    // Attempt to initialise the font. If the loading fails, the font will be initialised with the default font.
+    Font* font = new Font(name, 64);
+    pair<string, Font*> p(font->getFilename(), font);
+    fonts.insert(p);
+    return font;
 
 }
 
