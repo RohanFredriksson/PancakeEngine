@@ -47,6 +47,7 @@ namespace FontPool {
     void destroy();
     json serialise();
     Font* get(string name);
+    Font* get(string name, float size);
 
 }
 

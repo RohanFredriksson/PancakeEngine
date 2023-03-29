@@ -1,16 +1,31 @@
+#include <tuple>
 #include <utility>
 #include <iostream>
 #include <unordered_map>
 #include "pancake/util/assetpool.hpp"
 
 using std::pair;
+using std::tuple;
 using std::unordered_map;
 
 namespace {
 
+    struct TupleHash {
+        size_t operator()(const tuple<string, float>& t) const {
+            return std::hash<string>()(std::get<0>(t)) ^ std::hash<float>()(std::get<1>(t));
+        }
+    };
+
+    struct TupleEqual {
+        bool operator()(const tuple<string, float>& lhs, const tuple<string, float>& rhs) const {
+            return (std::get<0>(lhs) == std::get<0>(rhs)) && (std::get<1>(lhs) == std::get<1>(rhs));
+        }
+    };
+
+    const float DEFAULT_FONT_SIZE = 64;
     unordered_map<string, Texture*> textures;
     unordered_map<string, Sprite*> sprites;
-    unordered_map<string, Font*> fonts;
+    unordered_map<tuple<string, float>, Font*, TupleHash, TupleEqual> fonts;
     unordered_map<string, AudioWave*> audio;
 
 }
@@ -130,10 +145,12 @@ void SpritePool::put(Sprite* sprite) {
 void FontPool::init() {
 
     // Add the default font to the pool.
-    Font* d = new Font(64);
-    Font* p = new Font(64);
-    pair<string, Font*> p1("default", d);
-    pair<string, Font*> p2("pixellari", p);
+    Font* d = new Font(DEFAULT_FONT_SIZE);
+    Font* p = new Font(DEFAULT_FONT_SIZE);
+    tuple<string, float> dt("default", DEFAULT_FONT_SIZE);
+    tuple<string, float> pt("pixellari", DEFAULT_FONT_SIZE);
+    pair<tuple<string, float>, Font*> p1(dt, d);
+    pair<tuple<string, float>, Font*> p2(pt, p);
     fonts.insert(p1);
     fonts.insert(p2);
 
@@ -163,14 +180,18 @@ json FontPool::serialise() {
 }
 
 Font* FontPool::get(string name) {
-    
-    // If the font already exists, return the font. 
-    auto search = fonts.find(name);
+    return FontPool::get(name, DEFAULT_FONT_SIZE);
+}
+
+Font* FontPool::get(string name, float size) {
+
+    tuple<string, float> key(name, size);
+    auto search = fonts.find(key);
     if (search != fonts.end()) {return search->second;}
 
     // Attempt to initialise the font. If the loading fails, the font will be initialised with the default font.
-    Font* font = new Font(name, 64);
-    pair<string, Font*> p(font->getFilename(), font);
+    Font* font = new Font(name, size);
+    pair<tuple<string, float>, Font*> p(key, font);
     fonts.insert(p);
     return font;
 

@@ -47,7 +47,7 @@ json Sprite::serialise() {
     return j;
 }
 
-void load(json j) {
+void Sprite::load(json j) {
 
     if (!j.contains("name") || !j["name"].is_string()) {return;}
     if (!j.contains("texture") || !j["texture"].is_string()) {return;}
