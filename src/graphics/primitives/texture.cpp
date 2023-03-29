@@ -12,7 +12,7 @@ void Texture::init(string name, unsigned char* image, int width, int height, int
     this->width = width;
     this->height = height;
 
-    if (image != NULL) {
+    if (image != NULL && (channels == 3 || channels == 4)) {
 
         // Generate the texture on the GPU.
         glGenTextures(1, &this->id);
@@ -26,17 +26,29 @@ void Texture::init(string name, unsigned char* image, int width, int height, int
 
         if (channels == 3) {glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, image);}
         else if (channels == 4) {glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, image);}
-        
-        else {
-            std::cout << "ERROR::TEXTURE::INVALID_IMAGE_CHANNELS '" << channels << "'\n";
-            throw "ERROR::TEXTURE::INVALID_IMAGE_CHANNELS";
-        }
 
     }
 
     else {
-        std::cout << "ERROR::TEXTURE::IMAGE_LOAD_FAILED '" << name << "'\n";
-        throw "ERROR::TEXTURE::IMAGE_LOAD_FAILED";
+
+        // Print a warning message.
+        if (!(channels == 3 || channels == 4)) {std::cout << "ERROR::TEXTURE::INVALID_IMAGE_CHANNELS '" << channels << "' '" << name << "'\n";}
+        else {std::cout << "ERROR::TEXTURE::IMAGE_LOAD_FAILED '" << name << "'\n";}
+
+        // Generate texture on GPU
+        glGenTextures(1, &this->id);
+        glBindTexture(GL_TEXTURE_2D, this->id);
+
+        // Set texture parameters
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+
+        // Load the image
+        unsigned char missing[] = {0,0,0,255,0,255,0,0,255,0,255,0,0};
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 2, 2, 0, GL_RGB, GL_UNSIGNED_BYTE, missing);
+
     }
 
 }

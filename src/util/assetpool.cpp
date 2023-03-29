@@ -63,18 +63,11 @@ Texture* TexturePool::get(string name) {
     auto search = textures.find(name);
     if (search != textures.end()) {return search->second;}
 
-    // Attempt to initialise the texture.
-    try {
-        Texture* texture = new Texture(name);
-        pair<string, Texture*> p(texture->getName(), texture);
-        textures.insert(p);
-        return texture;
-    } 
-    
-    // If the texture could not be initialise return the missing texture.
-    catch (...) {
-        return TexturePool::get("missing");
-    }
+    // Initialise the texture. If the texture fails to initialise a missing texture will be generated.
+    Texture* texture = new Texture(name);
+    pair<string, Texture*> p(texture->getName(), texture);
+    textures.insert(p);
+    return texture;
 
 }
 
