@@ -28,9 +28,11 @@ class Entity {
     public:
 
         Entity(vec2 position, vec2 size, float radians);
+        Entity();
         ~Entity();
         void update(float dt);
         json serialise();
+        static Entity* load(json j);
         void onCollision(Component* with);
         void kill();
 
@@ -45,6 +47,7 @@ class Entity {
         bool isDead();
 
         // Setter Methods.
+        void setId(int id);
         void setPosition(vec2 position);
         void setSize(vec2 size);
         void setRotation(float radians);

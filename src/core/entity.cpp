@@ -1,5 +1,6 @@
 #include <cmath>
 #include <deque>
+#include <unordered_set>
 #include "pancake/core/entity.hpp"
 #include "pancake/core/component.hpp"
 
@@ -9,15 +10,24 @@ namespace {
     int nextId = 0;
 }
 
-Entity::Entity(vec2 position, vec2 size, float radians) {
-    
-    this->id = nextId;
+void Entity::init(int id, vec2 position, vec2 size, float radians) {
+
+    this->id = id;
     this->position = position;
     this->size = size;
     this->rotation = radians;
     this->dead = false;
 
-    nextId++;
+    nextId = std::max(nextId, id) + 1;
+
+}
+
+Entity::Entity(vec2 position, vec2 size, float radians) {
+    this->init(nextId, position, size, radians);
+}
+
+Entity::Entity() {
+    this->init(nextId, vec2(0.0f, 0.0f), vec2(0.0f, 0.0f), 0.0f);
 }
 
 Entity::~Entity() {
@@ -72,6 +82,29 @@ json Entity::serialise() {
     }
 
     return j;
+}
+
+Entity* Entity::load(json j) {
+
+    if (!j.contains("id") || !j["id"].is_number_integer()) {return NULL;}
+
+    if (!j.contains("position") || !j["position"].is_array()) {return NULL;}
+    if (j["position"].size() != 2) {return NULL;}
+    if (!j["position"][0].is_number()) {return NULL;}
+    if (!j["position"][1].is_number()) {return NULL;}
+
+    if (!j.contains("size") || !j["size"].is_array()) {return NULL;}
+    if (j["size"].size() != 2) {return NULL;}
+    if (!j["size"][0].is_number()) {return NULL;}
+    if (!j["size"][1].is_number()) {return NULL;}
+
+    if (!j.contains("rotation") || !j["rotation"].is_number()) {return NULL;}
+
+    Entity* e = new Entity();
+    e->init(j["id"], vec2(j["position"][0], j["position"][1]), vec2(j["size"][0], j["size"][1]), j["rotation"]);
+
+    return e;
+
 }
 
 void Entity::onCollision(Component* with) {
