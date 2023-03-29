@@ -47,21 +47,21 @@ json Sprite::serialise() {
     return j;
 }
 
-Sprite* load(json j) {
+void load(json j) {
 
-    if (!j.contains("name") || !j["name"].is_string()) {return NULL;}
-    if (!j.contains("texture") || !j["texture"].is_string()) {return NULL;}
-    if (!j.contains("texCoords") || !j["texCoords"].is_array()) {return NULL;}
-    if (j["texCoords"].size() != 4) {return NULL;}
+    if (!j.contains("name") || !j["name"].is_string()) {return;}
+    if (!j.contains("texture") || !j["texture"].is_string()) {return;}
+    if (!j.contains("texCoords") || !j["texCoords"].is_array()) {return;}
+    if (j["texCoords"].size() != 4) {return;}
 
     for (int i = 0; i < 4; i++) {
-        if (!j["texCoords"][i].is_array()) {return NULL;}
-        if (!j["texCoords"][i][0].is_number()) {return NULL;}
-        if (!j["texCoords"][i][1].is_number()) {return NULL;}
+        if (!j["texCoords"][i].is_array()) {return;}
+        if (!j["texCoords"][i][0].is_number()) {return;}
+        if (!j["texCoords"][i][1].is_number()) {return;}
     }
     
     // Check if the sprite already exists.
-    if (SpritePool::has(j["name"])) {return SpritePool::get(j["name"]);}
+    if (SpritePool::has(j["name"])) {return;}
 
     // Create the new sprite object.
     string name = j["name"];
@@ -74,7 +74,6 @@ Sprite* load(json j) {
 
     Sprite* sprite = new Sprite(name, texture, texCoords);
     SpritePool::put(sprite);
-    return sprite;
 
 }
 

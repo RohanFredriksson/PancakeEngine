@@ -181,11 +181,7 @@ json Scene::serialise() {
     json j;
     j.emplace("name", this->name);
     j.emplace("camera", this->camera->serialise());
-    
-    j.emplace("gravity", json::array());
-    j["gravity"].push_back(this->physics->getGravity().x);
-    j["gravity"].push_back(this->physics->getGravity().y);
-
+    //j.emplace("physics", this->physics->serialise());
     j.emplace("fonts", FontPool::serialise());
     j.emplace("sprites", SpritePool::serialise());
 
@@ -200,10 +196,57 @@ json Scene::serialise() {
 }
 
 void Scene::save(string filename) {
+
     string contents = this->serialise().dump();
     std::ofstream file(filename);
     file << contents;
     file.close();
+
+}
+
+void load(string filename) {
+
+    std::ifstream f(filename);
+    json j = json::parse(f);
+
+    // Load camera settings into the camera.
+    if (j.contains("camera") && j["camera"].is_object()) {
+        //this->camera->load(j["camera"]);
+    }
+
+    // Load physics configuration into the engine.
+    if (j.contains("physics") && j["physics"].is_object()) {
+        //this->world->load(j["gravity"]);
+    }
+
+    // Load fonts into the font pool
+    if (j.contains("fonts") && j["fonts"].is_array()) {
+        for (auto element : j["fonts"]) {
+            if (element.is_object()) {
+                //Font::load(element);
+            }
+        }
+    }
+
+    // Load sprites into the spritepool.
+    if (j.contains("sprites") && j["sprites"].is_array()) {
+        for (auto element : j["sprites"]) {
+            if (element.is_object()) {
+                Sprite::load(element); 
+            }
+        }
+    }
+
+    // Create new entities and add them to the scene.
+    if (j.contains("entities") && j["entities"].is_array()) {
+        for (auto element : j["entities"]) {
+            if (element.is_object()) {
+                //Entity* e = Entity::load(element);
+                //if (e != NULL) {this->addEntity(e);}
+            }
+        }
+    }
+
 }
 
 Camera* Scene::getCamera() {

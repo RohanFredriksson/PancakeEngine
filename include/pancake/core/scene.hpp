@@ -44,6 +44,7 @@ class Scene {
         void render();
         json serialise();
         void save(string filename);
+        void load(string filename);
 
         Camera* getCamera();
         Renderer* getRenderer();
