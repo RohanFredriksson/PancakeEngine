@@ -17,6 +17,12 @@ json AudioPlayer::serialise() {
     return j;
 }
 
+bool AudioPlayer::load(json j) {
+    if (!this->Component::load(j)) {return false;}
+    // TODO
+    return true;
+}
+
 AudioWave* AudioPlayer::getAudioWave() {
     return this->audio;
 }

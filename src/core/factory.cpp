@@ -16,7 +16,22 @@ namespace Factory {
     Component* create(string type) {
         auto search = components.find(type);
         if (search == components.end()) {return NULL;}
-        return search->second(); 
+        return search->second();
+    }
+
+    Component* load(json j) {
+        
+        if (!j.contains("type") || !j["type"].is_string()) {return NULL;}
+        auto search = components.find(j["type"]);
+        if (search == components.end()) {return NULL;}
+        
+        Component* component = search->second();
+        if (!component->load(j)) {
+            delete component; 
+            return NULL;
+        }
+
+        return component;
     }
 
 };

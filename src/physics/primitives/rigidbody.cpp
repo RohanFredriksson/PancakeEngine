@@ -62,6 +62,12 @@ json Rigidbody::serialise() {
     return j;
 }
 
+bool Rigidbody::load(json j) {
+    if (!this->Component::load(j)) {return false;}
+    // TODO
+    return true;
+}
+
 vector<Collider*> Rigidbody::getColliders() {
     return this->colliders;
 }

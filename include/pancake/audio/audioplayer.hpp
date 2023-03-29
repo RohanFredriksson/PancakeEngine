@@ -13,6 +13,7 @@ class AudioPlayer : public Component {
         static Component* create();
         AudioPlayer();
         json serialise() override;
+        bool load(json j) override;
  
         AudioWave* getAudioWave();
         string getFilename();

@@ -133,6 +133,12 @@ json TextRenderer::serialise() {
     return j;
 }
 
+bool TextRenderer::load(json j) {
+    if (!this->TransformableComponent::load(j)) {return false;}
+    // TODO
+    return true;
+}
+
 string TextRenderer::getText() {
     return this->text;
 }

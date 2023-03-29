@@ -71,6 +71,12 @@ json SpriteRenderer::serialise() {
     return j;
 }
 
+bool SpriteRenderer::load(json j) {
+    if (!this->TransformableComponent::load(j)) {return false;}
+    // TODO
+    return true;
+}
+
 Sprite* SpriteRenderer::getSprite() {
     return this->sprite;
 }

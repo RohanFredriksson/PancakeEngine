@@ -204,7 +204,7 @@ void Scene::save(string filename) {
 
 }
 
-void load(string filename) {
+void Scene::load(string filename) {
 
     std::ifstream f(filename);
     json j = json::parse(f);
@@ -241,8 +241,8 @@ void load(string filename) {
     if (j.contains("entities") && j["entities"].is_array()) {
         for (auto element : j["entities"]) {
             if (element.is_object()) {
-                //Entity* e = Entity::load(element);
-                //if (e != NULL) {this->addEntity(e);}
+                Entity* e = Entity::load(element);
+                if (e != NULL) {this->addEntity(e);}
             }
         }
     }

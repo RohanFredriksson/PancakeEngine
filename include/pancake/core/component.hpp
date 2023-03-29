@@ -14,12 +14,14 @@ class Entity;
 
 class Component {
 
-    private:
+    protected:
 
         int id;
         string type;
         Entity* entity;
         bool dead;
+
+        void init(int id, string type);
 
     public:
 
@@ -27,6 +29,7 @@ class Component {
         virtual ~Component();
         virtual void update(float dt);
         virtual json serialise();
+        virtual bool load(json j);
         virtual void onCollision(Component* with);
         void kill();
         
@@ -41,7 +44,7 @@ class Component {
 
 class TransformableComponent : public Component {
 
-    private:
+    protected:
 
         vec2 positionOffset;
         vec2 sizeScale;
@@ -50,7 +53,8 @@ class TransformableComponent : public Component {
     public:
 
         TransformableComponent(string type);
-        virtual json serialise();
+        virtual json serialise() override;
+        virtual bool load(json j) override;
 
         vec2 getPosition();
         vec2 getSize();

@@ -40,6 +40,7 @@ class Rigidbody : public Component {
         Rigidbody();
         ~Rigidbody() override;
         json serialise() override;
+        bool load(json j) override;
 
         vector<Collider*> getColliders();
         vec2 getVelocity();

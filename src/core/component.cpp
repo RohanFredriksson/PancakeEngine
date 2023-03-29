@@ -1,3 +1,4 @@
+#include <algorithm>
 #include "pancake/core/component.hpp"
 #include "pancake/core/entity.hpp"
 
@@ -5,14 +6,19 @@ namespace {
     int nextId = 0;
 }
 
-Component::Component(string type) {
+void Component::init(int id, string type) {
 
-    this->id = nextId;
+    this->id = id;
     this->type = type;
     this->entity = NULL;
     this->dead = false;
 
-    nextId++;
+    nextId = std::max(nextId, id) + 1;
+
+}
+
+Component::Component(string type) {
+    this->init(nextId, type);
 }
 
 Component::~Component() {
@@ -28,6 +34,13 @@ json Component::serialise() {
     j.emplace("id", this->id);
     j.emplace("type", this->type);
     return j;
+}
+
+bool Component::load(json j) {
+    if (!j.contains("id") || !j["id"].is_number_integer()) {return false;}
+    if (!j.contains("type") || !j["type"].is_string()) {return false;}
+    this->init(j["id"], j["type"]);
+    return true;
 }
 
 void Component::onCollision(Component* with) {
@@ -74,6 +87,30 @@ json TransformableComponent::serialise() {
     j["sizeScale"].push_back(this->sizeScale.y);
     j.emplace("rotationOffset", this->rotationOffset);
     return j;
+}
+
+bool TransformableComponent::load(json j) {
+
+    if (!this->Component::load(j)) {return false;}
+
+    if (!j.contains("positionOffset") || j["positionOffset"].is_array()) {return false;}
+    if (j["positionOffset"].size() != 2) {return false;}
+    if (!j["positionOffset"][0].is_number()) {return false;}
+    if (!j["positionOffset"][1].is_number()) {return false;}
+
+    if (!j.contains("sizeScale") || j["sizeScale"].is_array()) {return false;}
+    if (j["sizeScale"].size() != 2) {return false;}
+    if (!j["sizeScale"][0].is_number()) {return false;}
+    if (!j["sizeScale"][1].is_number()) {return false;}
+
+    if (!j.contains("rotationOffset") || !j["rotationOffset"].is_number()) {return false;}
+
+    this->setPositionOffset(vec2(j["positionOffset"][0], j["positionOffset"][1]));
+    this->setSizeScale(vec2(j["sizeScale"][0], j["sizeScale"][1]));
+    this->setRotationOffset(j["rotationOffset"]);
+
+    return true;
+
 }
 
 vec2 TransformableComponent::getPosition() {
