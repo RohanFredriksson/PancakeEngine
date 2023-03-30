@@ -96,12 +96,12 @@ bool TransformableComponent::load(json j) {
 
     if (!this->Component::load(j)) {return false;}
 
-    if (!j.contains("positionOffset") || j["positionOffset"].is_array()) {return false;}
+    if (!j.contains("positionOffset") || !j["positionOffset"].is_array()) {return false;}
     if (j["positionOffset"].size() != 2) {return false;}
     if (!j["positionOffset"][0].is_number()) {return false;}
     if (!j["positionOffset"][1].is_number()) {return false;}
 
-    if (!j.contains("sizeScale") || j["sizeScale"].is_array()) {return false;}
+    if (!j.contains("sizeScale") || !j["sizeScale"].is_array()) {return false;}
     if (j["sizeScale"].size() != 2) {return false;}
     if (!j["sizeScale"][0].is_number()) {return false;}
     if (!j["sizeScale"][1].is_number()) {return false;}
@@ -185,10 +185,10 @@ namespace ComponentFactory {
         if (!j.contains("type") || !j["type"].is_string()) {return NULL;}
         auto search = components.find(j["type"]);
         if (search == components.end()) {return NULL;}
-        
+
         Component* component = search->second();
         if (!component->load(j)) {
-            delete component; 
+            delete component; // This line currently crashes the program.
             return NULL;
         }
 

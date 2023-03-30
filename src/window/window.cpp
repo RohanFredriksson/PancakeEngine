@@ -173,6 +173,8 @@ namespace Window {
 
         }
 
+        scene->save("saves/title.scene");
+
     }
 
     void destroy() {

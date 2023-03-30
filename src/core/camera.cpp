@@ -122,6 +122,8 @@ json Camera::serialise() {
     
 }
 
+#include <iostream>
+
 void Camera::load(json j) {
 
     if (j.contains("position") && j["position"].is_array() && j["position"].size() == 2 && j["position"][0].is_number() && j["position"][1].is_number()) {
