@@ -37,6 +37,7 @@ class Camera {
         void update(float dt);
         void move(vec2 to, float t);
         json serialise();
+        void load(json j);
 
         vec2 getPosition();
         vec2 getProjectionSize();

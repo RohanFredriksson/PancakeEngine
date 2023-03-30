@@ -228,6 +228,20 @@ void World::render() {
 
 }
 
+json World::serialise() {
+    json j;
+    j.emplace("gravity", json::array());
+    j["gravity"].push_back(this->getGravity().x);
+    j["gravity"].push_back(this->getGravity().y);
+    return j;
+}
+
+void World::load(json j) {
+    if (j.contains("gravity") && j["gravity"].is_array() && j["gravity"].size() == 2 && j["gravity"][0].is_number() && j["gravity"][1].is_number()) {
+        this->setGravity(vec2(j["gravity"][0], j["gravity"][1]));
+    }
+}
+
 void World::add(Rigidbody* rigidbody) {
     this->rigidbodies.push_back(rigidbody);
     this->registry.add(this->gravity, rigidbody);

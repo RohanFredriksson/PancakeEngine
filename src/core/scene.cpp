@@ -181,7 +181,7 @@ json Scene::serialise() {
     json j;
     j.emplace("name", this->name);
     j.emplace("camera", this->camera->serialise());
-    //j.emplace("physics", this->physics->serialise());
+    j.emplace("physics", this->physics->serialise());
     j.emplace("fonts", FontPool::serialise());
     j.emplace("sprites", SpritePool::serialise());
 
@@ -211,12 +211,12 @@ void Scene::load(string filename) {
 
     // Load camera settings into the camera.
     if (j.contains("camera") && j["camera"].is_object()) {
-        //this->camera->load(j["camera"]);
+        this->camera->load(j["camera"]);
     }
 
     // Load physics configuration into the engine.
     if (j.contains("physics") && j["physics"].is_object()) {
-        //this->world->load(j["gravity"]);
+        this->physics->load(j["physics"]);
     }
 
     // Load fonts into the font pool
