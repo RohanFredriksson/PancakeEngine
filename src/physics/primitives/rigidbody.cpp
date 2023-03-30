@@ -63,9 +63,46 @@ json Rigidbody::serialise() {
 }
 
 bool Rigidbody::load(json j) {
+
     if (!this->Component::load(j)) {return false;}
-    // TODO
+    
+    if (!j.contains("force") || !j["force"].is_array()) {return false;}
+    if (j["force"].size() != 2) {return false;}
+    if (!j["force"][0].is_number()) {return false;}
+    if (!j["force"][1].is_number()) {return false;}
+
+    if (!j.contains("velocity") || !j["velocity"].is_array()) {return false;}
+    if (j["velocity"].size() != 2) {return false;}
+    if (!j["velocity"][0].is_number()) {return false;}
+    if (!j["velocity"][1].is_number()) {return false;}
+
+    if (!j.contains("torque") || !j["torque"].is_number()) {return false;}
+    if (!j.contains("angularVelocity") || !j["angularVelocity"].is_number()) {return false;}
+    if (!j.contains("restitution") || !j["restitution"].is_number()) {return false;}
+    if (!j.contains("friction") || !j["friction"].is_number()) {return false;}
+    if (!j.contains("sensor") || !j["sensor"].is_boolean()) {return false;}
+    if (!j.contains("fixedOrientation") || !j["fixedOrientation"].is_boolean()) {return false;}
+
+    this->setForce(vec2(j["force"][0], j["force"][1]));
+    this->setVelocity(vec2(j["velocity"][0], j["velocity"][1]));
+    this->setTorque(j["torque"]);
+    this->setAngularVelocity(j["angularVelocity"]);
+    this->setRestitution(j["restitution"]);
+    this->setFriction(j["friction"]);
+    this->setSensor(j["sensor"]);
+    this->setFixedOrientation(j["fixedOrientation"]);
+
+    if (j.contains("colliders") && j["colliders"].is_array()) {
+        for (auto element : j["colliders"]) {
+            if (element.is_object()) {
+                Collider* c = ColliderFactory::load(element);
+                if (c != NULL) {this->addCollider(c);}
+            }
+        }
+    }
+
     return true;
+
 }
 
 vector<Collider*> Rigidbody::getColliders() {
@@ -260,8 +297,18 @@ Rigidbody* Rigidbody::clearColliders() {
     return this;
 }
 
+Rigidbody* Rigidbody::setForce(vec2 force) {
+    this->force = force;
+    return this;
+}
+
 Rigidbody* Rigidbody::setVelocity(vec2 velocity) {
     this->velocity = velocity;
+    return this;
+}
+
+Rigidbody* Rigidbody::setTorque(float torque) {
+    this->torque = torque;
     return this;
 }
 

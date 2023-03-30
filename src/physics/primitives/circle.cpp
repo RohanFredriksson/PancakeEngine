@@ -1,6 +1,10 @@
 #include "pancake/physics/primitives/circle.hpp"
 
-Circle::Circle() : Collider() {
+Collider* Circle::create() {
+    return new Circle();
+}
+
+Circle::Circle() : Collider("Circle") {
     this->radius = 0.5f;
 }
 
@@ -8,6 +12,13 @@ json Circle::serialise() {
     json j = this->Collider::serialise();
     j.emplace("radius", this->radius);
     return j;
+}
+
+bool Circle::load(json j) {
+    if (!this->Collider::load(j)) {return false;}
+    if (!j.contains("radius") || !j["radius"].is_number()) {return false;}
+    this->setRadius(j["radius"]);
+    return true;
 }
 
 float Circle::getMomentOfInertia() {

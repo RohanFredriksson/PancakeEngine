@@ -8,13 +8,22 @@
 #include "pancake/graphics/renderer/textrenderer.hpp"
 #include "pancake/physics/primitives/rigidbody.hpp"
 
+#include "pancake/physics/primitives/collider.hpp"
+#include "pancake/physics/primitives/box.hpp"
+#include "pancake/physics/primitives/circle.hpp"
+
 namespace {
 
     void registry() {
+        
         Factory::add("AudioPlayer", AudioPlayer::create);
         Factory::add("SpriteRenderer", SpriteRenderer::create);
         Factory::add("TextRenderer", TextRenderer::create);
         Factory::add("Rigidbody", Rigidbody::create);
+
+        ColliderFactory::add("Box", Box::create);
+        ColliderFactory::add("Circle", Circle::create);
+
     }
 
 }

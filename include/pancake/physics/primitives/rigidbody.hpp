@@ -64,7 +64,9 @@ class Rigidbody : public Component {
         Rigidbody* setColliders(vector<Collider*> colliders);
         Rigidbody* clearColliders();
 
+        Rigidbody* setForce(vec2 force);
         Rigidbody* setVelocity(vec2 velocity);
+        Rigidbody* setTorque(float torque);
         Rigidbody* setAngularVelocity(float angularVelocity);
         Rigidbody* setRestitution(float cor);
         Rigidbody* setFriction(float cof);

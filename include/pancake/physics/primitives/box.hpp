@@ -14,8 +14,10 @@ class Box : public Collider {
 
     public:
 
+        static Collider* create();
         Box();
         json serialise() override;
+        bool load(json j) override;
 
         float getMomentOfInertia() override;
         vec2 getSize();

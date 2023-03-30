@@ -34,4 +34,4 @@ namespace Factory {
         return component;
     }
 
-};
+}

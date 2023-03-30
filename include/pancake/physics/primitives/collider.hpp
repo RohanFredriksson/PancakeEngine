@@ -1,9 +1,11 @@
 #pragma once
 
+#include <string>
 #include <glm/glm.hpp>
 #include "pancake/core/component.hpp"
 
 using glm::vec2;
+using std::string;
 
 class Rigidbody;
 
@@ -12,15 +14,19 @@ class Collider {
     protected:
 
         Rigidbody* rigidbody;
+        string type;
         float mass;
         vec2 positionOffset;
         float rotationOffset;
 
+        void init(string type, float mass, vec2 positionOffset, float rotationOffset);
+
     public:
 
-        Collider();
+        Collider(string type);
         virtual ~Collider();
         virtual json serialise();
+        virtual bool load(json j);
 
         Rigidbody* getRigidbody();
         float getMass();
@@ -39,5 +45,11 @@ class Collider {
         Collider* setRotationOffset(float offset, bool update);
 
 };
+
+namespace ColliderFactory {
+    void add(string type, Collider* (*create)());
+    Collider* create(string type);
+    Collider* load(json);
+}
 
 #include "pancake/physics/primitives/rigidbody.hpp"
