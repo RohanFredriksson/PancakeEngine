@@ -73,6 +73,12 @@ class TransformableComponent : public Component {
 
 };
 
+namespace ComponentFactory {
+    void add(string type, Component* (*create)());
+    Component* create(string type);
+    Component* load(json);
+}
+
 class KeyDown {
     public: 
         virtual void keyDownCallback();

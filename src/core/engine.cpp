@@ -1,8 +1,8 @@
 #include "pancake/core/engine.hpp"
-#include "pancake/core/factory.hpp"
 #include "pancake/audio/audioengine.hpp"
 #include "pancake/window/window.hpp"
 
+#include "pancake/core/component.hpp"
 #include "pancake/audio/audioplayer.hpp"
 #include "pancake/graphics/renderer/spriterenderer.hpp"
 #include "pancake/graphics/renderer/textrenderer.hpp"
@@ -16,14 +16,14 @@ namespace {
 
     void registry() {
         
-        Factory::add("AudioPlayer", AudioPlayer::create);
-        Factory::add("SpriteRenderer", SpriteRenderer::create);
-        Factory::add("TextRenderer", TextRenderer::create);
-        Factory::add("Rigidbody", Rigidbody::create);
+        ComponentFactory::add("AudioPlayer", AudioPlayer::create);
+        ComponentFactory::add("SpriteRenderer", SpriteRenderer::create);
+        ComponentFactory::add("TextRenderer", TextRenderer::create);
+        ComponentFactory::add("Rigidbody", Rigidbody::create);
 
         ColliderFactory::add("Box", Box::create);
         ColliderFactory::add("Circle", Circle::create);
-
+    
     }
 
 }

@@ -3,7 +3,6 @@
 #include <unordered_set>
 #include "pancake/core/entity.hpp"
 #include "pancake/core/component.hpp"
-#include "pancake/core/factory.hpp"
 
 using std::deque;
 
@@ -107,7 +106,7 @@ Entity* Entity::load(json j) {
     if (j.contains("components") && j["components"].is_array()) {
         for (auto element : j["components"]) {
             if (element.is_object()) {
-                Component* c = Factory::load(element);
+                Component* c = ComponentFactory::load(element);
                 if (c != NULL) {e->addComponent(c);}
             }
         }
