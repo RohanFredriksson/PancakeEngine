@@ -60,21 +60,46 @@ void SpriteRenderer::update(float dt) {
 }
 
 json SpriteRenderer::serialise() {
+
     json j = this->TransformableComponent::serialise();
     j.emplace("sprite", this->sprite->getName());
+
     j.emplace("colour", json::array());
     j["colour"].push_back(this->colour.x);
     j["colour"].push_back(this->colour.y);
     j["colour"].push_back(this->colour.z);
     j["colour"].push_back(this->colour.w);
+
     j.emplace("zIndex", this->zIndex);
+
     return j;
+
 }
 
 bool SpriteRenderer::load(json j) {
+    
     if (!this->TransformableComponent::load(j)) {return false;}
-    // TODO
+    if (!j.contains("sprite") || !j["sprite"].is_string()) {return false;}
+
+    if (!j.contains("colour") || !j["colour"].is_array()) {return false;}
+    if (j["colour"].size() != 4) {return false;}
+    if (!j["colour"][0].is_number()) {return false;}
+    if (!j["colour"][1].is_number()) {return false;}
+    if (!j["colour"][2].is_number()) {return false;}
+    if (!j["colour"][3].is_number()) {return false;}
+    
+    if (!j.contains("zIndex") || !j["zIndex"].is_number_integer()) {return false;}
+
+    Sprite* s = SpritePool::get(j["sprite"]);
+    vec4 c = vec4(j["colour"][0], j["colour"][1], j["colour"][2], j["colour"][3]);
+    int z = j["zIndex"];
+
+    this->setSprite(s);
+    this->setColour(c);
+    this->setZIndex(z);
+
     return true;
+
 }
 
 Sprite* SpriteRenderer::getSprite() {

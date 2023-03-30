@@ -121,22 +121,50 @@ void TextRenderer::update(float dt) {
 }
 
 json TextRenderer::serialise() {
+
     json j = this->TransformableComponent::serialise();
     j.emplace("text", this->text);
     j.emplace("font", this->font->getFilename());
+
     j.emplace("colour", json::array());
     j["colour"].push_back(this->colour.x);
     j["colour"].push_back(this->colour.y);
     j["colour"].push_back(this->colour.z);
     j["colour"].push_back(this->colour.w);
+
     j.emplace("zIndex", this->zIndex);
+
     return j;
+
 }
 
 bool TextRenderer::load(json j) {
+    
     if (!this->TransformableComponent::load(j)) {return false;}
-    // TODO
+    if (!j.contains("text") || !j["text"].is_string()) {return false;}
+    if (!j.contains("font") || !j["font"].is_string()) {return false;}
+
+    if (!j.contains("colour") || !j["colour"].is_array()) {return false;}
+    if (j["colour"].size() != 4) {return false;}
+    if (!j["colour"][0].is_number()) {return false;}
+    if (!j["colour"][1].is_number()) {return false;}
+    if (!j["colour"][2].is_number()) {return false;}
+    if (!j["colour"][3].is_number()) {return false;}
+    
+    if (!j.contains("zIndex") || !j["zIndex"].is_number_integer()) {return false;}
+
+    string t = j["text"];
+    Font* f = FontPool::get(j["font"]);
+    vec4 c = vec4(j["colour"][0], j["colour"][1], j["colour"][2], j["colour"][3]);
+    int z = j["zIndex"];
+
+    this->setText(t);
+    this->setFont(f);
+    this->setColour(c);
+    this->setZIndex(z);
+
     return true;
+
 }
 
 string TextRenderer::getText() {
