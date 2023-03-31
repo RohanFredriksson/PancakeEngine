@@ -148,9 +148,6 @@ namespace Window {
 
     void loop() {
 
-        // Temporary audio test.
-        //AudioEngine::play(AudioPool::get("assets/audio/ui.mp3"));
-
         float beginTime = (float)glfwGetTime();
         float endTime = (float)glfwGetTime();
         float dt = -1.0f;

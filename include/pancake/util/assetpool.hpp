@@ -58,6 +58,7 @@ namespace AudioPool {
     void init();
     void clear();
     void destroy();
+    json serialise();
     AudioWave* get(string name);
 
 }

@@ -1,5 +1,6 @@
 #include "pancake/audio/audioplayer.hpp"
 #include "pancake/audio/audioengine.hpp"
+#include "pancake/util/assetpool.hpp"
 
 Component* AudioPlayer::create() {
     return new AudioPlayer();
@@ -12,14 +13,14 @@ AudioPlayer::AudioPlayer() : Component("AudioPlayer") {
 json AudioPlayer::serialise() {
     json j = this->Component::serialise();
     j.emplace("filename", this->getFilename());
-    j.emplace("volume", this->getVolume());
-    j.emplace("looping", this->isLooping());
     return j;
 }
 
 bool AudioPlayer::load(json j) {
     if (!this->Component::load(j)) {return false;}
-    // TODO
+    if (!j.contains("filename") || !j["filename"].is_string()) {return false;}
+    AudioWave* a = AudioPool::get(j["filename"]);
+    this->setAudioWave(a);
     return true;
 }
 
@@ -30,16 +31,6 @@ AudioWave* AudioPlayer::getAudioWave() {
 string AudioPlayer::getFilename() {
     if (this->audio == NULL) {return "NULL";}
     return this->audio->getFilename();
-}
-
-float AudioPlayer::getVolume() {
-    if (this->audio == NULL) {return -1.0f;}
-    return this->audio->getVolume();
-}
-
-bool AudioPlayer::isLooping() {
-    if (this->audio == NULL) {return false;}
-    return this->audio->isLooping();
 }
 
 float AudioPlayer::getLength() {

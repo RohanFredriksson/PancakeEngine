@@ -184,6 +184,7 @@ json Scene::serialise() {
     j.emplace("physics", this->physics->serialise());
     j.emplace("fonts", FontPool::serialise());
     j.emplace("sprites", SpritePool::serialise());
+    j.emplace("audio", AudioPool::serialise());
 
     j.emplace("entities", json::array());
     for (auto const& x : this->entities) {
@@ -224,6 +225,15 @@ void Scene::load(string filename) {
         for (auto element : j["fonts"]) {
             if (element.is_object()) {
                 Font::load(element);
+            }
+        }
+    }
+
+    // Load audio into the audio pool
+    if (j.contains("audio") && j["audio"].is_array()) {
+        for (auto element : j["fonts"]) {
+            if (element.is_object()) {
+                AudioWave::load(element);
             }
         }
     }

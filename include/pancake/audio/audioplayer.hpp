@@ -17,8 +17,6 @@ class AudioPlayer : public Component {
  
         AudioWave* getAudioWave();
         string getFilename();
-        float getVolume();
-        bool isLooping();
         float getLength();
 
         AudioPlayer* setAudioWave(AudioWave* audio);

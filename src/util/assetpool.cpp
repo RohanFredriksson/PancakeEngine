@@ -223,13 +223,22 @@ void AudioPool::destroy() {
     AudioPool::clear();
 }
 
+json AudioPool::serialise() {
+    json j = json::array();
+    for (auto const& x : audio) {
+        AudioWave* a = x.second;
+        j.push_back(a->serialise());
+    }
+    return j;
+}
+
 AudioWave* AudioPool::get(string name) {
     
-    // If the font already exists, return the font. 
+    // If the audio already exists, return the audio. 
     auto search = audio.find(name);
     if (search != audio.end()) {return search->second;}
 
-    // Attempt to initialise the font.
+    // Attempt to initialise the audio.
     AudioWave* audioWave = new AudioWave(name);
     pair<string, AudioWave*> p(audioWave->getFilename(), audioWave);
     audio.insert(p);
