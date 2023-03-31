@@ -58,6 +58,10 @@ int Component::getId() {
     return this->id;
 }
 
+string Component::getType() {
+    return this->type;
+}
+
 Entity* Component::getEntity() {
     return this->entity;
 }

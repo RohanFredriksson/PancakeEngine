@@ -34,6 +34,7 @@ class Component {
         void kill();
         
         int getId();
+        string getType();
         Entity* getEntity();
         bool isDead();
         

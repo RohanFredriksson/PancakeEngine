@@ -157,6 +157,15 @@ bool Entity::isDead() {
     return this->dead;
 }
 
+Component* Entity::getComponentByType(string type) {
+    for (Component* c : this->components) {
+        if (c->getType() == type) {
+            return c;
+        }
+    }
+    return NULL;
+}
+
 void Entity::setPosition(vec2 position) {
     this->position = position;
 }

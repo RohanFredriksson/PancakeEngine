@@ -1,9 +1,11 @@
 #pragma once
 
+#include <string>
 #include <vector>
 #include <glm/glm.hpp>
 #include <nlohmann/json.hpp>
 
+using std::string;
 using std::vector;
 using glm::vec2;
 using json = nlohmann::json;
@@ -45,6 +47,9 @@ class Entity {
         vec2 getSize();
         float getRotation();
         bool isDead();
+
+        // Getter Component Methods.
+        Component* getComponentByType(string type);
 
         // Setter Methods.
         void setId(int id);
