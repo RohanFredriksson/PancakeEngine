@@ -208,7 +208,22 @@ void Scene::save(string filename) {
 void Scene::load(string filename) {
 
     std::ifstream f(filename);
-    json j = json::parse(f);
+    json j;
+
+    try {
+        std::ifstream f(filename);
+        j = json::parse(f);
+    } 
+    
+    catch (const std::ifstream::failure& e) {
+        std::cout << "ERROR::SCENE::LOAD::FILE_NOT_FOUND\n";
+        return;
+    }
+
+    catch (const json::exception& e) {
+        std::cout << "ERROR::SCENE::LOAD::JSON_PARSE_ERROR\n";
+        return;
+    }
 
     // Load camera settings into the camera.
     if (j.contains("camera") && j["camera"].is_object()) {

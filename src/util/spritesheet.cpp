@@ -58,9 +58,22 @@ namespace {
     Metadata getMetadata(string metaname) {
 
         Metadata result(false, 0, 0);
+        json metadata;
+        
+        try {
+            std::ifstream f(metaname);
+            metadata = json::parse(f);
+        } 
+        
+        catch (const std::ifstream::failure& e) {
+            std::cout << "ERROR::SPRITESHEET::LOAD::FILE_NOT_FOUND\n";
+            return result;
+        }
 
-        std::ifstream f(metaname);
-        json metadata = json::parse(f);
+        catch (const json::exception& e) {
+            std::cout << "ERROR::SPRITESHEET::LOAD::JSON_PARSE_ERROR\n";
+            return result;
+        }
 
         if (!metadata.contains("spriteWidth") || !metadata["spriteWidth"].is_number_integer()) {
             std::cout << "ERROR::SPRITESHEET::LOAD::JSON_PARSE_ERROR: 'spriteWidth' could not be parsed.\n";
