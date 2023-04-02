@@ -2,6 +2,7 @@
 #include <algorithm>
 #include "pancake/audio/audiowave.hpp"
 #include "pancake/util/assetpool.hpp"
+#include "pancake/util/audio.hpp"
 
 using std::min;
 using std::max;
@@ -13,10 +14,7 @@ AudioWave::AudioWave(string filename) {
 
     if (result != SoLoud::SO_NO_ERROR) {
         std::cout << "ERROR::AUDIOWAVE::INIT::AUDIOWAVE_LOADING_FAILED: '" << this->filename << "'\n";
-        float* buffer = new float[44100];
-        memset(buffer, 0, 44100 * sizeof(float));
-        this->source.loadRawWave(buffer, 44100, 1, 44100);
-        delete[] buffer;
+        this->source.loadMem(AUDIO_EMPTY, AUDIO_EMPTY_LEN);
     }
 
 }
