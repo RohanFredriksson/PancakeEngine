@@ -115,15 +115,15 @@ void Scene::update(float dt) {
 
     // Check for events.
     if (KeyListener::isKeyDown()) {for (const auto& pair : this->keyDownComponents) {
-        dynamic_cast<KeyDown*>(pair.second)->keyDownCallback();
+        dynamic_cast<KeyDown*>(pair.second)->onKeyDown();
     }}
 
     if (MouseListener::isMouseDown()) {for (const auto& pair : this->mouseDownComponents) {
-        dynamic_cast<MouseDown*>(pair.second)->mouseDownCallback();
+        dynamic_cast<MouseDown*>(pair.second)->onMouseDown();
     }}
 
     if (MouseListener::isMouseDragging()) {for (const auto& pair : this->mouseDraggingComponents) {
-        dynamic_cast<MouseDragging*>(pair.second)->mouseDraggingCallback();
+        dynamic_cast<MouseDragging*>(pair.second)->onMouseDragging();
     }}
 
     // Update all the entities.

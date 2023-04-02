@@ -82,17 +82,17 @@ namespace ComponentFactory {
 
 class KeyDown {
     public: 
-        virtual void keyDownCallback();
+        virtual void onKeyDown();
 };
 
 class MouseDown {
     public: 
-        virtual void mouseDownCallback();
+        virtual void onMouseDown();
 };
 
 class MouseDragging {
     public: 
-        virtual void mouseDraggingCallback();
+        virtual void onMouseDragging();
 };
 
 #include "pancake/core/entity.hpp"

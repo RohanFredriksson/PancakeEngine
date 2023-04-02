@@ -201,14 +201,14 @@ namespace ComponentFactory {
 
 }
 
-void KeyDown::keyDownCallback() {
+void KeyDown::onKeyDown() {
 
 }
 
-void MouseDown::mouseDownCallback() {
+void MouseDown::onMouseDown() {
 
 }
 
-void MouseDragging::mouseDraggingCallback() {
+void MouseDragging::onMouseDragging() {
 
 }
