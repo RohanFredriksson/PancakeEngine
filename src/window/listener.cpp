@@ -153,6 +153,10 @@ bool MouseListener::isMouseBeginDown(int button) {
     return false;
 }
 
+bool MouseListener::hasMouseMoved() {
+    return x != lastX || y != lastY;
+}
+
 bool MouseListener::isMouseDragging() {
     return mouseDragging;
 }

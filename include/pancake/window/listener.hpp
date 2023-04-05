@@ -22,6 +22,7 @@ namespace MouseListener {
     bool isMouseDown(int button);
     bool isMouseDown();
     bool isMouseBeginDown(int button);
+    bool hasMouseMoved();
     bool isMouseDragging();
     double getX();
     double getY();

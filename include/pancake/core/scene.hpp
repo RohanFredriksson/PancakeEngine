@@ -22,10 +22,6 @@ class Scene {
         unordered_map<int, Entity*> entities;
         unordered_map<int, Component*> components;
         
-        unordered_map<int, Component*> keyDownComponents;
-        unordered_map<int, Component*> mouseDownComponents;
-        unordered_map<int, Component*> mouseDraggingComponents;
-        
         Camera* camera;
         Renderer* renderer;
         World* physics;

@@ -197,15 +197,3 @@ namespace ComponentFactory {
     }
 
 }
-
-void KeyDown::onKeyDown() {
-
-}
-
-void MouseDown::onMouseDown() {
-
-}
-
-void MouseDragging::onMouseDragging() {
-
-}

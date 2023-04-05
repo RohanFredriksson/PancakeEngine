@@ -73,11 +73,6 @@ void Scene::addNewComponents() {
             if (dynamic_cast<SpriteRenderer*>(c) != nullptr) {this->renderer->add((SpriteRenderer*) c);}
             if (dynamic_cast<Rigidbody*>(c) != nullptr) {this->physics->add((Rigidbody*) c);}
 
-            // If the component has an event register it to the event system.
-            if (dynamic_cast<KeyDown*>(c) != nullptr) {this->keyDownComponents[c->getId()] = c;}
-            if (dynamic_cast<MouseDown*>(c) != nullptr) {this->mouseDownComponents[c->getId()] = c;}
-            if (dynamic_cast<MouseDragging*>(c) != nullptr) {this->mouseDraggingComponents[c->getId()] = c;}
-            
             // Add the component to the map for quick lookups.
             this->components[c->getId()] = c;
         }
@@ -94,9 +89,6 @@ void Scene::removeDeadComponents() {
         Entity* e = x.second;
         for (int id : e->getDeadComponentIds()) {
             this->components.erase(id);
-            this->keyDownComponents.erase(id);
-            this->mouseDownComponents.erase(id);
-            this->mouseDraggingComponents.erase(id);
         }
         e->clearDeadComponentIds();
     }
@@ -112,19 +104,6 @@ void Scene::update(float dt) {
     this->camera->adjustProjection();
     this->camera->update(dt);
     this->physics->update(dt); // This will update colliding components
-
-    // Check for events.
-    if (KeyListener::isKeyDown()) {for (const auto& pair : this->keyDownComponents) {
-        dynamic_cast<KeyDown*>(pair.second)->onKeyDown();
-    }}
-
-    if (MouseListener::isMouseDown()) {for (const auto& pair : this->mouseDownComponents) {
-        dynamic_cast<MouseDown*>(pair.second)->onMouseDown();
-    }}
-
-    if (MouseListener::isMouseDragging()) {for (const auto& pair : this->mouseDraggingComponents) {
-        dynamic_cast<MouseDragging*>(pair.second)->onMouseDragging();
-    }}
 
     // Update all the entities.
     deque<int> deadIds;
@@ -153,9 +132,6 @@ void Scene::update(float dt) {
         // Remove all components associated with the entity from the map.
         for (Component* c : e->getComponents()) {
             this->components.erase(c->getId());
-            this->keyDownComponents.erase(c->getId());
-            this->mouseDownComponents.erase(c->getId());
-            this->mouseDraggingComponents.erase(c->getId());
         }
 
         // Delete the entity.

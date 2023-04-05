@@ -79,19 +79,4 @@ namespace ComponentFactory {
     Component* load(json);
 }
 
-class KeyDown {
-    public: 
-        virtual void onKeyDown();
-};
-
-class MouseDown {
-    public: 
-        virtual void onMouseDown();
-};
-
-class MouseDragging {
-    public: 
-        virtual void onMouseDragging();
-};
-
 #include "pancake/core/entity.hpp"
