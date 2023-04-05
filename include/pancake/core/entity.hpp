@@ -25,7 +25,7 @@ class Entity {
         float rotation;
         bool dead;
 
-        void init(int id, vec2 position, vec2 size, float radians);
+        void init(int id, vec2 position, vec2 size, float radians, bool load);
 
     public:
 

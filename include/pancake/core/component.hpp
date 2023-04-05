@@ -21,7 +21,7 @@ class Component {
         Entity* entity;
         bool dead;
 
-        void init(int id, string type);
+        void init(int id, string type, bool load);
 
     public:
 

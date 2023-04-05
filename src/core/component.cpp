@@ -9,19 +9,20 @@ namespace {
     int nextId = 0;
 }
 
-void Component::init(int id, string type) {
+void Component::init(int id, string type, bool load) {
 
     this->id = id;
     this->type = type;
     this->entity = NULL;
     this->dead = false;
 
-    nextId = std::max(nextId, id) + 1;
+    if (load) {nextId = std::max(nextId, id+1);}
+    else {nextId++;}
 
 }
 
 Component::Component(string type) {
-    this->init(nextId, type);
+    this->init(nextId, type, false);
 }
 
 Component::~Component() {
@@ -42,7 +43,7 @@ json Component::serialise() {
 bool Component::load(json j) {
     if (!j.contains("id") || !j["id"].is_number_integer()) {return false;}
     if (!j.contains("type") || !j["type"].is_string()) {return false;}
-    this->init(j["id"], j["type"]);
+    this->init(j["id"], j["type"], true);
     return true;
 }
 

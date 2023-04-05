@@ -1,5 +1,6 @@
 #include <cmath>
 #include <deque>
+#include <algorithm>
 #include <unordered_set>
 #include "pancake/core/entity.hpp"
 #include "pancake/core/component.hpp"
@@ -10,7 +11,7 @@ namespace {
     int nextId = 0;
 }
 
-void Entity::init(int id, vec2 position, vec2 size, float radians) {
+void Entity::init(int id, vec2 position, vec2 size, float radians, bool load) {
 
     this->id = id;
     this->position = position;
@@ -18,16 +19,17 @@ void Entity::init(int id, vec2 position, vec2 size, float radians) {
     this->rotation = radians;
     this->dead = false;
 
-    nextId = std::max(nextId, id) + 1;
+    if (load) {nextId = std::max(nextId, id+1);}
+    else {nextId++;}
 
 }
 
 Entity::Entity(vec2 position, vec2 size, float radians) {
-    this->init(nextId, position, size, radians);
+    this->init(nextId, position, size, radians, false);
 }
 
 Entity::Entity() {
-    this->init(nextId, vec2(0.0f, 0.0f), vec2(0.0f, 0.0f), 0.0f);
+    this->init(nextId, vec2(0.0f, 0.0f), vec2(0.0f, 0.0f), 0.0f, false);
 }
 
 Entity::~Entity() {
@@ -101,7 +103,7 @@ Entity* Entity::load(json j) {
     if (!j.contains("rotation") || !j["rotation"].is_number()) {return NULL;}
 
     Entity* e = new Entity();
-    e->init(j["id"], vec2(j["position"][0], j["position"][1]), vec2(j["size"][0], j["size"][1]), j["rotation"]);
+    e->init(j["id"], vec2(j["position"][0], j["position"][1]), vec2(j["size"][0], j["size"][1]), j["rotation"], true);
 
     if (j.contains("components") && j["components"].is_array()) {
         for (auto element : j["components"]) {
