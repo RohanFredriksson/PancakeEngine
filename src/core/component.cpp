@@ -47,10 +47,6 @@ bool Component::load(json j) {
     return true;
 }
 
-void Component::onCollision(Component* with) {
-    
-}
-
 void Component::kill() {
     this->dead = true;
 }

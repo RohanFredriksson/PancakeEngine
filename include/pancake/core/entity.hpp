@@ -35,7 +35,6 @@ class Entity {
         void update(float dt);
         json serialise();
         static Entity* load(json j);
-        void onCollision(Component* with);
         void kill();
 
         // Getter Methods.

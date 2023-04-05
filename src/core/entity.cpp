@@ -117,12 +117,6 @@ Entity* Entity::load(json j) {
     return e;
 }
 
-void Entity::onCollision(Component* with) {
-    for (Component* c : this->components) {
-        c->onCollision(with);
-    }
-}
-
 void Entity::kill() {
     this->dead = true;
 }

@@ -30,7 +30,6 @@ class Component {
         virtual void update(float dt);
         virtual json serialise();
         virtual bool load(json j);
-        virtual void onCollision(Component* with);
         void kill();
         
         int getId();
