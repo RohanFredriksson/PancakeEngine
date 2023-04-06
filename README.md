@@ -23,6 +23,11 @@ git submodule update --init --recursive
 3. Construct your own game components by creating new classes inheriting from the Component Class.
 4. Construct a Scene Initialiser Method which will be executed on game start. 
 5. In the src/main file in the template, update the template to run the game.
+6. To build the game, in the build directory in the template run the following commands.
+```
+cmake ..
+make
+```
 
 ## Example
 ```
