@@ -88,19 +88,19 @@ json Entity::serialise() {
 
 Entity* Entity::load(json j) {
 
-    if (!j.contains("id") || !j["id"].is_number_integer()) {return NULL;}
+    if (!j.contains("id") || !j["id"].is_number_integer()) {return nullptr;}
 
-    if (!j.contains("position") || !j["position"].is_array()) {return NULL;}
-    if (j["position"].size() != 2) {return NULL;}
-    if (!j["position"][0].is_number()) {return NULL;}
-    if (!j["position"][1].is_number()) {return NULL;}
+    if (!j.contains("position") || !j["position"].is_array()) {return nullptr;}
+    if (j["position"].size() != 2) {return nullptr;}
+    if (!j["position"][0].is_number()) {return nullptr;}
+    if (!j["position"][1].is_number()) {return nullptr;}
 
-    if (!j.contains("size") || !j["size"].is_array()) {return NULL;}
-    if (j["size"].size() != 2) {return NULL;}
-    if (!j["size"][0].is_number()) {return NULL;}
-    if (!j["size"][1].is_number()) {return NULL;}
+    if (!j.contains("size") || !j["size"].is_array()) {return nullptr;}
+    if (j["size"].size() != 2) {return nullptr;}
+    if (!j["size"][0].is_number()) {return nullptr;}
+    if (!j["size"][1].is_number()) {return nullptr;}
 
-    if (!j.contains("rotation") || !j["rotation"].is_number()) {return NULL;}
+    if (!j.contains("rotation") || !j["rotation"].is_number()) {return nullptr;}
 
     Entity* e = new Entity();
     e->init(j["id"], vec2(j["position"][0], j["position"][1]), vec2(j["size"][0], j["size"][1]), j["rotation"], true);
@@ -109,7 +109,7 @@ Entity* Entity::load(json j) {
         for (auto element : j["components"]) {
             if (element.is_object()) {
                 Component* c = ComponentFactory::load(element);
-                if (c != NULL) {e->addComponent(c);}
+                if (c != nullptr) {e->addComponent(c);}
             }
         }
     }
@@ -159,7 +159,7 @@ Component* Entity::getComponentByType(string type) {
             return c;
         }
     }
-    return NULL;
+    return nullptr;
 }
 
 void Entity::setPosition(vec2 position) {
@@ -198,7 +198,7 @@ void Entity::addRotation(float radians) {
     for (Component* c : this->components) {
 
         TransformableComponent* t = dynamic_cast<TransformableComponent*>(c);
-        if (t != NULL) {
+        if (t != nullptr) {
             vec2 offset = t->getPositionOffset();
             float x = (offset.x * rCos) - (offset.y * rSin);
             float y = (offset.x * rSin) + (offset.y * rCos);
@@ -233,7 +233,7 @@ void Entity::addRotationAround(float radians, vec2 around) {
     for (Component* c : this->components) {
 
         TransformableComponent* t = dynamic_cast<TransformableComponent*>(c);
-        if (t != NULL) {
+        if (t != nullptr) {
             vec2 offset = t->getPositionOffset();
             float x = (offset.x * rCos) - (offset.y * rSin);
             float y = (offset.x * rSin) + (offset.y * rCos);

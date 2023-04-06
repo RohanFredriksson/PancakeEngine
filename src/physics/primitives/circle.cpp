@@ -1,9 +1,5 @@
 #include "pancake/physics/primitives/circle.hpp"
 
-Collider* Circle::create() {
-    return new Circle();
-}
-
 Circle::Circle() : Collider("Circle") {
     this->radius = 0.5f;
 }

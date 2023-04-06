@@ -21,7 +21,7 @@ RaycastResult::RaycastResult() {
     this->point = glm::vec2(0.0f, 0.0f);
     this->normal = glm::vec2(0.0f, 0.0f);
     this->distance = 0.0f;
-    this->hit = NULL;
+    this->hit = nullptr;
 }
 
 namespace {
@@ -77,7 +77,7 @@ namespace Raycast {
     RaycastResult raycast(Rigidbody* rigidbody, Ray* ray) {
 
         //Collider* collider = rigidbody->getCollider();
-        //if (collider == NULL) {return RaycastResult();}
+        //if (collider == nullptr) {return RaycastResult();}
 
         //if (dynamic_cast<Box*>(collider) != nullptr) {
         //    return raycastBox((Box*) collider, ray);

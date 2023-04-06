@@ -47,7 +47,7 @@ class Collider {
 };
 
 namespace ColliderFactory {
-    void add(string type, Collider* (*create)());
+    void add(string type, void* (*create)());
     Collider* create(string type);
     Collider* load(json);
 }

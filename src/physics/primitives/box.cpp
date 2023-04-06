@@ -1,10 +1,6 @@
 #include <limits>
 #include "pancake/physics/primitives/box.hpp"
 
-Collider* Box::create() {
-    return new Box();
-}
-
 Box::Box() : Collider("Box")  {
     this->size = vec2(1.0f, 1.0f);
     this->halfSize = this->size * 0.5f;

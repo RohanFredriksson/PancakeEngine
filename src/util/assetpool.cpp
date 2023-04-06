@@ -89,7 +89,7 @@ Texture* TexturePool::get(string name) {
 void SpritePool::init() {
 
     // Add the empty sprite to the pool
-    Sprite* empty = new Sprite("empty", NULL);
+    Sprite* empty = new Sprite("empty", nullptr);
     SpritePool::put(empty);
 
     // Add the missing sprite to the pool

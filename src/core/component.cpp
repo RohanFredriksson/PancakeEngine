@@ -13,7 +13,7 @@ void Component::init(int id, string type, bool load) {
 
     this->id = id;
     this->type = type;
-    this->entity = NULL;
+    this->entity = nullptr;
     this->dead = false;
 
     if (load) {nextId = std::max(nextId, id+1);}
@@ -166,31 +166,31 @@ void TransformableComponent::addRotationOffset(float offset) {
 }
 
 namespace{
-    unordered_map<string, Component*(*)()> components;
+    unordered_map<string, void*(*)()> components;
 }
 
 namespace ComponentFactory {
 
-    void add(string type, Component*(*method)()) {
+    void add(string type, void*(*method)()) {
         components[type] = method;
     }
 
     Component* create(string type) {
         auto search = components.find(type);
-        if (search == components.end()) {return NULL;}
-        return search->second();
+        if (search == components.end()) {return nullptr;}
+        return (Component*)(search->second());
     }
 
     Component* load(json j) {
         
-        if (!j.contains("type") || !j["type"].is_string()) {return NULL;}
+        if (!j.contains("type") || !j["type"].is_string()) {return nullptr;}
         auto search = components.find(j["type"]);
-        if (search == components.end()) {return NULL;}
+        if (search == components.end()) {return nullptr;}
 
-        Component* component = search->second();
+        Component* component = (Component*)(search->second());
         if (!component->load(j)) {
             delete component; // This line currently crashes the program.
-            return NULL;
+            return nullptr;
         }
 
         return component;

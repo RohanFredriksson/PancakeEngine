@@ -10,7 +10,6 @@ class Circle : public Collider {
 
     public:
 
-        static Collider* create();
         Circle();
         json serialise() override;
         bool load(json j) override;

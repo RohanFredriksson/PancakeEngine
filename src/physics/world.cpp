@@ -146,7 +146,7 @@ void World::fixedUpdate() {
                     Collider* collider2 = colliders2[l];
 
                     CollisionManifold* result = Collision::findCollisionFeatures(collider1, collider2);
-                    if (result != NULL) {results.push_back(result);}
+                    if (result != nullptr) {results.push_back(result);}
 
                 }
             }
@@ -267,7 +267,7 @@ RaycastResult World::raycast(Ray* ray) {
     int n = this->rigidbodies.size();
     for (int i = 0; i < n; i++) {
         RaycastResult current = Raycast::raycast(this->rigidbodies[i], ray);
-        if (current.hit != NULL && current.distance < bestDistance) {
+        if (current.hit != nullptr && current.distance < bestDistance) {
             bestDistance = current.distance;
             best = current;
             hit = true;

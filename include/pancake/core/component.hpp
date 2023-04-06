@@ -74,7 +74,7 @@ class TransformableComponent : public Component {
 };
 
 namespace ComponentFactory {
-    void add(string type, Component* (*create)());
+    void add(string type, void* (*create)());
     Component* create(string type);
     Component* load(json);
 }

@@ -40,8 +40,8 @@ namespace {
         glfwWindowHint(GLFW_FOCUS_ON_SHOW, GLFW_TRUE);
 
         // Create the window
-        window = glfwCreateWindow(width, height, "Pancake", NULL, NULL);
-        if (window == NULL) {
+        window = glfwCreateWindow(width, height, "Pancake", nullptr, nullptr);
+        if (window == nullptr) {
             std::cout << "ERROR::WINDOW::GLFW_WINDOW_CREATION_FAILED\n";
             return false;
         }

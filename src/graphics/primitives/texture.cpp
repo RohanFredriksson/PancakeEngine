@@ -12,7 +12,7 @@ void Texture::init(string name, unsigned char* image, int width, int height, int
     this->width = width;
     this->height = height;
 
-    if (image != NULL && (channels == 3 || channels == 4)) {
+    if (image != nullptr && (channels == 3 || channels == 4)) {
 
         // Generate the texture on the GPU.
         glGenTextures(1, &this->id);

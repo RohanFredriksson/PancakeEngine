@@ -89,7 +89,7 @@ namespace {
         // Determine if the two circles are colliding.
         float sumRadii = a->getRadius() + b->getRadius();
         vec2 distance = bPosition - aPosition;
-        if (glm::dot(distance, distance) - (sumRadii * sumRadii) > 0) {return NULL;}
+        if (glm::dot(distance, distance) - (sumRadii * sumRadii) > 0) {return nullptr;}
 
         // Find the depth and normal of the collision
         float depth = fabsf(glm::length(distance) - sumRadii) * 0.5f;
@@ -310,7 +310,7 @@ namespace {
             return new CollisionManifold(normal, contactPoint, depth);
         }
 
-        return NULL;
+        return nullptr;
     }
 
     CollisionManifold* findCollisionFeaturesCircleAndBox(Circle* c, Box* b, bool flip) {
@@ -445,7 +445,7 @@ namespace {
             return new CollisionManifold(normal, contactPoint, depth);
         }
         
-        return NULL;
+        return nullptr;
     }
 
 }
@@ -459,7 +459,7 @@ namespace Collision {
         if (dynamic_cast<Circle*>(c1) != nullptr && dynamic_cast<Box*>(c2) != nullptr) {return findCollisionFeaturesCircleAndBox((Circle*) c1, (Box*) c2, false);}
         if (dynamic_cast<Box*>(c1) != nullptr && dynamic_cast<Circle*>(c2) != nullptr) {return findCollisionFeaturesCircleAndBox((Circle*) c2, (Box*) c1, true);}
 
-        return NULL;
+        return nullptr;
     }
 
 }

@@ -30,7 +30,7 @@ namespace {
     const int MAX_TEXTURES_SIZE = 7;
     const int MAX_BATCH_SIZE = 1000;
 
-    Shader* boundShader = NULL;
+    Shader* boundShader = nullptr;
 
 }
 
@@ -55,7 +55,7 @@ void Renderer::add(SpriteRenderer* sprite) {
     // Try and put the sprite in any of the preexisting batches.
     for (RenderBatch* current : this->batches) {
         if (current->hasRoom() && current->getZIndex() == sprite->getZIndex()) {
-            if (sprite->getSprite()->getTexture() == NULL || current->hasTexture(sprite->getSprite()->getTexture()) || current->hasTextureRoom()) {
+            if (sprite->getSprite()->getTexture() == nullptr || current->hasTexture(sprite->getSprite()->getTexture()) || current->hasTextureRoom()) {
                 current->addSprite(sprite);
                 return;
             }
@@ -116,7 +116,7 @@ RenderBatch::RenderBatch(Renderer* renderer, int zIndex) {
     // Allocate space for vertices
     glGenBuffers(1, &this->vbo);
     glBindBuffer(GL_ARRAY_BUFFER, this->vbo);
-    glBufferData(GL_ARRAY_BUFFER, MAX_BATCH_SIZE * 4 * VERTEX_SIZE_BYTES, NULL, GL_DYNAMIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, MAX_BATCH_SIZE * 4 * VERTEX_SIZE_BYTES, nullptr, GL_DYNAMIC_DRAW);
 
     // Create and upload the indices buffer.
     unsigned int ebo;
@@ -189,7 +189,7 @@ void RenderBatch::loadVertexProperties(int index) {
     vec2* texCoords = sprite->getSprite()->getTexCoords();
 
     int texId = 0;
-    if (sprite->getSprite()->getTexture() != NULL) {
+    if (sprite->getSprite()->getTexture() != nullptr) {
         for (int i = 0; i < this->textures.size(); i++) {
             if (this->textures[i] == sprite->getSprite()->getTexture()) {
                 texId = i + 1;
@@ -273,7 +273,7 @@ void RenderBatch::render() {
 
         if (current->isDirty()) {
 
-            if ((!this->hasTexture(current->getSprite()->getTexture()) && current->getSprite()->getTexture() != NULL) || (current->getZIndex() != this->zIndex)) {
+            if ((!this->hasTexture(current->getSprite()->getTexture()) && current->getSprite()->getTexture() != nullptr) || (current->getZIndex() != this->zIndex)) {
                 this->removeSprite(current);
                 this->renderer->add(current);
                 i--;
@@ -333,7 +333,7 @@ void RenderBatch::addSprite(SpriteRenderer* sprite) {
     this->sprites.push_back(sprite);
 
     // Add the sprite's texture, if the batch does not have it.
-    if (sprite->getSprite()->getTexture() != NULL) {
+    if (sprite->getSprite()->getTexture() != nullptr) {
         this->addTexture(sprite->getSprite()->getTexture());
     }
 
@@ -370,8 +370,8 @@ void RenderBatch::addTexture(Texture* texture) {
 
 void RenderBatch::removeTextureIfNotUsed(Texture* texture) {
 
-    // If the texture is NULL, we don't need to remove it.
-    if (texture == NULL) {return;}
+    // If the texture is nullptr, we don't need to remove it.
+    if (texture == nullptr) {return;}
 
     // Check if any sprite in the batch uses the texture,
     // If no sprite does, we can remove it.

@@ -14,15 +14,26 @@
 
 namespace {
 
+    // Methods to create polymorphic components.
+    void* AudioPlayerCreate()    {return new AudioPlayer();}
+    void* SpriteRendererCreate() {return new SpriteRenderer();}
+    void* TextRendererCreate()   {return new TextRenderer();}
+    void* RigidbodyCreate()      {return new Rigidbody();}
+
+    // Methods to create polymorphic colliders.
+    void* BoxCreate()    {return new Box();}
+    void* CircleCreate() {return new Circle();}
+
     void registry() {
         
-        ComponentFactory::add("AudioPlayer", AudioPlayer::create);
-        ComponentFactory::add("SpriteRenderer", SpriteRenderer::create);
-        ComponentFactory::add("TextRenderer", TextRenderer::create);
-        ComponentFactory::add("Rigidbody", Rigidbody::create);
+        // Add these methods to their corresponding factories, so we can load game state from files.
+        ComponentFactory::add("AudioPlayer", AudioPlayerCreate);
+        ComponentFactory::add("SpriteRenderer", SpriteRendererCreate);
+        ComponentFactory::add("TextRenderer", TextRendererCreate);
+        ComponentFactory::add("Rigidbody", RigidbodyCreate);
 
-        ColliderFactory::add("Box", Box::create);
-        ColliderFactory::add("Circle", Circle::create);
+        ColliderFactory::add("Box", BoxCreate);
+        ColliderFactory::add("Circle", CircleCreate);
     
     }
 

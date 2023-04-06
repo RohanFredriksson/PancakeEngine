@@ -4,10 +4,6 @@
 #include "pancake/physics/primitives/rigidbody.hpp"
 #include "pancake/window/window.hpp"
 
-Component* Rigidbody::create() {
-    return new Rigidbody();
-}
-
 Rigidbody::Rigidbody() : Component("Rigidbody") {
 
     this->force = vec2(0.0f, 0.0f);
@@ -96,7 +92,7 @@ bool Rigidbody::load(json j) {
         for (auto element : j["colliders"]) {
             if (element.is_object()) {
                 Collider* c = ColliderFactory::load(element);
-                if (c != NULL) {this->addCollider(c);}
+                if (c != nullptr) {this->addCollider(c);}
             }
         }
     }
@@ -232,7 +228,7 @@ bool Rigidbody::hasFixedOrientation() {
 }
 
 Rigidbody* Rigidbody::addCollider(Collider* collider) {
-    if (collider != NULL) {
+    if (collider != nullptr) {
         this->colliders.push_back(collider);
         collider->setRigidbody(this);
         this->centroidDirty = true;

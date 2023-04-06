@@ -20,7 +20,7 @@ Scene::Scene(string name, void (*init)(Scene* scene)) {
     this->camera = new Camera(vec2(0.0f, 0.0f), vec2(12.0f, 12.0f), 1.0f);
     this->renderer = new Renderer();
     this->physics = new World(1.0f / 60.0f, vec2(0.0f, -10.0f));
-    if (init != NULL) {init(this);}
+    if (init != nullptr) {init(this);}
 
 }
 
@@ -41,7 +41,7 @@ Scene::Scene(string name, string filename, void (*init)(Scene* scene)) {
     this->renderer = new Renderer();
     this->physics = new World(1.0f / 60.0f, vec2(0.0f, -10.0f));
     this->load(filename);
-    if (init != NULL) {init(this);}
+    if (init != nullptr) {init(this);}
 
 }
 
@@ -243,7 +243,7 @@ void Scene::load(string filename) {
         for (auto element : j["entities"]) {
             if (element.is_object()) {
                 Entity* e = Entity::load(element);
-                if (e != NULL) {this->addEntity(e);}
+                if (e != nullptr) {this->addEntity(e);}
             }
         }
     }
@@ -269,14 +269,14 @@ void Scene::addEntity(Entity* entity) {
 
 Entity* Scene::getEntityById(int id) {
     auto search = this->entities.find(id);
-    if (search == this->entities.end()) {return NULL;}
+    if (search == this->entities.end()) {return nullptr;}
     Entity* e = search->second;
     return e;
 }
 
 Component* Scene::getComponentById(int id) {
     auto search = this->components.find(id);
-    if (search == this->components.end()) {return NULL;}
+    if (search == this->components.end()) {return nullptr;}
     Component* c = search->second;
     return c;
 }

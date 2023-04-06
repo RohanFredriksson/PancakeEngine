@@ -9,7 +9,7 @@ using glm::value_ptr;
 char* Shader::loadSource(const char * filename) {
 
     FILE* f = fopen(filename, "r");
-    if (f == NULL) {return NULL;}
+    if (f == nullptr) {return nullptr;}
 
     size_t size = 16;
     size_t length = 0;
@@ -49,25 +49,25 @@ void Shader::load(const char* vertexCode, const char* fragmentCode) {
 
     // Vertex shader compilation.
     v = glCreateShader(GL_VERTEX_SHADER);
-    glShaderSource(v, 1, (char const * const *)&(vertexCode), NULL);
+    glShaderSource(v, 1, (char const * const *)&(vertexCode), nullptr);
     glCompileShader(v);
 
     // Check for compilation errors.
     glGetShaderiv(v, GL_COMPILE_STATUS, &success);
     if (!success) {
-        glGetShaderInfoLog(v, 512, NULL, infoLog);
+        glGetShaderInfoLog(v, 512, nullptr, infoLog);
         std::cout << "ERROR::SHADER::VERTEX::COMPILATION_FAILED\n" << infoLog << "\n";
     }
 
     // Fragment shader compilation.
     f = glCreateShader(GL_FRAGMENT_SHADER);
-    glShaderSource(f, 1, (char const * const *)&(fragmentCode), NULL);
+    glShaderSource(f, 1, (char const * const *)&(fragmentCode), nullptr);
     glCompileShader(f);
 
     // Check for compilation errors.
     glGetShaderiv(f, GL_COMPILE_STATUS, &success);
     if (!success) {
-        glGetShaderInfoLog(f, 512, NULL, infoLog);
+        glGetShaderInfoLog(f, 512, nullptr, infoLog);
         std::cout << "ERROR::SHADER::FRAGMENT::COMPILATION_FAILED\n" << infoLog << "\n";
     }
 
@@ -80,7 +80,7 @@ void Shader::load(const char* vertexCode, const char* fragmentCode) {
     // Check if any errors occurred in linking.
     glGetProgramiv(this->program, GL_LINK_STATUS, &success);
     if (!success) {
-        glGetProgramInfoLog(this->program, 512, NULL, infoLog);
+        glGetProgramInfoLog(this->program, 512, nullptr, infoLog);
         std::cout << "ERROR::SHADER::PROGRAM::LINKING_FAILED\n" << infoLog << "\n";
     }
 
@@ -97,8 +97,8 @@ Shader::Shader(string vertexFile, string fragmentFile) {
     // Load shader code
     char* vertexCode = Shader::loadSource(vertexFile.c_str());
     char* fragmentCode = Shader::loadSource(fragmentFile.c_str());
-    if (vertexCode == NULL) {std::cout << "ERROR::SHADER::COMPILE::VERTEX_SOURCE_NOT_FOUND\n";}
-    if (vertexCode == NULL) {std::cout << "ERROR::SHADER::COMPILE::FRAGMENT_SOURCE_NOT_FOUND\n";}
+    if (vertexCode == nullptr) {std::cout << "ERROR::SHADER::COMPILE::VERTEX_SOURCE_NOT_FOUND\n";}
+    if (vertexCode == nullptr) {std::cout << "ERROR::SHADER::COMPILE::FRAGMENT_SOURCE_NOT_FOUND\n";}
 
     // Load the shader.
     this->load((const char*) vertexCode, (const char*) fragmentCode);

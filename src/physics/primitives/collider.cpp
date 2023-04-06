@@ -5,7 +5,7 @@
 using std::unordered_map;
 
 void Collider::init(string type, float mass, vec2 positionOffset, float rotationOffset) {
-    this->rigidbody = NULL;
+    this->rigidbody = nullptr;
     this->type = type;
     this->mass = mass;
     this->positionOffset = positionOffset;
@@ -94,7 +94,7 @@ Collider* Collider::setRigidbody(Rigidbody* rigidbody) {
 
 Collider* Collider::setMass(float mass) {
 
-    if (this->rigidbody != NULL) {
+    if (this->rigidbody != nullptr) {
         this->rigidbody->setCentroidDirty();
         this->rigidbody->setMomentDirty();
         this->rigidbody->setMassDirty();
@@ -107,7 +107,7 @@ Collider* Collider::setMass(float mass) {
 
 Collider* Collider::setPositionOffset(vec2 offset){
 
-    if (this->rigidbody != NULL) {
+    if (this->rigidbody != nullptr) {
         this->rigidbody->setCentroidDirty();
         this->rigidbody->setMomentDirty();
     }
@@ -118,7 +118,7 @@ Collider* Collider::setPositionOffset(vec2 offset){
 
 Collider* Collider::setRotationOffset(float offset) {
 
-    if (this->rigidbody != NULL) {
+    if (this->rigidbody != nullptr) {
         this->rigidbody->setCentroidDirty();
         this->rigidbody->setMomentDirty();
     }
@@ -129,7 +129,7 @@ Collider* Collider::setRotationOffset(float offset) {
 
 Collider* Collider::setPositionOffset(vec2 offset, bool update) {
 
-    if (update && this->rigidbody != NULL) {
+    if (update && this->rigidbody != nullptr) {
         this->rigidbody->setCentroidDirty();
         this->rigidbody->setMomentDirty();
     }
@@ -140,7 +140,7 @@ Collider* Collider::setPositionOffset(vec2 offset, bool update) {
 
 Collider* Collider::setRotationOffset(float offset, bool update) {
 
-    if (update && this->rigidbody != NULL) {
+    if (update && this->rigidbody != nullptr) {
         this->rigidbody->setCentroidDirty();
         this->rigidbody->setMomentDirty();
     }
@@ -150,31 +150,32 @@ Collider* Collider::setRotationOffset(float offset, bool update) {
 }
 
 namespace {
-    unordered_map<string, Collider*(*)()> colliders;
+    unordered_map<string, void*(*)()> colliders;
 }
 
 namespace ColliderFactory {
 
-    void add(string type, Collider*(*method)()) {
+    void add(string type, void*(*method)()) {
         colliders[type] = method;
     }
 
     Collider* create(string type) {
         auto search = colliders.find(type);
-        if (search == colliders.end()) {return NULL;}
-        return search->second();
+        if (search == colliders.end()) {return nullptr;}
+        return (Collider*)(search->second());
     }
 
     Collider* load(json j) {
         
-        if (!j.contains("type") || !j["type"].is_string()) {return NULL;}
+        if (!j.contains("type") || !j["type"].is_string()) {return nullptr;}
         auto search = colliders.find(j["type"]);
-        if (search == colliders.end()) {return NULL;}
+        if (search == colliders.end()) {return nullptr;}
         
-        Collider* collider = search->second();
+        Collider* collider = (Collider*)(search->second());
+        if (collider == nullptr) {return nullptr;}
         if (!collider->load(j)) {
             delete collider; 
-            return NULL;
+            return nullptr;
         }
 
         return collider;

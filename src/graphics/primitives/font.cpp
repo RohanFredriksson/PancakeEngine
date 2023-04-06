@@ -155,7 +155,7 @@ Font::Font(string filename, float size) {
     long fileSize;
     unsigned char* fontBuffer;
     FILE* fontFile = fopen(filename.c_str(), "rb");
-    if (fontFile == NULL) {
+    if (fontFile == nullptr) {
 
         // If the file could not be found, just load the default font in it's place.
         std::cout << "ERROR::FONT::INIT::FILE_NOT_FOUND: '" << filename << "'\n";
@@ -241,7 +241,7 @@ int Font::getAdvance(char code) {
 
 Sprite* Font::getSprite(char code) {
     int index = (int) code;
-    if (index < 0 || index > NUM_CHARACTERS) {return NULL;}
+    if (index < 0 || index > NUM_CHARACTERS) {return nullptr;}
     return this->sprites[index];
 }
 

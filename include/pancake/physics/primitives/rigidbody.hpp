@@ -36,7 +36,6 @@ class Rigidbody : public Component {
 
     public:
 
-        static Component* create();
         Rigidbody();
         ~Rigidbody() override;
         json serialise() override;
