@@ -1,6 +1,6 @@
 #include "pancake/audio/audioplayer.hpp"
 #include "pancake/audio/audioengine.hpp"
-#include "pancake/util/assetpool.hpp"
+#include "pancake/asset/assetpool.hpp"
 
 AudioPlayer::AudioPlayer() : Component("AudioPlayer") {
     this->audio = nullptr;

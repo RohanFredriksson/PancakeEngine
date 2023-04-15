@@ -6,8 +6,8 @@
 #include <glm/glm.hpp>
 #include <nlohmann/json.hpp>
 
-#include "pancake/util/spritesheet.hpp"
-#include "pancake/util/assetpool.hpp"
+#include "pancake/asset/spritesheet.hpp"
+#include "pancake/asset/assetpool.hpp"
 
 using std::vector;
 using glm::vec2;

@@ -10,8 +10,8 @@
 #include "pancake/graphics/primitives/shader.hpp"
 #include "pancake/graphics/primitives/framebuffer.hpp"
 #include "pancake/graphics/renderer/debugdraw.hpp"
-#include "pancake/util/assetpool.hpp"
-#include "pancake/util/shaders.hpp"
+#include "pancake/asset/assetpool.hpp"
+#include "pancake/asset/shaders.hpp"
 
 namespace {
 

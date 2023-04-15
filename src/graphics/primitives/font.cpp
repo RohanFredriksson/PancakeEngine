@@ -1,7 +1,7 @@
 #include <iostream>
 #include "pancake/graphics/primitives/font.hpp"
-#include "pancake/util/assetpool.hpp"
-#include "pancake/util/fonts.hpp"
+#include "pancake/asset/assetpool.hpp"
+#include "pancake/asset/fonts.hpp"
 
 //#define STB_IMAGE_WRITE_IMPLEMENTATION
 //#include "stb/stb_image_write.h"

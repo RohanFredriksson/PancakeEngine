@@ -1,5 +1,5 @@
 #include "pancake/graphics/primitives/sprite.hpp"
-#include "pancake/util/assetpool.hpp"
+#include "pancake/asset/assetpool.hpp"
 
 void Sprite::init(string name, Texture* texture, vec2 texCoords[4]) {
     

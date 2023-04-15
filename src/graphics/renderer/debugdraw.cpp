@@ -4,7 +4,7 @@
 #include "pancake/graphics/primitives/shader.hpp"
 #include "pancake/graphics/renderer/debugdraw.hpp"
 #include "pancake/core/window.hpp"
-#include "pancake/util/shaders.hpp"
+#include "pancake/asset/shaders.hpp"
 
 using std::vector;
 

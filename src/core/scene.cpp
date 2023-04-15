@@ -7,7 +7,7 @@
 
 #include "pancake/core/scene.hpp"
 #include "pancake/core/listener.hpp"
-#include "pancake/util/assetpool.hpp"
+#include "pancake/asset/assetpool.hpp"
 
 using std::deque;
 using std::pair;

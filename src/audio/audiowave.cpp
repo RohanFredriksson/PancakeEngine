@@ -1,8 +1,8 @@
 #include <iostream>
 #include <algorithm>
 #include "pancake/audio/audiowave.hpp"
-#include "pancake/util/assetpool.hpp"
-#include "pancake/util/audio.hpp"
+#include "pancake/asset/assetpool.hpp"
+#include "pancake/asset/audio.hpp"
 
 using std::min;
 using std::max;

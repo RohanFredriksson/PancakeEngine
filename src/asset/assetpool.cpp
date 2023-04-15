@@ -2,7 +2,7 @@
 #include <utility>
 #include <iostream>
 #include <unordered_map>
-#include "pancake/util/assetpool.hpp"
+#include "pancake/asset/assetpool.hpp"
 
 using std::pair;
 using std::tuple;
