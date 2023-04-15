@@ -7,9 +7,9 @@
 
 #include "pancake/core/window.hpp"
 #include "pancake/core/listener.hpp"
-#include "pancake/graphics/primitives/shader.hpp"
-#include "pancake/graphics/primitives/framebuffer.hpp"
-#include "pancake/graphics/renderer/debugdraw.hpp"
+#include "pancake/graphics/shader.hpp"
+#include "pancake/graphics/framebuffer.hpp"
+#include "pancake/graphics/debugdraw.hpp"
 #include "pancake/asset/assetpool.hpp"
 #include "pancake/asset/shaders.hpp"
 

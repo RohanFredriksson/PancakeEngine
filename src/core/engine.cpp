@@ -4,13 +4,13 @@
 
 #include "pancake/core/component.hpp"
 #include "pancake/audio/audioplayer.hpp"
-#include "pancake/graphics/renderer/spriterenderer.hpp"
-#include "pancake/graphics/renderer/textrenderer.hpp"
-#include "pancake/physics/primitives/rigidbody.hpp"
+#include "pancake/graphics/spriterenderer.hpp"
+#include "pancake/graphics/textrenderer.hpp"
+#include "pancake/physics/rigidbody.hpp"
 
-#include "pancake/physics/primitives/collider.hpp"
-#include "pancake/physics/primitives/box.hpp"
-#include "pancake/physics/primitives/circle.hpp"
+#include "pancake/physics/collider.hpp"
+#include "pancake/physics/box.hpp"
+#include "pancake/physics/circle.hpp"
 
 namespace {
 

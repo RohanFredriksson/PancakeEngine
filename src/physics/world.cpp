@@ -6,9 +6,9 @@
 #include <glm/gtx/rotate_vector.hpp>
 
 #include "pancake/physics/world.hpp"
-#include "pancake/physics/primitives/box.hpp"
-#include "pancake/physics/primitives/circle.hpp"
-#include "pancake/graphics/renderer/debugdraw.hpp"
+#include "pancake/physics/box.hpp"
+#include "pancake/physics/circle.hpp"
+#include "pancake/graphics/debugdraw.hpp"
 
 namespace {
     

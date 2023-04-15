@@ -3,9 +3,9 @@
 #include <cstring>
 #include <nlohmann/json.hpp>
 
-#include "pancake/graphics/primitives/texture.hpp"
-#include "pancake/graphics/primitives/sprite.hpp"
-#include "pancake/graphics/primitives/font.hpp"
+#include "pancake/graphics/texture.hpp"
+#include "pancake/graphics/sprite.hpp"
+#include "pancake/graphics/font.hpp"
 #include "pancake/audio/audiowave.hpp"
 
 using std::string;

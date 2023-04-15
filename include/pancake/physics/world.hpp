@@ -3,10 +3,10 @@
 #include <vector>
 #include <nlohmann/json.hpp>
 
-#include "pancake/physics/forces/forceregistry.hpp"
-#include "pancake/physics/collision/collision.hpp"
-#include "pancake/physics/forces/gravity.hpp"
-#include "pancake/physics/raycast/raycast.hpp"
+#include "pancake/physics/forceregistry.hpp"
+#include "pancake/physics/collision.hpp"
+#include "pancake/physics/gravity.hpp"
+#include "pancake/physics/raycast.hpp"
 
 using std::vector;
 using json = nlohmann::json;

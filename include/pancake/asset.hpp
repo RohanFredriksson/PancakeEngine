@@ -1,5 +1,0 @@
-#include "pancake/asset/assetpool.hpp"
-#include "pancake/asset/audio.hpp"
-#include "pancake/asset/fonts.hpp"
-#include "pancake/asset/shaders.hpp"
-#include "pancake/asset/spritesheet.hpp"

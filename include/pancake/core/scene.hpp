@@ -7,7 +7,7 @@
 #include "pancake/core/camera.hpp"
 #include "pancake/core/entity.hpp"
 #include "pancake/core/component.hpp"
-#include "pancake/graphics/renderer/renderer.hpp"
+#include "pancake/graphics/renderer.hpp"
 #include "pancake/physics/world.hpp"
 
 using std::string;
