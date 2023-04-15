@@ -94,6 +94,7 @@ void TextRenderer::update(float dt) {
             if (text[i] != ' ') {
                 
                 SpriteRenderer* s = new SpriteRenderer();
+                s->setSerialisable(false);
                 s->setSprite(this->font->getSprite(text[i]));
                 s->setColour(this->colour);
                 s->setZIndex(this->zIndex);

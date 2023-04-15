@@ -165,7 +165,7 @@ json Scene::serialise() {
     j.emplace("entities", json::array());
     for (auto const& x : this->entities) {
         Entity* e = x.second;
-        j["entities"].push_back(e->serialise());
+        if (e->isSerialisable()) {j["entities"].push_back(e->serialise());}
     }
 
     return j;

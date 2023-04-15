@@ -14,6 +14,7 @@ void Component::init(int id, string type, bool load) {
     this->id = id;
     this->type = type;
     this->entity = nullptr;
+    this->serialisable = true;
     this->dead = false;
 
     if (load) {nextId = std::max(nextId, id+1);}
@@ -63,6 +64,10 @@ Entity* Component::getEntity() {
     return this->entity;
 }
 
+bool Component::isSerialisable() {
+    return this->serialisable;
+}
+
 bool Component::isDead() {
     return this->dead;
 }
@@ -73,6 +78,10 @@ void Component::setId(int id) {
 
 void Component::setEntity(Entity* entity) {
     this->entity = entity;
+}
+
+void Component::setSerialisable(bool serialisable) {
+    this->serialisable = serialisable;
 }
 
 TransformableComponent::TransformableComponent(string type) : Component(type) {

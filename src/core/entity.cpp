@@ -17,6 +17,7 @@ void Entity::init(int id, vec2 position, vec2 size, float radians, bool load) {
     this->position = position;
     this->size = size;
     this->rotation = radians;
+    this->serialisable = true;
     this->dead = false;
 
     if (load) {nextId = std::max(nextId, id+1);}
@@ -80,7 +81,7 @@ json Entity::serialise() {
     
     j.emplace("components", json::array());
     for (Component* c : this->components) {
-        j["components"].push_back(c->serialise());
+        if (c->isSerialisable()) {j["components"].push_back(c->serialise());}
     }
 
     return j;
@@ -149,6 +150,10 @@ float Entity::getRotation() {
     return this->rotation;
 }
 
+bool Entity::isSerialisable() {
+    return this->serialisable;
+}
+
 bool Entity::isDead() {
     return this->dead;
 }
@@ -172,6 +177,10 @@ void Entity::setSize(vec2 size) {
 
 void Entity::setRotation(float radians) {
     this->rotation = radians;
+}
+
+void Entity::setSerialisable(bool serialisable) {
+    this->serialisable = serialisable;
 }
 
 void Entity::addPosition(vec2 position) {

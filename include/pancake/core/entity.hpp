@@ -23,6 +23,7 @@ class Entity {
         vec2 position;
         vec2 size;
         float rotation;
+        bool serialisable;
         bool dead;
 
         void init(int id, vec2 position, vec2 size, float radians, bool load);
@@ -45,6 +46,7 @@ class Entity {
         vec2 getPosition();
         vec2 getSize();
         float getRotation();
+        bool isSerialisable();
         bool isDead();
 
         // Getter Component Methods.
@@ -55,6 +57,7 @@ class Entity {
         void setPosition(vec2 position);
         void setSize(vec2 size);
         void setRotation(float radians);
+        void setSerialisable(bool serialisable);
 
         // Adder Methods.
         void addPosition(vec2 position);

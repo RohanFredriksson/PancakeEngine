@@ -19,6 +19,7 @@ class Component {
         int id;
         string type;
         Entity* entity;
+        bool serialisable;
         bool dead;
 
         void init(int id, string type, bool load);
@@ -35,10 +36,12 @@ class Component {
         int getId();
         string getType();
         Entity* getEntity();
+        bool isSerialisable();
         bool isDead();
         
         void setId(int id);
         void setEntity(Entity* entity);
+        void setSerialisable(bool serialisable);
 
 };
 
