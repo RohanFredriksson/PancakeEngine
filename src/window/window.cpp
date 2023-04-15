@@ -18,7 +18,13 @@ namespace {
     GLFWwindow* window;
     int width = 800;
     int height = 800;
+
+    bool saveFlag;
+    string saveFilename;
+
     Scene* scene;
+    Scene* next = nullptr;
+
     Shader* defaultShader;
     Shader* entityShader;
     Framebuffer* entityTexture;
@@ -146,6 +152,26 @@ namespace Window {
         return true;
     }
 
+    void load(string name, string filename, void(*init)(Scene* scene)) {
+        if (next != nullptr) {delete next;}
+        next = new Scene(name, filename, init);
+    }
+
+    void load(string name, void(*init)(Scene* scene)) {
+        if (next != nullptr) {delete next;}
+        next = new Scene(name, init);
+    }
+
+    void load(string name, string filename) {
+        if (next != nullptr) {delete next;}
+        next = new Scene(name, filename);
+    }
+
+    void save(string filename) {
+        saveFlag = true;
+        saveFilename = filename;
+    }
+
     void loop() {
 
         float beginTime = (float)glfwGetTime();
@@ -168,9 +194,19 @@ namespace Window {
             dt = endTime - beginTime;
             beginTime = endTime;
 
-        }
+            if (saveFlag) {
+                scene->save(saveFilename);
+                saveFlag = false;
+            }
 
-        scene->save("saves/title.scene");
+            if (next != nullptr) {
+                delete scene;
+                scene = next;
+                dt = -1.0f;
+                next = nullptr;
+            }
+
+        }
 
     }
 
