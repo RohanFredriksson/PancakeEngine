@@ -356,9 +356,20 @@ void RenderBatch::removeSprite(SpriteRenderer* sprite) {
         }
     }
 
-    // If removed a sprite, remove the texture if it is not being used by another sprite.
     if (removed) {
+
+        // Rebuffer the data if we removed it.
+        for (int i = 0; i < this->sprites.size(); i++) {
+            SpriteRenderer* current = this->sprites[i];
+            this->loadVertexProperties(i);
+        }
+
+        glBindBuffer(GL_ARRAY_BUFFER, this->vbo);
+        glBufferSubData(GL_ARRAY_BUFFER, 0, MAX_BATCH_SIZE * 4 * VERTEX_SIZE_BYTES, this->vertices);
+
+        // Remove the texture if not used anymore.
         this->removeTextureIfNotUsed(sprite->getSprite()->getTexture());
+        
     }
 
 }
