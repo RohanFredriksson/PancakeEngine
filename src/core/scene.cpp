@@ -16,11 +16,14 @@ using glm::vec2;
 Scene::Scene(string name, string filename, void (*init)(Scene* scene)) {
 
     this->name = name;
+    this->started = false;
     this->camera = new Camera(vec2(0.0f, 0.0f), vec2(12.0f, 12.0f), 1.0f);
     this->renderer = new Renderer();
     this->physics = new World(1.0f / 60.0f, vec2(0.0f, -10.0f));
     if (!filename.empty()) {this->load(filename);}
     if (init != nullptr) {init(this);}
+
+    this->start();
 
 }
 
@@ -72,6 +75,14 @@ void Scene::removeDeadComponents() {
         e->clearDeadComponentIds();
     }
 
+}
+
+void Scene::start() {
+    for (auto const& x : this->entities) {
+        Entity* e = x.second;
+        e->start();
+    }
+    this->started = true;
 }
 
 void Scene::update(float dt) {
@@ -144,7 +155,7 @@ json Scene::serialise() {
     j.emplace("entities", json::array());
     for (auto const& x : this->entities) {
         Entity* e = x.second;
-        if (e->isSerialisable()) {j["entities"].push_back(e->serialise());}
+        if (e->isSerialisable() && !e->isDead()) {j["entities"].push_back(e->serialise());}
     }
 
     return j;
@@ -244,6 +255,7 @@ World* Scene::getPhysics() {
 void Scene::addEntity(Entity* entity) {
     pair<int, Entity*> p(entity->getId(), entity);
     this->entities.insert(p);
+    if (this->started) {entity->start();}
 }
 
 Entity* Scene::getEntityById(int id) {

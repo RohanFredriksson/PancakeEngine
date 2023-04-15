@@ -10,6 +10,9 @@
 #include "pancake/audio/audioplayer.hpp"
 #include "pancake/audio/audiowave.hpp"
 
+#include "pancake/components/fade.hpp"
+#include "pancake/components/transition.hpp"
+
 #include "pancake/core/camera.hpp"
 #include "pancake/core/component.hpp"
 #include "pancake/core/engine.hpp"

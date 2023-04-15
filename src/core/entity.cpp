@@ -14,6 +14,7 @@ namespace {
 void Entity::init(int id, vec2 position, vec2 size, float radians, bool load) {
 
     this->id = id;
+    this->started = false;
     this->position = position;
     this->size = size;
     this->rotation = radians;
@@ -30,7 +31,7 @@ Entity::Entity(vec2 position, vec2 size, float radians) {
 }
 
 Entity::Entity() {
-    this->init(nextId, vec2(0.0f, 0.0f), vec2(0.0f, 0.0f), 0.0f, false);
+    this->init(nextId, vec2(0.0f, 0.0f), vec2(1.0f, 1.0f), 0.0f, false);
 }
 
 Entity::~Entity() {
@@ -40,6 +41,13 @@ Entity::~Entity() {
         delete c;
     }
 
+}
+
+void Entity::start() {
+    for (Component* c : this->components) {
+        c->start();
+    }
+    this->started = true;
 }
 
 void Entity::update(float dt) {
@@ -81,7 +89,7 @@ json Entity::serialise() {
     
     j.emplace("components", json::array());
     for (Component* c : this->components) {
-        if (c->isSerialisable()) {j["components"].push_back(c->serialise());}
+        if (c->isSerialisable() && !c->isDead()) {j["components"].push_back(c->serialise());}
     }
 
     return j;
@@ -257,6 +265,7 @@ void Entity::addComponent(Component* component) {
     component->setEntity(this);
     this->components.push_back(component);
     this->newComponents.push_back(component);
+    if (this->started) {component->start();}
 }
 
 void Entity::clearNewComponents() {

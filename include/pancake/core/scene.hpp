@@ -21,6 +21,7 @@ class Scene {
         string name;
         unordered_map<int, Entity*> entities;
         unordered_map<int, Component*> components;
+        bool started;
         
         Camera* camera;
         Renderer* renderer;
@@ -34,6 +35,7 @@ class Scene {
         Scene(string name, string filename, void (*init)(Scene* scene));
         ~Scene();
 
+        void start();
         void update(float dt);
         void render();
         json serialise();

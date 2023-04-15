@@ -17,6 +17,7 @@ class Entity {
     private:
 
         int id;
+        bool started;
         vector<Component*> components;
         vector<Component*> newComponents;
         vector<int> deadComponentIds;
@@ -33,6 +34,7 @@ class Entity {
         Entity(vec2 position, vec2 size, float radians);
         Entity();
         ~Entity();
+        void start();
         void update(float dt);
         json serialise();
         static Entity* load(json j);

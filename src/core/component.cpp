@@ -30,6 +30,10 @@ Component::~Component() {
     
 }
 
+void Component::start() {
+    
+}
+
 void Component::update(float dt) {
 
 }
