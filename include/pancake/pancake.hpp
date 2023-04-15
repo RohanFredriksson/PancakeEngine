@@ -4,4 +4,3 @@
 #include "pancake/graphics.hpp"
 #include "pancake/physics.hpp"
 #include "pancake/util.hpp"
-#include "pancake/window.hpp"

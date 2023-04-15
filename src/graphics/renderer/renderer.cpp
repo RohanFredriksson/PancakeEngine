@@ -3,7 +3,7 @@
 #include <glm/glm.hpp>
 #include <glad/glad.h>
 #include "pancake/graphics/renderer/renderer.hpp"
-#include "pancake/window/window.hpp"
+#include "pancake/core/window.hpp"
 
 using glm::vec2;
 using glm::vec3;

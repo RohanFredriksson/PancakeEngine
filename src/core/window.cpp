@@ -5,8 +5,8 @@
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
 
-#include "pancake/window/window.hpp"
-#include "pancake/window/listener.hpp"
+#include "pancake/core/window.hpp"
+#include "pancake/core/listener.hpp"
 #include "pancake/graphics/primitives/shader.hpp"
 #include "pancake/graphics/primitives/framebuffer.hpp"
 #include "pancake/graphics/renderer/debugdraw.hpp"

@@ -1,7 +1,7 @@
 #include <glad/glad.h>
-#include "pancake/window/listener.hpp"
+#include "pancake/core/listener.hpp"
 #include "pancake/core/camera.hpp"
-#include "pancake/window/window.hpp"
+#include "pancake/core/window.hpp"
 
 namespace {
 

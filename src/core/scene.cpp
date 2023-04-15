@@ -6,7 +6,7 @@
 #include <glm/glm.hpp>
 
 #include "pancake/core/scene.hpp"
-#include "pancake/window/listener.hpp"
+#include "pancake/core/listener.hpp"
 #include "pancake/util/assetpool.hpp"
 
 using std::deque;

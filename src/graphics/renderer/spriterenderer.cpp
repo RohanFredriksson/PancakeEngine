@@ -1,5 +1,5 @@
 #include "pancake/graphics/renderer/spriterenderer.hpp"
-#include "pancake/window/window.hpp"
+#include "pancake/core/window.hpp"
 #include "pancake/core/scene.hpp"
 #include "pancake/util/assetpool.hpp"
 

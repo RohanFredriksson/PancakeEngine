@@ -3,7 +3,7 @@
 #include <cstdlib>
 #include "pancake/graphics/primitives/shader.hpp"
 #include "pancake/graphics/renderer/debugdraw.hpp"
-#include "pancake/window/window.hpp"
+#include "pancake/core/window.hpp"
 #include "pancake/util/shaders.hpp"
 
 using std::vector;

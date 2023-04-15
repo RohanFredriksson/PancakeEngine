@@ -1,6 +1,6 @@
 #include "pancake/core/engine.hpp"
 #include "pancake/audio/audioengine.hpp"
-#include "pancake/window/window.hpp"
+#include "pancake/core/window.hpp"
 
 #include "pancake/core/component.hpp"
 #include "pancake/audio/audioplayer.hpp"

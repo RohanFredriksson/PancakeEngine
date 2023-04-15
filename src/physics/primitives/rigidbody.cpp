@@ -2,7 +2,7 @@
 #include <limits>
 #include <iostream>
 #include "pancake/physics/primitives/rigidbody.hpp"
-#include "pancake/window/window.hpp"
+#include "pancake/core/window.hpp"
 
 Rigidbody::Rigidbody() : Component("Rigidbody") {
 
