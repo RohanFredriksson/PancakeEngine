@@ -31,8 +31,6 @@ class Scene {
 
     public:
 
-        Scene(string name, void (*init)(Scene* scene));
-        Scene(string name, string filename);
         Scene(string name, string filename, void (*init)(Scene* scene));
         ~Scene();
 

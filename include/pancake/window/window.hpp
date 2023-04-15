@@ -5,13 +5,7 @@
 namespace Window {
     
     bool init(string name, string filename, void(*init)(Scene* scene));
-    bool init(string name, void(*init)(Scene* scene));
-    bool init(string name, string filename);
-
     void load(string name, string filename, void(*init)(Scene* scene));
-    void load(string name, void(*init)(Scene* scene));
-    void load(string name, string filename);
-
     void save(string filename);
     void loop();
     void destroy();

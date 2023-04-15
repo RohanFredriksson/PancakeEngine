@@ -18,12 +18,15 @@ namespace {
     GLFWwindow* window;
     int width = 800;
     int height = 800;
+    Scene* scene;
 
     bool saveFlag;
     string saveFilename;
 
-    Scene* scene;
-    Scene* next = nullptr;
+    bool loadFlag;
+    string loadName;
+    string loadFilename;
+    void(*loadInit)(Scene* scene) = nullptr;
 
     Shader* defaultShader;
     Shader* entityShader;
@@ -138,33 +141,11 @@ namespace Window {
         return true;
     }
 
-    bool init(string name, void(*init)(Scene* scene)) {
-        if (!start()) {return false;}
-        try {scene = new Scene(name, init);}
-        catch (...) {return false;}
-        return true;
-    }
-
-    bool init(string name, string filename) {
-        if (!start()) {return false;}
-        try {scene = new Scene(name, filename);}
-        catch (...) {return false;}
-        return true;
-    }
-
     void load(string name, string filename, void(*init)(Scene* scene)) {
-        if (next != nullptr) {delete next;}
-        next = new Scene(name, filename, init);
-    }
-
-    void load(string name, void(*init)(Scene* scene)) {
-        if (next != nullptr) {delete next;}
-        next = new Scene(name, init);
-    }
-
-    void load(string name, string filename) {
-        if (next != nullptr) {delete next;}
-        next = new Scene(name, filename);
+        loadFlag = true;
+        loadName = name;
+        loadFilename = filename;
+        loadInit = init;
     }
 
     void save(string filename) {
@@ -199,11 +180,11 @@ namespace Window {
                 saveFlag = false;
             }
 
-            if (next != nullptr) {
+            if (loadFlag) {
                 delete scene;
-                scene = next;
+                scene = new Scene(loadName, loadFilename, loadInit);
                 dt = -1.0f;
-                next = nullptr;
+                loadFlag = false;
             }
 
         }

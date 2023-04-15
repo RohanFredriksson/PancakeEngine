@@ -52,23 +52,31 @@ namespace Engine {
     }
 
     int run(string name, void (*init)(Scene* scene)) {
-        registry();
-        AudioEngine::init();
-        if (!Window::init(name, init)) {return 1;}
-        Window::loop();
-        Window::destroy();
-        AudioEngine::destroy();
-        return 0;
+        return run(name, "", init);
     }
 
     int run(string name, string filename) {
-        registry();
-        AudioEngine::init();
-        if (!Window::init(name, filename)) {return 1;}
-        Window::loop();
-        Window::destroy();
-        AudioEngine::destroy();
-        return 0;
+        return run(name, filename, nullptr);
+    }
+
+    void load(string name, string filename, void(*init)(Scene* scene)) {
+        Window::load(name, filename, init);
+    }
+
+    void load(string name, void (*init)(Scene* scene)) {
+        Window::load(name, "", init);
+    }
+
+    void load(string name, string filename) {
+        Window::load(name, filename, nullptr);
+    }
+
+    void save(string filename) {
+        Window::save(filename);
+    }
+
+    Scene* getScene() {
+        return Window::getScene();
     }
 
 }
