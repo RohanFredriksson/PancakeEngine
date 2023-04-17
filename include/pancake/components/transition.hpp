@@ -5,9 +5,10 @@
 class Transition : public Component {
 
     public:
-        Transition(string type);
-        void end();
-        virtual void clean();
-        virtual void onEnd();    
 
+        Transition(string type);
+
+        void flag();
+        virtual void onFlag();
+        
 };

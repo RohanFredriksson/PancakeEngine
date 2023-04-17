@@ -22,7 +22,7 @@ TextRenderer::TextRenderer() : TransformableComponent("TextRenderer") {
 
 }
 
-TextRenderer::~TextRenderer() {
+void TextRenderer::end() {
     int n = this->components.size();
     for (int i = 0; i < n; i++) {
         this->components[i]->kill();

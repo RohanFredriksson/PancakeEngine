@@ -16,10 +16,14 @@ void FadeFromBlack::start() {
     this->getEntity()->addComponent(this->spriterenderer);
 }
 
+void FadeFromBlack::end() {
+    this->spriterenderer->kill();
+}
+
 void FadeFromBlack::update(float dt) {
     this->time += dt;
     this->spriterenderer->setColour(vec4(0.0f, 0.0f, 0.0f, std::max(0.0f, 1.0f - (this->time / this->duration))));
-    if (this->time >= this->duration) {this->end();}
+    if (this->time >= this->duration) {this->flag();}
 }
 
 json FadeFromBlack::serialise() {
@@ -36,10 +40,6 @@ bool FadeFromBlack::load(json j) {
     this->duration = j["duration"];
     this->time = j["time"];
     return true;
-}
-
-void FadeFromBlack::clean() {
-    this->spriterenderer->kill();
 }
 
 void FadeFromBlack::setDuration(float duration) {

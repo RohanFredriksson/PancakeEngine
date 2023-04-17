@@ -17,7 +17,7 @@ SpriteRenderer::SpriteRenderer() : TransformableComponent("SpriteRenderer") {
 
 }
 
-SpriteRenderer::~SpriteRenderer() {
+void SpriteRenderer::end() {
     Window::getScene()->getRenderer()->remove(this);
 }
 

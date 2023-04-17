@@ -29,6 +29,7 @@ class Component {
         Component(string type);
         virtual ~Component();
         virtual void start();
+        virtual void end();
         virtual void update(float dt);
         virtual json serialise();
         virtual bool load(json j);

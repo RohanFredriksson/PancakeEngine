@@ -35,7 +35,7 @@ class TextRenderer : public TransformableComponent {
     public:
 
         TextRenderer();
-        ~TextRenderer() override;
+        void end() override;
         void update(float dt) override;
         json serialise() override;
         bool load(json j) override;

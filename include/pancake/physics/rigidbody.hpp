@@ -37,7 +37,7 @@ class Rigidbody : public Component {
     public:
 
         Rigidbody();
-        ~Rigidbody() override;
+        void end() override;
         json serialise() override;
         bool load(json j) override;
 
@@ -85,7 +85,6 @@ class Rigidbody : public Component {
         void zeroForces();
         void zeroTorque();
         
-
 };
 
 #include "pancake/physics/collider.hpp"

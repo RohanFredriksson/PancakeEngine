@@ -27,7 +27,7 @@ class SpriteRenderer : public TransformableComponent {
     public:
 
         SpriteRenderer();
-        ~SpriteRenderer() override;
+        void end() override;
         void update(float dt) override;
         json serialise() override;
         bool load(json j) override;

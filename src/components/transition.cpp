@@ -4,16 +4,11 @@ Transition::Transition(string type) : Component(type) {
     
 }
 
-void Transition::end() {
-    this->clean();
-    this->onEnd();
+void Transition::flag() {
+    this->onFlag();
     this->kill();
 }
 
-void Transition::clean() {
-
-}
-
-void Transition::onEnd() {
+void Transition::onFlag() {
 
 }

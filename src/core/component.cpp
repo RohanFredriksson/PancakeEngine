@@ -27,11 +27,15 @@ Component::Component(string type) {
 }
 
 Component::~Component() {
-    
+    if (!this->dead) {this->end();}
 }
 
 void Component::start() {
     
+}
+
+void Component::end() {
+
 }
 
 void Component::update(float dt) {
@@ -53,6 +57,7 @@ bool Component::load(json j) {
 }
 
 void Component::kill() {
+    this->end();
     this->dead = true;
 }
 

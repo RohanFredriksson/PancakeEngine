@@ -15,11 +15,10 @@ class FadeFromBlack : public Transition {
 
         FadeFromBlack();
         void start() override;
+        void end() override;
         void update(float dt) override;
         json serialise() override;
         bool load(json j) override;
-
-        void clean() override;
 
         void setDuration(float duration);
         float getDuration();

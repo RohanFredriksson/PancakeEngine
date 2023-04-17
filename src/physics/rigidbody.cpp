@@ -26,7 +26,7 @@ Rigidbody::Rigidbody() : Component("Rigidbody") {
 
 }
 
-Rigidbody::~Rigidbody() {
+void Rigidbody::end() {
     Window::getScene()->getPhysics()->remove(this);
     this->clearColliders();
 }
