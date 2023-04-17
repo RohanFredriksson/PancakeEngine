@@ -37,9 +37,8 @@ Entity::Entity() {
 Entity::~Entity() {
 
     // Delete all the components.
-    for (Component* c: this->components) {
-        delete c;
-    }
+    for (Component* c: this->components) {c->kill();}
+    for (Component* c: this->components) {delete c;}
 
 }
 

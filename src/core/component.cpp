@@ -57,6 +57,7 @@ bool Component::load(json j) {
 }
 
 void Component::kill() {
+    if (this->dead) {return;}
     this->end();
     this->dead = true;
 }
