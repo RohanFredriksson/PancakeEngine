@@ -126,6 +126,8 @@ Entity* Entity::load(json j) {
 }
 
 void Entity::kill() {
+    if (this->dead) {return;}
+    for (Component* c: this->components) {c->kill();}
     this->dead = true;
 }
 

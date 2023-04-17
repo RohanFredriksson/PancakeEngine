@@ -29,6 +29,12 @@ Scene::Scene(string name, string filename, void (*init)(Scene* scene)) {
 
 Scene::~Scene() {
     
+    // Kill all entities.
+    for (auto const& x: this->entities) {
+        Entity* e = x.second;
+        e->kill();
+    }
+
     // Delete all scene elements.
     delete this->camera;
     delete this->renderer;
