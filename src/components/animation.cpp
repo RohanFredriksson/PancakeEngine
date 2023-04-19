@@ -1,5 +1,9 @@
 #include "pancake/components/animation.hpp"
+#include "pancake/graphics/spriterenderer.hpp"
 #include "pancake/asset/assetpool.hpp"
+
+#include <utility>
+using std::pair;
 
 AnimationState::AnimationState() {
     this->title = "";
@@ -65,4 +69,81 @@ Sprite* AnimationState::getCurrentSprite() {
 
 bool AnimationState::doesLoop() {
     return this->loop;
+}
+
+Animation::Animation() : Component("Animation") {
+    this->current = nullptr;
+    this->defaultState = "";
+}
+
+void Animation::start() {
+    auto search = this->states.find(this->defaultState);
+    if (search != this->states.end()) {this->current = search->second;}
+}
+
+void Animation::end()  {
+    this->clearStates();
+}
+
+void Animation::update(float dt)  {
+    if (this->current == nullptr) {return;}
+    this->current->update(dt);
+    SpriteRenderer* spriterenderer = dynamic_cast<SpriteRenderer*>(this->getEntity()->getComponentByType("SpriteRenderer"));
+    if (spriterenderer == nullptr) {return;}
+    spriterenderer->setSprite(this->current->getCurrentSprite());
+}
+
+json Animation::serialise()  {
+    json j;
+    return j;
+}
+
+bool Animation::load(json j)  {
+    return false;
+}
+
+void Animation::setDefaultState(string title)  {
+
+    auto search = this->states.find(title);
+    if (search != this->states.end()) {
+        this->defaultState = title;
+        if (this->current == nullptr) {this->current = search->second;}
+    }
+
+}
+
+void Animation::addTransfer(string from, string to, string trigger)  {
+    tuple<string, string> key(from, trigger);
+    pair<tuple<string, string>, string> p(key, to);
+    this->transfers.insert(p);
+}
+
+void Animation::addState(AnimationState* state) {
+    pair<string, AnimationState*> p(state->getTitle(), state);
+    this->states.insert(p);
+}
+
+void Animation::clearStates() {
+    for (auto const& x: this->states) {
+        AnimationState* a = x.second;
+        delete a;
+    }
+}
+
+void Animation::trigger(string trigger)  {
+    
+    // If we are at the null state, we can't transfer to any other states.
+    if (this->current == nullptr) {return;}
+
+    // Check if there is a transfer for this trigger on the current state.
+    tuple<string, string> key(this->current->getTitle(), trigger);
+    auto search1 = this->transfers.find(key);
+    if (search1 == this->transfers.end()) {return;}
+    
+    // Find the next state.
+    string next = search1->second;
+    auto search2 = this->states.find(next);
+    if (search2 == this->states.end()) {return;}
+    this->current = search2->second;
+
 }

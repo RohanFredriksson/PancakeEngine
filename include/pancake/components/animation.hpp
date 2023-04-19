@@ -2,6 +2,23 @@
 
 #include "pancake/core/component.hpp"
 #include "pancake/graphics/sprite.hpp"
+#include <unordered_map>
+#include <tuple>
+
+using std::unordered_map;
+using std::tuple;
+
+struct StringTupleHash {
+    size_t operator()(const tuple<string, string>& t) const {
+        return std::hash<string>()(std::get<0>(t)) ^ std::hash<string>()(std::get<1>(t));
+    }
+};
+
+struct StringTupleEqual {
+    bool operator()(const tuple<string, string>& lhs, const tuple<string, string>& rhs) const {
+        return (std::get<0>(lhs) == std::get<0>(rhs)) && (std::get<1>(lhs) == std::get<1>(rhs));
+    }
+};
 
 struct AnimationFrame {
     Sprite* sprite;
@@ -43,17 +60,25 @@ class Animation : public Component {
 
     private:
 
-        vector<AnimationState*> states;
+        unordered_map<string, AnimationState*> states;
+        unordered_map<tuple<string, string>, string, StringTupleHash, StringTupleEqual> transfers;
         AnimationState* current;
-        string defaultStateTitle;
+        string defaultState;
 
     public:
 
         Animation();
-        //void start() override;
-        //void update(float dt) override;
+        void start() override;
+        void end() override;
+        void update(float dt) override;
+        json serialise() override;
+        bool load(json j) override;
 
-        //void trigger(string trigger);
+        void setDefaultState(string title);
+        void addTransfer(string from, string to, string trigger);
+        void addState(AnimationState* state);
+        void clearStates();
 
+        void trigger(string trigger);
 
 };
