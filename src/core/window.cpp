@@ -189,6 +189,7 @@ namespace Window {
 
         }
 
+        scene->save("saves/test.scene");
     }
 
     void destroy() {

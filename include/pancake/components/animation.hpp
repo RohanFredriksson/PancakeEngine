@@ -20,9 +20,17 @@ struct StringTupleEqual {
     }
 };
 
-struct AnimationFrame {
-    Sprite* sprite;
-    float duration;
+class AnimationFrame {
+
+    public:
+        
+        Sprite* sprite;
+        float duration;
+
+        AnimationFrame(Sprite* sprite, float duration);
+        json serialise();
+        static AnimationFrame* load(json j);
+
 };
 
 class AnimationState {
@@ -30,7 +38,7 @@ class AnimationState {
     private:
 
         string title;
-        vector<AnimationFrame> frames;
+        vector<AnimationFrame*> frames;
         int current;
         float time;
         bool loop;
@@ -38,9 +46,10 @@ class AnimationState {
     public:
 
         AnimationState();
+        ~AnimationState();
         void update(float dt);
-        //json serialise();
-        //AnimationState* load(json j);
+        json serialise();
+        static AnimationState* load(json j);
         
         void setTitle(string title);
         void setCurrent(int current);
@@ -48,7 +57,9 @@ class AnimationState {
         void setLoop(bool loop);
 
         void addFrame(Sprite* sprite, float duration);
+        void addFrame(AnimationFrame* frame);
         void addFrames(vector<Sprite*> sprites, float duration);
+        void addFrames(vector<AnimationFrame*> frames);
 
         string getTitle();
         Sprite* getCurrentSprite();

@@ -8,6 +8,7 @@
 #include "pancake/graphics/textrenderer.hpp"
 #include "pancake/physics/rigidbody.hpp"
 #include "pancake/components/fade.hpp"
+#include "pancake/components/animation.hpp"
 
 #include "pancake/physics/collider.hpp"
 #include "pancake/physics/box.hpp"
@@ -22,6 +23,7 @@ namespace {
     void* RigidbodyCreate()      {return new Rigidbody();}
     void* FadeFromBlackCreate()  {return new FadeFromBlack();}
     void* FadeToBlackCreate()    {return new FadeToBlack();}
+    void* AnimationCreate()      {return new Animation();}
 
     // Methods to create polymorphic colliders.
     void* BoxCreate()    {return new Box();}
@@ -36,6 +38,7 @@ namespace {
         ComponentFactory::add("Rigidbody", RigidbodyCreate);
         ComponentFactory::add("FadeFromBlack", FadeFromBlackCreate);
         ComponentFactory::add("FadeToBlack", FadeToBlackCreate);
+        ComponentFactory::add("Animation", AnimationCreate);
 
         ColliderFactory::add("Box", BoxCreate);
         ColliderFactory::add("Circle", CircleCreate);
