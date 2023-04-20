@@ -35,6 +35,7 @@ Framebuffer::Framebuffer(GLint internal, int width, int height, GLenum format, G
 }
 
 Framebuffer::~Framebuffer() {
+    glDeleteFramebuffers(1, &this->fbo);
     delete this->texture;
 }
 
