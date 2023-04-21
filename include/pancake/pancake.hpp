@@ -36,7 +36,6 @@
 #include "pancake/physics/circle.hpp"
 #include "pancake/physics/collider.hpp"
 #include "pancake/physics/collision.hpp"
-#include "pancake/physics/collisionmanifold.hpp"
 #include "pancake/physics/forcegenerator.hpp"
 #include "pancake/physics/forceregistry.hpp"
 #include "pancake/physics/gravity.hpp"
