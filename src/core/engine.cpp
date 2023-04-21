@@ -8,8 +8,8 @@
 #include "pancake/graphics/spriterenderer.hpp"
 #include "pancake/graphics/textrenderer.hpp"
 #include "pancake/physics/rigidbody.hpp"
-#include "pancake/components/fade.hpp"
 #include "pancake/components/animation.hpp"
+#include "pancake/components/transition.hpp"
 
 #include "pancake/physics/collider.hpp"
 #include "pancake/physics/box.hpp"
@@ -25,9 +25,8 @@ namespace Pancake {
         void* SpriteRendererCreate() {return new SpriteRenderer();}
         void* TextRendererCreate()   {return new TextRenderer();}
         void* RigidbodyCreate()      {return new Rigidbody();}
-        void* FadeFromBlackCreate()  {return new FadeFromBlack();}
-        void* FadeToBlackCreate()    {return new FadeToBlack();}
         void* AnimationCreate()      {return new Animation();}
+        void* FadeTransitionCreate() {return new FadeTransition();}
 
         // Methods to create polymorphic colliders.
         void* BoxCreate()    {return new Box();}
@@ -40,9 +39,8 @@ namespace Pancake {
             ComponentFactory::add("SpriteRenderer", SpriteRendererCreate);
             ComponentFactory::add("TextRenderer", TextRendererCreate);
             ComponentFactory::add("Rigidbody", RigidbodyCreate);
-            ComponentFactory::add("FadeFromBlack", FadeFromBlackCreate);
-            ComponentFactory::add("FadeToBlack", FadeToBlackCreate);
             ComponentFactory::add("Animation", AnimationCreate);
+            ComponentFactory::add("FadeTransition", FadeTransitionCreate);
 
             ColliderFactory::add("Box", BoxCreate);
             ColliderFactory::add("Circle", CircleCreate);
