@@ -167,7 +167,7 @@ bool Entity::isDead() {
     return this->dead;
 }
 
-Component* Entity::getComponentByType(string type) {
+Component* Entity::getComponent(string type) {
     for (Component* c : this->components) {
         if (c->getType() == type) {
             return c;

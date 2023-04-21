@@ -157,7 +157,7 @@ void Animation::end()  {
 void Animation::update(float dt)  {
     if (this->current == nullptr) {return;}
     this->current->update(dt);
-    SpriteRenderer* spriterenderer = dynamic_cast<SpriteRenderer*>(this->getEntity()->getComponentByType("SpriteRenderer"));
+    SpriteRenderer* spriterenderer = dynamic_cast<SpriteRenderer*>(this->getEntity()->getComponent("SpriteRenderer"));
     if (spriterenderer == nullptr) {return;}
     spriterenderer->setSprite(this->current->getCurrentSprite());
 }

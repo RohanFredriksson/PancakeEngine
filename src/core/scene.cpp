@@ -264,14 +264,14 @@ void Scene::addEntity(Entity* entity) {
     if (this->started) {entity->start();}
 }
 
-Entity* Scene::getEntityById(int id) {
+Entity* Scene::getEntity(int id) {
     auto search = this->entities.find(id);
     if (search == this->entities.end()) {return nullptr;}
     Entity* e = search->second;
     return e;
 }
 
-Component* Scene::getComponentById(int id) {
+Component* Scene::getComponent(int id) {
     auto search = this->components.find(id);
     if (search == this->components.end()) {return nullptr;}
     Component* c = search->second;

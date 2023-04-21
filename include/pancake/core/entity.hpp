@@ -52,7 +52,7 @@ class Entity {
         bool isDead();
 
         // Getter Component Methods.
-        Component* getComponentByType(string type);
+        Component* getComponent(string type);
 
         // Setter Methods.
         void setId(int id);

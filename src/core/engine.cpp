@@ -1,3 +1,4 @@
+#include "pancake/pancake.hpp"
 #include "pancake/core/engine.hpp"
 #include "pancake/audio/audioengine.hpp"
 #include "pancake/core/window.hpp"
@@ -13,6 +14,7 @@
 #include "pancake/physics/collider.hpp"
 #include "pancake/physics/box.hpp"
 #include "pancake/physics/circle.hpp"
+#include "pancake/pancake.hpp"
 
 namespace {
 
@@ -47,7 +49,7 @@ namespace {
 
 }
 
-namespace Engine {
+namespace Pancake {
 
     int run(string name, string filename, void(*init)(Scene* scene)) {
         registry();

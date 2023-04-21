@@ -47,7 +47,7 @@ class Scene {
         World* getPhysics();
 
         void addEntity(Entity* entity);
-        Entity* getEntityById(int id);
-        Component* getComponentById(int id);
+        Entity* getEntity(int id);
+        Component* getComponent(int id);
 
 };
