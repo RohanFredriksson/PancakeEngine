@@ -117,53 +117,57 @@ namespace {
 
 }
 
-namespace Spritesheet {
+namespace Pancake {
 
-    void load(string filename) {
+    namespace Spritesheet {
 
-        string metaname = getMetadataName(filename);
-        Metadata metadata = getMetadata(metaname);
+        void load(string filename) {
 
-        if (!metadata.valid) {
-            return;
-        }
+            string metaname = getMetadataName(filename);
+            Metadata metadata = getMetadata(metaname);
 
-        Texture* texture = TexturePool::get(filename);
-        int currentX = 0;
-        int currentY = texture->getHeight() - metadata.height;
-
-        for (int i = 0; i < metadata.names.size(); i++) {
-
-            if (currentY < 0) {
-                std::cout << "ERROR::SPRITESHEED::LOAD::SPRITE_LOAD: '" << metadata.names[i] << "' could not be loaded.\n";
-                continue;
+            if (!metadata.valid) {
+                return;
             }
 
-            float topY = (currentY + metadata.height) / (float) texture->getHeight();
-            float rightX = (currentX + metadata.width) / (float) texture->getWidth();
-            float leftX = currentX / (float) texture->getWidth();
-            float bottomY = currentY / (float) texture->getHeight();
+            Texture* texture = TexturePool::get(filename);
+            int currentX = 0;
+            int currentY = texture->getHeight() - metadata.height;
 
-            vec2 texCoords[4];
-            texCoords[0].x = rightX;
-            texCoords[0].y = topY;
-            texCoords[1].x = rightX;
-            texCoords[1].y = bottomY;
-            texCoords[2].x = leftX;
-            texCoords[2].y = bottomY;
-            texCoords[3].x = leftX;
-            texCoords[3].y = topY;
+            for (int i = 0; i < metadata.names.size(); i++) {
 
-            // If the sprite name is already taken, do not overwrite it.
-            if (!SpritePool::has(metadata.names[i])) {
-                Sprite* sprite = new Sprite(metadata.names[i], texture, texCoords);
-                SpritePool::put(sprite);
-            }
+                if (currentY < 0) {
+                    std::cout << "ERROR::SPRITESHEED::LOAD::SPRITE_LOAD: '" << metadata.names[i] << "' could not be loaded.\n";
+                    continue;
+                }
 
-            currentX += metadata.width;
-            if (currentX >= texture->getWidth()) {
-                currentX = 0;
-                currentY -= metadata.height;
+                float topY = (currentY + metadata.height) / (float) texture->getHeight();
+                float rightX = (currentX + metadata.width) / (float) texture->getWidth();
+                float leftX = currentX / (float) texture->getWidth();
+                float bottomY = currentY / (float) texture->getHeight();
+
+                vec2 texCoords[4];
+                texCoords[0].x = rightX;
+                texCoords[0].y = topY;
+                texCoords[1].x = rightX;
+                texCoords[1].y = bottomY;
+                texCoords[2].x = leftX;
+                texCoords[2].y = bottomY;
+                texCoords[3].x = leftX;
+                texCoords[3].y = topY;
+
+                // If the sprite name is already taken, do not overwrite it.
+                if (!SpritePool::has(metadata.names[i])) {
+                    Sprite* sprite = new Sprite(metadata.names[i], texture, texCoords);
+                    SpritePool::put(sprite);
+                }
+
+                currentX += metadata.width;
+                if (currentX >= texture->getWidth()) {
+                    currentX = 0;
+                    currentY -= metadata.height;
+                }
+
             }
 
         }
