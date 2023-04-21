@@ -14,40 +14,44 @@ using std::string;
 using std::unordered_map;
 using json = nlohmann::json;
 
-class Scene {
+namespace Pancake {
 
-    private:
+    class Scene {
 
-        string name;
-        unordered_map<int, Entity*> entities;
-        unordered_map<int, Component*> components;
-        bool started;
-        
-        Camera* camera;
-        Renderer* renderer;
-        World* physics;
+        private:
 
-        void addNewComponents();
-        void removeDeadComponents();
+            string name;
+            unordered_map<int, Entity*> entities;
+            unordered_map<int, Component*> components;
+            bool started;
+            
+            Camera* camera;
+            Renderer* renderer;
+            World* physics;
 
-    public:
+            void addNewComponents();
+            void removeDeadComponents();
 
-        Scene(string name, string filename, void (*init)(Scene* scene));
-        ~Scene();
+        public:
 
-        void start();
-        void update(float dt);
-        void render();
-        json serialise();
-        void save(string filename);
-        void load(string filename);
+            Scene(string name, string filename, void (*init)(Scene* scene));
+            ~Scene();
 
-        Camera* getCamera();
-        Renderer* getRenderer();
-        World* getPhysics();
+            void start();
+            void update(float dt);
+            void render();
+            json serialise();
+            void save(string filename);
+            void load(string filename);
 
-        void addEntity(Entity* entity);
-        Entity* getEntity(int id);
-        Component* getComponent(int id);
+            Camera* getCamera();
+            Renderer* getRenderer();
+            World* getPhysics();
 
-};
+            void addEntity(Entity* entity);
+            Entity* getEntity(int id);
+            Component* getComponent(int id);
+
+    };
+
+}

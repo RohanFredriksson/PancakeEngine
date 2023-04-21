@@ -1,30 +1,34 @@
 #include <soloud/include/soloud.h>
 #include "pancake/audio/audioengine.hpp"
 
-namespace {
-    SoLoud::Soloud engine;
-}
+namespace Pancake {
 
-namespace AudioEngine {
-
-    void init() {
-        engine.init();
+    namespace {
+        SoLoud::Soloud engine;
     }
 
-    void destroy() {
-        engine.deinit();
-    }
+    namespace AudioEngine {
 
-    void play(AudioWave* audio) {
-        engine.play(audio->getSource());
-    }
+        void init() {
+            engine.init();
+        }
 
-    void stop(AudioWave* audio) {
-        engine.stopAudioSource(audio->getSource());
-    }
+        void destroy() {
+            engine.deinit();
+        }
 
-    int getActiveVoiceCount() {
-        return engine.getActiveVoiceCount();
+        void play(AudioWave* audio) {
+            engine.play(audio->getSource());
+        }
+
+        void stop(AudioWave* audio) {
+            engine.stopAudioSource(audio->getSource());
+        }
+
+        int getActiveVoiceCount() {
+            return engine.getActiveVoiceCount();
+        }
+
     }
 
 }

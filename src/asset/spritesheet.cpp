@@ -13,111 +13,111 @@ using std::vector;
 using glm::vec2;
 using json = nlohmann::json;
 
-namespace {
+namespace Pancake {
 
-    char jsonext[] = ".json";
+    namespace {
 
-    class Metadata {
-        
-        public:
+        char jsonext[] = ".json";
+
+        class Metadata {
             
-            bool valid;
-            int width;
-            int height;
-            vector<string> names;
+            public:
+                
+                bool valid;
+                int width;
+                int height;
+                vector<string> names;
 
-            Metadata(bool valid, int width, int height) {
-                this->valid = valid;
-                this->width = width;
-                this->height = height;
+                Metadata(bool valid, int width, int height) {
+                    this->valid = valid;
+                    this->width = width;
+                    this->height = height;
+                }
+
+        };
+
+        string getMetadataName(string filename) {
+
+            int i = 0;
+            int lastDot = -1;
+            const char* f = filename.c_str();
+
+            while (f[i] != '\0') {
+                if (f[i] == '.') {lastDot = i;}
+                i++;
             }
 
-    };
+            char* metaname = (char*) malloc((lastDot+strlen(jsonext) + 1));
+            memcpy(metaname, f, lastDot);
+            memcpy(metaname + lastDot, jsonext, strlen(jsonext) + 1);
+            string result = metaname;
+            free(metaname);
 
-    string getMetadataName(string filename) {
+            return result;
 
-        int i = 0;
-        int lastDot = -1;
-        const char* f = filename.c_str();
-
-        while (f[i] != '\0') {
-            if (f[i] == '.') {lastDot = i;}
-            i++;
         }
 
-        char* metaname = (char*) malloc((lastDot+strlen(jsonext) + 1));
-        memcpy(metaname, f, lastDot);
-        memcpy(metaname + lastDot, jsonext, strlen(jsonext) + 1);
-        string result = metaname;
-        free(metaname);
+        Metadata getMetadata(string metaname) {
 
-        return result;
-
-    }
-
-    Metadata getMetadata(string metaname) {
-
-        Metadata result(false, 0, 0);
-        json metadata;
-        
-        try {
-            std::ifstream f(metaname);
-            metadata = json::parse(f);
-        } 
-        
-        catch (const std::ifstream::failure& e) {
-            std::cout << "ERROR::SPRITESHEET::LOAD::FILE_NOT_FOUND\n";
-            return result;
-        }
-
-        catch (const json::exception& e) {
-            std::cout << "ERROR::SPRITESHEET::LOAD::JSON_PARSE_ERROR\n";
-            return result;
-        }
-
-        if (!metadata.contains("spriteWidth") || !metadata["spriteWidth"].is_number_integer()) {
-            std::cout << "ERROR::SPRITESHEET::LOAD::JSON_PARSE_ERROR: 'spriteWidth' could not be parsed.\n";
-            return result;
-        }  
-
-        if (!metadata.contains("spriteHeight") || !metadata["spriteHeight"].is_number_integer()) {
-            std::cout << "ERROR::SPRITESHEET::LOAD::JSON_PARSE_ERROR: 'spriteHeight' could not be parsed.\n";
-            return result;
-        }
-
-        int width = metadata["spriteWidth"];
-        int height = metadata["spriteHeight"];
-
-        if (width <= 0 || height <= 0) {
-            std::cout << "ERROR::SPRITESHEET::LOAD::JSON_PARSE_ERROR: invalid dimensions.\n";
-            return result;
-        }
-
-        if (!metadata.contains("sprites") || !metadata["sprites"].is_array()) {
-            std::cout << "ERROR::SPRITESHEET::LOAD::JSON_PARSE_ERROR: 'sprites' could not be parsed.\n";
-            return result;
-        }  
-
-        vector<string> names;
-        for (auto& element : metadata["sprites"]) {
-            if (!element.is_string()) {
-                std::cout << "ERROR::SPRITESHEET::LOAD::JSON_PARSE_ERROR: 'sprites' could not be parsed.\n";
+            Metadata result(false, 0, 0);
+            json metadata;
+            
+            try {
+                std::ifstream f(metaname);
+                metadata = json::parse(f);
+            } 
+            
+            catch (const std::ifstream::failure& e) {
+                std::cout << "ERROR::SPRITESHEET::LOAD::FILE_NOT_FOUND\n";
                 return result;
             }
-            names.push_back(element);
+
+            catch (const json::exception& e) {
+                std::cout << "ERROR::SPRITESHEET::LOAD::JSON_PARSE_ERROR\n";
+                return result;
+            }
+
+            if (!metadata.contains("spriteWidth") || !metadata["spriteWidth"].is_number_integer()) {
+                std::cout << "ERROR::SPRITESHEET::LOAD::JSON_PARSE_ERROR: 'spriteWidth' could not be parsed.\n";
+                return result;
+            }  
+
+            if (!metadata.contains("spriteHeight") || !metadata["spriteHeight"].is_number_integer()) {
+                std::cout << "ERROR::SPRITESHEET::LOAD::JSON_PARSE_ERROR: 'spriteHeight' could not be parsed.\n";
+                return result;
+            }
+
+            int width = metadata["spriteWidth"];
+            int height = metadata["spriteHeight"];
+
+            if (width <= 0 || height <= 0) {
+                std::cout << "ERROR::SPRITESHEET::LOAD::JSON_PARSE_ERROR: invalid dimensions.\n";
+                return result;
+            }
+
+            if (!metadata.contains("sprites") || !metadata["sprites"].is_array()) {
+                std::cout << "ERROR::SPRITESHEET::LOAD::JSON_PARSE_ERROR: 'sprites' could not be parsed.\n";
+                return result;
+            }  
+
+            vector<string> names;
+            for (auto& element : metadata["sprites"]) {
+                if (!element.is_string()) {
+                    std::cout << "ERROR::SPRITESHEET::LOAD::JSON_PARSE_ERROR: 'sprites' could not be parsed.\n";
+                    return result;
+                }
+                names.push_back(element);
+            }
+
+            result.valid = true;
+            result.width = width;
+            result.height = height;
+            result.names = names;
+            return result;
+
         }
 
-        result.valid = true;
-        result.width = width;
-        result.height = height;
-        result.names = names;
-        return result;
-
     }
-
-}
-
-namespace Pancake {
 
     namespace Spritesheet {
 

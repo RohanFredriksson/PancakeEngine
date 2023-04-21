@@ -3,24 +3,28 @@
 #include <glad/glad.h>
 #include "pancake/graphics/texture.hpp"
 
-class Framebuffer {
+namespace Pancake {
 
-    private:
+    class Framebuffer {
 
-        unsigned int fbo;
-        Texture* texture;
+        private:
 
-        void init(GLint internal, int width, int height, GLenum format, GLenum type);
+            unsigned int fbo;
+            Texture* texture;
 
-    public:
+            void init(GLint internal, int width, int height, GLenum format, GLenum type);
 
-        Framebuffer(int width, int height);
-        Framebuffer(GLint internal, int width, int height, GLenum format, GLenum type);
-        ~Framebuffer();
+        public:
 
-        void bind();
-        void unbind();
+            Framebuffer(int width, int height);
+            Framebuffer(GLint internal, int width, int height, GLenum format, GLenum type);
+            ~Framebuffer();
 
-        Texture* getTexture();
+            void bind();
+            void unbind();
 
-};
+            Texture* getTexture();
+
+    };
+
+}

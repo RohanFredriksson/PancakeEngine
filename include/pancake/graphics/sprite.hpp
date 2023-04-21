@@ -12,30 +12,34 @@ using std::string;
 using glm::vec2;
 using json = nlohmann::json;
 
-class Sprite {
+namespace Pancake {
 
-    private:
+    class Sprite {
 
-        string name;
-        Texture* texture;
-        vec2 texCoords[4];
-        
-        void init(string name, Texture* texture, vec2 texCoords[4]);
+        private:
 
-    public:
+            string name;
+            Texture* texture;
+            vec2 texCoords[4];
+            
+            void init(string name, Texture* texture, vec2 texCoords[4]);
 
-        Sprite();
-        Sprite(string name, Texture* texture);
-        Sprite(string name, Texture* texture, vec2 texCoords[4]);
-        json serialise();
-        static void load(json j);
+        public:
 
-        string getName();
-        Texture* getTexture();
-        vec2* getTexCoords();
+            Sprite();
+            Sprite(string name, Texture* texture);
+            Sprite(string name, Texture* texture, vec2 texCoords[4]);
+            json serialise();
+            static void load(json j);
 
-        void setName(string name);
-        void setTexture(Texture* texture);
-        void setTexCoords(vec2 texCoords[4]);
+            string getName();
+            Texture* getTexture();
+            vec2* getTexCoords();
 
-};
+            void setName(string name);
+            void setTexture(Texture* texture);
+            void setTexCoords(vec2 texCoords[4]);
+
+    };
+
+}

@@ -4,15 +4,19 @@
 
 using glm::vec2;
 
-class CollisionManifold {
+namespace Pancake {
 
-    public:
+    class CollisionManifold {
 
-        vec2 normal;
-        vec2 contactPoint;
-        float depth;
+        public:
 
-        CollisionManifold();
-        CollisionManifold(vec2 normal, vec2 contactPoint, float depth);
+            vec2 normal;
+            vec2 contactPoint;
+            float depth;
 
-};
+            CollisionManifold();
+            CollisionManifold(vec2 normal, vec2 contactPoint, float depth);
+
+    };
+
+}

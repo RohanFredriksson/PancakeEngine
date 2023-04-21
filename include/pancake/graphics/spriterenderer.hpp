@@ -7,41 +7,45 @@
 using glm::vec2;
 using glm::vec4;
 
-class SpriteRenderer : public TransformableComponent {
+namespace Pancake {
 
-    private:
+    class SpriteRenderer : public TransformableComponent {
 
-        Sprite* sprite;
-        vec4 colour;
-        int zIndex;
+        private:
 
-        Sprite* lastSprite;
-        vec4 lastColour;
-        int lastZIndex;
-        vec2 lastPosition;
-        vec2 lastSize;
-        float lastRotation;
-        
-        bool dirty;
+            Sprite* sprite;
+            vec4 colour;
+            int zIndex;
 
-    public:
+            Sprite* lastSprite;
+            vec4 lastColour;
+            int lastZIndex;
+            vec2 lastPosition;
+            vec2 lastSize;
+            float lastRotation;
+            
+            bool dirty;
 
-        SpriteRenderer();
-        void end() override;
-        void update(float dt) override;
-        json serialise() override;
-        bool load(json j) override;
-        
-        // Getters
-        Sprite* getSprite();
-        vec4 getColour();
-        int getZIndex();
-        bool isDirty();
-        
-        // Setters
-        SpriteRenderer* setSprite(Sprite* sprite);
-        SpriteRenderer* setColour(vec4 colour);
-        SpriteRenderer* setZIndex(int zIndex);
-        SpriteRenderer* setClean();
+        public:
 
-};
+            SpriteRenderer();
+            void end() override;
+            void update(float dt) override;
+            json serialise() override;
+            bool load(json j) override;
+            
+            // Getters
+            Sprite* getSprite();
+            vec4 getColour();
+            int getZIndex();
+            bool isDirty();
+            
+            // Setters
+            SpriteRenderer* setSprite(Sprite* sprite);
+            SpriteRenderer* setColour(vec4 colour);
+            SpriteRenderer* setZIndex(int zIndex);
+            SpriteRenderer* setClean();
+
+    };
+
+}

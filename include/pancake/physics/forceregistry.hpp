@@ -6,30 +6,34 @@
 
 using std::vector;
 
-class ForceRegistry;
+namespace Pancake {
 
-class ForceRegistration {
+    class ForceRegistry;
 
-    public:
+    class ForceRegistration {
 
-        ForceGenerator* generator;
-        Rigidbody* rigidbody;
+        public:
 
-        ForceRegistration(ForceGenerator* generator, Rigidbody* rigidbody);
+            ForceGenerator* generator;
+            Rigidbody* rigidbody;
 
-};
+            ForceRegistration(ForceGenerator* generator, Rigidbody* rigidbody);
 
-class ForceRegistry {
+    };
 
-    private:
-        vector<ForceRegistration> registry;
+    class ForceRegistry {
 
-    public:
+        private:
+            vector<ForceRegistration> registry;
 
-        void add(ForceGenerator* generator, Rigidbody* rigidbody);
-        void remove(ForceGenerator* generator, Rigidbody* rigidbody);
-        void clear();
-        void updateForces(float dt);
-        void zeroForces();
+        public:
 
-};
+            void add(ForceGenerator* generator, Rigidbody* rigidbody);
+            void remove(ForceGenerator* generator, Rigidbody* rigidbody);
+            void clear();
+            void updateForces(float dt);
+            void zeroForces();
+
+    };
+
+}

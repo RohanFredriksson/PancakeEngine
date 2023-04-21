@@ -10,68 +10,72 @@ using std::vector;
 using glm::vec2;
 using json = nlohmann::json;
 
-class Component;
+namespace Pancake {
 
-class Entity {
+    class Component;
 
-    private:
+    class Entity {
 
-        int id;
-        bool started;
-        vector<Component*> components;
-        vector<Component*> newComponents;
-        vector<int> deadComponentIds;
-        vec2 position;
-        vec2 size;
-        float rotation;
-        bool serialisable;
-        bool dead;
+        private:
 
-        void init(int id, vec2 position, vec2 size, float radians, bool load);
+            int id;
+            bool started;
+            vector<Component*> components;
+            vector<Component*> newComponents;
+            vector<int> deadComponentIds;
+            vec2 position;
+            vec2 size;
+            float rotation;
+            bool serialisable;
+            bool dead;
 
-    public:
+            void init(int id, vec2 position, vec2 size, float radians, bool load);
 
-        Entity(vec2 position, vec2 size, float radians);
-        Entity();
-        ~Entity();
-        void start();
-        void update(float dt);
-        json serialise();
-        static Entity* load(json j);
-        void kill();
+        public:
 
-        // Getter Methods.
-        int getId();
-        vector<Component*> getComponents();
-        vector<Component*> getNewComponents();
-        vector<int> getDeadComponentIds();
-        vec2 getPosition();
-        vec2 getSize();
-        float getRotation();
-        bool isSerialisable();
-        bool isDead();
+            Entity(vec2 position, vec2 size, float radians);
+            Entity();
+            ~Entity();
+            void start();
+            void update(float dt);
+            json serialise();
+            static Entity* load(json j);
+            void kill();
 
-        // Getter Component Methods.
-        Component* getComponent(string type);
+            // Getter Methods.
+            int getId();
+            vector<Component*> getComponents();
+            vector<Component*> getNewComponents();
+            vector<int> getDeadComponentIds();
+            vec2 getPosition();
+            vec2 getSize();
+            float getRotation();
+            bool isSerialisable();
+            bool isDead();
 
-        // Setter Methods.
-        void setId(int id);
-        void setPosition(vec2 position);
-        void setSize(vec2 size);
-        void setRotation(float radians);
-        void setSerialisable(bool serialisable);
+            // Getter Component Methods.
+            Component* getComponent(string type);
 
-        // Adder Methods.
-        void addPosition(vec2 position);
-        void addSize(vec2 size);
-        void addRotation(float radians);
-        void addRotationAround(float radians, vec2 around);
+            // Setter Methods.
+            void setId(int id);
+            void setPosition(vec2 position);
+            void setSize(vec2 size);
+            void setRotation(float radians);
+            void setSerialisable(bool serialisable);
 
-        // Component Methods
-        void addComponent(Component* component);
-        void clearNewComponents();
-        void clearDeadComponentIds();
+            // Adder Methods.
+            void addPosition(vec2 position);
+            void addSize(vec2 size);
+            void addRotation(float radians);
+            void addRotationAround(float radians, vec2 around);
 
-};
+            // Component Methods
+            void addComponent(Component* component);
+            void clearNewComponents();
+            void clearDeadComponentIds();
+
+    };
+
+}
 
 #include "pancake/core/component.hpp"

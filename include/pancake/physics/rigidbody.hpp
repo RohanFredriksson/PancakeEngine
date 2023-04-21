@@ -7,84 +7,88 @@
 using std::vector;
 using glm::vec2;
 
-class Collider;
+namespace Pancake {
 
-class Rigidbody : public Component {
+    class Collider;
 
-    private:
+    class Rigidbody : public Component {
 
-        vector<Collider*> colliders;
+        private:
 
-        vec2 force;
-        vec2 velocity;
-        float torque;
-        float angularVelocity;
+            vector<Collider*> colliders;
 
-        float restitution;
-        float friction;
+            vec2 force;
+            vec2 velocity;
+            float torque;
+            float angularVelocity;
 
-        vec2 centroid;
-        float mass;
-        float moment;
-        bool centroidDirty;
-        bool massDirty;
-        bool momentDirty;
-        
-        bool sensor;
-        bool infiniteMass;
-        bool fixedOrientation;
+            float restitution;
+            float friction;
 
-    public:
+            vec2 centroid;
+            float mass;
+            float moment;
+            bool centroidDirty;
+            bool massDirty;
+            bool momentDirty;
+            
+            bool sensor;
+            bool infiniteMass;
+            bool fixedOrientation;
 
-        Rigidbody();
-        void end() override;
-        json serialise() override;
-        bool load(json j) override;
+        public:
 
-        vector<Collider*> getColliders();
-        vec2 getVelocity();
-        vec2 getCentroid();
-        float getAngularVelocity();
-        float getRestitution();
-        float getFriction();
-        float getMass();
-        float getInverseMass();
-        float getMomentOfInertia();
-        float getInverseMomentOfInertia();
-        bool isSensor();
-        bool hasFixedOrientation();
-        bool hasInfiniteMass();
+            Rigidbody();
+            void end() override;
+            json serialise() override;
+            bool load(json j) override;
 
-        Rigidbody* addCollider(Collider* collider);
-        Rigidbody* addColliders(vector<Collider*> colliders);
-        Rigidbody* removeCollider(Collider* collider);
-        Rigidbody* removeColliders(vector<Collider*> colliders);
-        Rigidbody* setCollider(Collider* collider);
-        Rigidbody* setColliders(vector<Collider*> colliders);
-        Rigidbody* clearColliders();
+            vector<Collider*> getColliders();
+            vec2 getVelocity();
+            vec2 getCentroid();
+            float getAngularVelocity();
+            float getRestitution();
+            float getFriction();
+            float getMass();
+            float getInverseMass();
+            float getMomentOfInertia();
+            float getInverseMomentOfInertia();
+            bool isSensor();
+            bool hasFixedOrientation();
+            bool hasInfiniteMass();
 
-        Rigidbody* setForce(vec2 force);
-        Rigidbody* setVelocity(vec2 velocity);
-        Rigidbody* setTorque(float torque);
-        Rigidbody* setAngularVelocity(float angularVelocity);
-        Rigidbody* setRestitution(float cor);
-        Rigidbody* setFriction(float cof);
-        Rigidbody* setSensor(bool sensor);
-        Rigidbody* setFixedOrientation(bool orientation);
-        Rigidbody* setCentroidDirty();
-        Rigidbody* setMassDirty();
-        Rigidbody* setMomentDirty();
+            Rigidbody* addCollider(Collider* collider);
+            Rigidbody* addColliders(vector<Collider*> colliders);
+            Rigidbody* removeCollider(Collider* collider);
+            Rigidbody* removeColliders(vector<Collider*> colliders);
+            Rigidbody* setCollider(Collider* collider);
+            Rigidbody* setColliders(vector<Collider*> colliders);
+            Rigidbody* clearColliders();
 
-        void physicsUpdate(float dt);
+            Rigidbody* setForce(vec2 force);
+            Rigidbody* setVelocity(vec2 velocity);
+            Rigidbody* setTorque(float torque);
+            Rigidbody* setAngularVelocity(float angularVelocity);
+            Rigidbody* setRestitution(float cor);
+            Rigidbody* setFriction(float cof);
+            Rigidbody* setSensor(bool sensor);
+            Rigidbody* setFixedOrientation(bool orientation);
+            Rigidbody* setCentroidDirty();
+            Rigidbody* setMassDirty();
+            Rigidbody* setMomentDirty();
 
-        void clearAccumulators();
-        void addVelocity(vec2 velocity);
-        void addAngularVelocity(float angularVelocity);
-        void addForce(vec2 force);
-        void addTorque(float torque);
-        void zeroForces();
-        void zeroTorque();
-        
-};
+            void physicsUpdate(float dt);
+
+            void clearAccumulators();
+            void addVelocity(vec2 velocity);
+            void addAngularVelocity(float angularVelocity);
+            void addForce(vec2 force);
+            void addTorque(float torque);
+            void zeroForces();
+            void zeroTorque();
+            
+    };
+
+}
 
 #include "pancake/physics/collider.hpp"

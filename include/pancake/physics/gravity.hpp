@@ -5,18 +5,22 @@
 
 using glm::vec2;
 
-class Gravity : public ForceGenerator {
+namespace Pancake {
 
-    private:
+    class Gravity : public ForceGenerator {
 
-        vec2 gravity;
+        private:
 
-    public:
+            vec2 gravity;
 
-        Gravity(vec2 gravity);
-        void updateForce(Rigidbody* rigidbody, float dt) override;
+        public:
 
-        vec2 getGravity();
-        void setGravity(vec2 gravity);
+            Gravity(vec2 gravity);
+            void updateForce(Rigidbody* rigidbody, float dt) override;
 
-};
+            vec2 getGravity();
+            void setGravity(vec2 gravity);
+
+    };
+
+}

@@ -16,40 +16,40 @@
 #include "pancake/physics/circle.hpp"
 #include "pancake/pancake.hpp"
 
-namespace {
-
-    // Methods to create polymorphic components.
-    void* AudioPlayerCreate()    {return new AudioPlayer();}
-    void* SpriteRendererCreate() {return new SpriteRenderer();}
-    void* TextRendererCreate()   {return new TextRenderer();}
-    void* RigidbodyCreate()      {return new Rigidbody();}
-    void* FadeFromBlackCreate()  {return new FadeFromBlack();}
-    void* FadeToBlackCreate()    {return new FadeToBlack();}
-    void* AnimationCreate()      {return new Animation();}
-
-    // Methods to create polymorphic colliders.
-    void* BoxCreate()    {return new Box();}
-    void* CircleCreate() {return new Circle();}
-
-    void registry() {
-        
-        // Add these methods to their corresponding factories, so we can load game state from files.
-        ComponentFactory::add("AudioPlayer", AudioPlayerCreate);
-        ComponentFactory::add("SpriteRenderer", SpriteRendererCreate);
-        ComponentFactory::add("TextRenderer", TextRendererCreate);
-        ComponentFactory::add("Rigidbody", RigidbodyCreate);
-        ComponentFactory::add("FadeFromBlack", FadeFromBlackCreate);
-        ComponentFactory::add("FadeToBlack", FadeToBlackCreate);
-        ComponentFactory::add("Animation", AnimationCreate);
-
-        ColliderFactory::add("Box", BoxCreate);
-        ColliderFactory::add("Circle", CircleCreate);
-    
-    }
-
-}
-
 namespace Pancake {
+
+    namespace {
+
+        // Methods to create polymorphic components.
+        void* AudioPlayerCreate()    {return new AudioPlayer();}
+        void* SpriteRendererCreate() {return new SpriteRenderer();}
+        void* TextRendererCreate()   {return new TextRenderer();}
+        void* RigidbodyCreate()      {return new Rigidbody();}
+        void* FadeFromBlackCreate()  {return new FadeFromBlack();}
+        void* FadeToBlackCreate()    {return new FadeToBlack();}
+        void* AnimationCreate()      {return new Animation();}
+
+        // Methods to create polymorphic colliders.
+        void* BoxCreate()    {return new Box();}
+        void* CircleCreate() {return new Circle();}
+
+        void registry() {
+            
+            // Add these methods to their corresponding factories, so we can load game state from files.
+            ComponentFactory::add("AudioPlayer", AudioPlayerCreate);
+            ComponentFactory::add("SpriteRenderer", SpriteRendererCreate);
+            ComponentFactory::add("TextRenderer", TextRendererCreate);
+            ComponentFactory::add("Rigidbody", RigidbodyCreate);
+            ComponentFactory::add("FadeFromBlack", FadeFromBlackCreate);
+            ComponentFactory::add("FadeToBlack", FadeToBlackCreate);
+            ComponentFactory::add("Animation", AnimationCreate);
+
+            ColliderFactory::add("Box", BoxCreate);
+            ColliderFactory::add("Circle", CircleCreate);
+        
+        }
+
+    }
 
     int run(string name, string filename, void(*init)(Scene* scene)) {
         registry();

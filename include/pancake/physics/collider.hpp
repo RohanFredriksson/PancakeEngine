@@ -7,49 +7,53 @@
 using glm::vec2;
 using std::string;
 
-class Rigidbody;
+namespace Pancake {
 
-class Collider {
+    class Rigidbody;
 
-    protected:
+    class Collider {
 
-        Rigidbody* rigidbody;
-        string type;
-        float mass;
-        vec2 positionOffset;
-        float rotationOffset;
+        protected:
 
-        void init(string type, float mass, vec2 positionOffset, float rotationOffset);
+            Rigidbody* rigidbody;
+            string type;
+            float mass;
+            vec2 positionOffset;
+            float rotationOffset;
 
-    public:
+            void init(string type, float mass, vec2 positionOffset, float rotationOffset);
 
-        Collider(string type);
-        virtual ~Collider();
-        virtual json serialise();
-        virtual bool load(json j);
+        public:
 
-        Rigidbody* getRigidbody();
-        float getMass();
-        virtual float getMomentOfInertia();
-        vec2 getPosition();
-        vec2 getPositionOffset();
-        float getRotation();
-        float getRotationOffset();
-        bool hasInfiniteMass();
+            Collider(string type);
+            virtual ~Collider();
+            virtual json serialise();
+            virtual bool load(json j);
 
-        Collider* setRigidbody(Rigidbody* rigidbody);
-        Collider* setMass(float mass);
-        Collider* setPositionOffset(vec2 offset);
-        Collider* setRotationOffset(float offset);
-        Collider* setPositionOffset(vec2 offset, bool update);
-        Collider* setRotationOffset(float offset, bool update);
+            Rigidbody* getRigidbody();
+            float getMass();
+            virtual float getMomentOfInertia();
+            vec2 getPosition();
+            vec2 getPositionOffset();
+            float getRotation();
+            float getRotationOffset();
+            bool hasInfiniteMass();
 
-};
+            Collider* setRigidbody(Rigidbody* rigidbody);
+            Collider* setMass(float mass);
+            Collider* setPositionOffset(vec2 offset);
+            Collider* setRotationOffset(float offset);
+            Collider* setPositionOffset(vec2 offset, bool update);
+            Collider* setRotationOffset(float offset, bool update);
 
-namespace ColliderFactory {
-    void add(string type, void* (*create)());
-    Collider* create(string type);
-    Collider* load(json);
+    };
+
+    namespace ColliderFactory {
+        void add(string type, void* (*create)());
+        Collider* create(string type);
+        Collider* load(json);
+    }
+
 }
 
 #include "pancake/physics/rigidbody.hpp"

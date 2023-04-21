@@ -11,47 +11,51 @@ using std::string;
 using glm::vec2;
 using glm::vec4;
 
-class TextRenderer : public TransformableComponent {
+namespace Pancake {
 
-    private:
+    class TextRenderer : public TransformableComponent {
 
-        string text;
-        Font* font;
-        vec4 colour;
-        int zIndex;
+        private:
 
-        vector<Component*> components;
+            string text;
+            Font* font;
+            vec4 colour;
+            int zIndex;
 
-        string lastText;
-        Font* lastFont;
-        vec4 lastColour;
-        vec2 lastPositionOffset;
-        vec2 lastSizeScale;
-        float lastRotationOffset;
-        int lastZIndex;
-        
-        bool dirty;
+            vector<Component*> components;
 
-    public:
+            string lastText;
+            Font* lastFont;
+            vec4 lastColour;
+            vec2 lastPositionOffset;
+            vec2 lastSizeScale;
+            float lastRotationOffset;
+            int lastZIndex;
+            
+            bool dirty;
 
-        TextRenderer();
-        void end() override;
-        void update(float dt) override;
-        json serialise() override;
-        bool load(json j) override;
+        public:
 
-        // Getters
-        string getText();
-        Font* getFont();
-        vec4 getColour();
-        int getZIndex();
-        bool isDirty();
-        
-        // Setters
-        TextRenderer* setText(string text);
-        TextRenderer* setFont(Font* font);
-        TextRenderer* setColour(vec4 colour);
-        TextRenderer* setZIndex(int zIndex);
-        TextRenderer* setClean();
+            TextRenderer();
+            void end() override;
+            void update(float dt) override;
+            json serialise() override;
+            bool load(json j) override;
 
-};
+            // Getters
+            string getText();
+            Font* getFont();
+            vec4 getColour();
+            int getZIndex();
+            bool isDirty();
+            
+            // Setters
+            TextRenderer* setText(string text);
+            TextRenderer* setFont(Font* font);
+            TextRenderer* setColour(vec4 colour);
+            TextRenderer* setZIndex(int zIndex);
+            TextRenderer* setClean();
+
+    };
+
+}

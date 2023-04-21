@@ -10,40 +10,44 @@
 using std::vector;
 using json = nlohmann::json;
 
-class Font {
+namespace Pancake {
 
-    private:
+    class Font {
 
-        string filename;
-        float size;
+        private:
 
-        int ascent;
-        int descent;
-        int lineGap;
+            string filename;
+            float size;
 
-        vector<int> advances;
-        vector<Sprite*> sprites;
-        Texture* texture;
+            int ascent;
+            int descent;
+            int lineGap;
 
-        void load(const unsigned char* fontBuffer, float size);
+            vector<int> advances;
+            vector<Sprite*> sprites;
+            Texture* texture;
 
-    public:
+            void load(const unsigned char* fontBuffer, float size);
 
-        Font(string filename, float size);
-        Font(float size);
-        ~Font();
-        json serialise();
-        static void load(json j);
-        
-        string getFilename();
-        float getSize();
-        int getAscent();
-        int getDescent();
-        int getLineGap();
-        int getAdvance(char code);
-        Sprite* getSprite(char code);
-        Texture* getTexture();
+        public:
 
-        float getScaleForHeight(float height);
+            Font(string filename, float size);
+            Font(float size);
+            ~Font();
+            json serialise();
+            static void load(json j);
+            
+            string getFilename();
+            float getSize();
+            int getAscent();
+            int getDescent();
+            int getLineGap();
+            int getAdvance(char code);
+            Sprite* getSprite(char code);
+            Texture* getTexture();
 
-};
+            float getScaleForHeight(float height);
+
+    };
+
+}

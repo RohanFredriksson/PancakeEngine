@@ -8,25 +8,29 @@ using std::string;
 using SoLoud::Wav;
 using json = nlohmann::json;
 
-class AudioWave {
+namespace Pancake {
 
-    private:
-        Wav source;
-        string filename;
+    class AudioWave {
 
-    public:
+        private:
+            Wav source;
+            string filename;
 
-        AudioWave(string filename);
-        json serialise();
-        static void load(json j);
-        
-        Wav& getSource();
-        string getFilename();
-        float getLength();
+        public:
 
-        void setVolume(float volume);
-        void setLooping(bool looping);
+            AudioWave(string filename);
+            json serialise();
+            static void load(json j);
+            
+            Wav& getSource();
+            string getFilename();
+            float getLength();
 
-        void stop();
+            void setVolume(float volume);
+            void setLooping(bool looping);
 
-};
+            void stop();
+
+    };
+
+}

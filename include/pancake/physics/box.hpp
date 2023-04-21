@@ -5,25 +5,29 @@
 
 using glm::vec2;
 
-class Box : public Collider {
+namespace Pancake {
 
-    private:
+    class Box : public Collider {
 
-        vec2 size;
-        vec2 halfSize;
+        private:
 
-    public:
+            vec2 size;
+            vec2 halfSize;
 
-        Box();
-        json serialise() override;
-        bool load(json j) override;
+        public:
 
-        float getMomentOfInertia() override;
-        vec2 getSize();
-        vec2 getHalfSize();
-        vec2 getMin();
-        vec2 getMax();
+            Box();
+            json serialise() override;
+            bool load(json j) override;
 
-        Box* setSize(vec2 size);
+            float getMomentOfInertia() override;
+            vec2 getSize();
+            vec2 getHalfSize();
+            vec2 getMin();
+            vec2 getMax();
 
-};
+            Box* setSize(vec2 size);
+
+    };
+
+}

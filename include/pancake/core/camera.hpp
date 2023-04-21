@@ -7,52 +7,56 @@ using glm::vec2;
 using glm::mat4;
 using json = nlohmann::json;
 
-class Camera {
+namespace Pancake {
 
-    private:
+    class Camera {
 
-        vec2 position;
-        vec2 projectionSize;
-        float zoom;
+        private:
 
-        mat4 projection;
-        mat4 view;
-        mat4 inverseProjection;
-        mat4 inverseView;
+            vec2 position;
+            vec2 projectionSize;
+            float zoom;
 
-        bool moving;
-        vec2 initialPosition;
-        vec2 finalPosition;
-        vec2 normal;
-        float timeCurrent;
-        float timeTotal;
-        float timeHalf;
-        float distance;
-        float maxVelocity;
-        
-    public:
+            mat4 projection;
+            mat4 view;
+            mat4 inverseProjection;
+            mat4 inverseView;
 
-        Camera(vec2 position, vec2 projectionSize, float zoom);
-        void adjustProjection();
-        void update(float dt);
-        void move(vec2 to, float t);
-        json serialise();
-        void load(json j);
+            bool moving;
+            vec2 initialPosition;
+            vec2 finalPosition;
+            vec2 normal;
+            float timeCurrent;
+            float timeTotal;
+            float timeHalf;
+            float distance;
+            float maxVelocity;
+            
+        public:
 
-        vec2 getPosition();
-        vec2 getProjectionSize();
-        mat4 getProjection();
-        mat4 getView();
-        mat4 getInverseProjection();
-        mat4 getInverseView();
-        float getZoom();
+            Camera(vec2 position, vec2 projectionSize, float zoom);
+            void adjustProjection();
+            void update(float dt);
+            void move(vec2 to, float t);
+            json serialise();
+            void load(json j);
 
-        void setPosition(vec2 position);
-        void setProjectionSize(vec2 projectionSize);
-        void setZoom(float zoom);
+            vec2 getPosition();
+            vec2 getProjectionSize();
+            mat4 getProjection();
+            mat4 getView();
+            mat4 getInverseProjection();
+            mat4 getInverseView();
+            float getZoom();
 
-        void addPosition(vec2 position);
-        void addZoom(float zoom);
-        void scaleZoom(float scale);
+            void setPosition(vec2 position);
+            void setProjectionSize(vec2 projectionSize);
+            void setZoom(float zoom);
 
-};
+            void addPosition(vec2 position);
+            void addZoom(float zoom);
+            void scaleZoom(float scale);
+
+    };
+
+}

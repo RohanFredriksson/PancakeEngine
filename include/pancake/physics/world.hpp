@@ -11,36 +11,40 @@
 using std::vector;
 using json = nlohmann::json;
 
-class World {
+namespace Pancake {
 
-    private:
+    class World {
 
-        ForceRegistry registry;
-        Gravity* gravity;
-        vector<Rigidbody*> rigidbodies;
-        vector<Rigidbody*> bodies1;
-        vector<Rigidbody*> bodies2;
-        vector<vector<CollisionManifold*>> collisions;
-        float timeStep;
-        float time;
+        private:
 
-        void fixedUpdate();
-        void clearCollisionLists();
+            ForceRegistry registry;
+            Gravity* gravity;
+            vector<Rigidbody*> rigidbodies;
+            vector<Rigidbody*> bodies1;
+            vector<Rigidbody*> bodies2;
+            vector<vector<CollisionManifold*>> collisions;
+            float timeStep;
+            float time;
 
-    public:
+            void fixedUpdate();
+            void clearCollisionLists();
 
-        World(float timeStep, vec2 gravity);
-        ~World();
+        public:
 
-        void update(float dt);
-        void render();
-        json serialise();
-        void load(json j);
-        void add(Rigidbody* rigidbody);
-        void remove(Rigidbody* rigidbody);
-        RaycastResult raycast(Ray* ray);
+            World(float timeStep, vec2 gravity);
+            ~World();
 
-        vec2 getGravity();
-        void setGravity(vec2 gravity);
+            void update(float dt);
+            void render();
+            json serialise();
+            void load(json j);
+            void add(Rigidbody* rigidbody);
+            void remove(Rigidbody* rigidbody);
+            RaycastResult raycast(Ray* ray);
 
-};
+            vec2 getGravity();
+            void setGravity(vec2 gravity);
+
+    };
+
+}

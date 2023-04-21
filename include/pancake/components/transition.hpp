@@ -2,13 +2,17 @@
 
 #include "pancake/core/component.hpp"
 
-class Transition : public Component {
+namespace Pancake {
 
-    public:
+    class Transition : public Component {
 
-        Transition(string type);
+        public:
 
-        void flag();
-        virtual void onFlag();
-        
-};
+            Transition(string type);
+
+            void flag();
+            virtual void onFlag();
+            
+    };
+
+}

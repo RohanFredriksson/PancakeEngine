@@ -10,78 +10,82 @@ using std::string;
 using glm::vec2;
 using json = nlohmann::json;
 
-class Entity;
+namespace Pancake {
 
-class Component {
+    class Entity;
 
-    protected:
+    class Component {
 
-        int id;
-        string type;
-        Entity* entity;
-        bool serialisable;
-        bool dead;
+        protected:
 
-        void init(int id, string type, bool load);
+            int id;
+            string type;
+            Entity* entity;
+            bool serialisable;
+            bool dead;
 
-    public:
+            void init(int id, string type, bool load);
 
-        Component(string type);
-        virtual ~Component();
-        virtual void start();
-        virtual void end();
-        virtual void update(float dt);
-        virtual json serialise();
-        virtual bool load(json j);
-        void kill();
-        
-        int getId();
-        string getType();
-        Entity* getEntity();
-        bool isSerialisable();
-        bool isDead();
-        
-        void setId(int id);
-        void setEntity(Entity* entity);
-        void setSerialisable(bool serialisable);
+        public:
 
-};
+            Component(string type);
+            virtual ~Component();
+            virtual void start();
+            virtual void end();
+            virtual void update(float dt);
+            virtual json serialise();
+            virtual bool load(json j);
+            void kill();
+            
+            int getId();
+            string getType();
+            Entity* getEntity();
+            bool isSerialisable();
+            bool isDead();
+            
+            void setId(int id);
+            void setEntity(Entity* entity);
+            void setSerialisable(bool serialisable);
 
-class TransformableComponent : public Component {
+    };
 
-    protected:
+    class TransformableComponent : public Component {
 
-        vec2 positionOffset;
-        vec2 sizeScale;
-        float rotationOffset;
+        protected:
 
-    public:
+            vec2 positionOffset;
+            vec2 sizeScale;
+            float rotationOffset;
 
-        TransformableComponent(string type);
-        virtual json serialise() override;
-        virtual bool load(json j) override;
+        public:
 
-        vec2 getPosition();
-        vec2 getSize();
-        float getRotation();
-        vec2 getPositionOffset();
-        vec2 getSizeScale();
-        float getRotationOffset();
+            TransformableComponent(string type);
+            virtual json serialise() override;
+            virtual bool load(json j) override;
 
-        void setPositionOffset(vec2 offset);
-        void setSizeScale(vec2 scale);
-        void setRotationOffset(float offset);
+            vec2 getPosition();
+            vec2 getSize();
+            float getRotation();
+            vec2 getPositionOffset();
+            vec2 getSizeScale();
+            float getRotationOffset();
 
-        void addPositionOffset(vec2 offset);
-        void addSizeScale(vec2 scale);
-        void addRotationOffset(float offset);
+            void setPositionOffset(vec2 offset);
+            void setSizeScale(vec2 scale);
+            void setRotationOffset(float offset);
 
-};
+            void addPositionOffset(vec2 offset);
+            void addSizeScale(vec2 scale);
+            void addRotationOffset(float offset);
 
-namespace ComponentFactory {
-    void add(string type, void* (*create)());
-    Component* create(string type);
-    Component* load(json);
+    };
+
+    namespace ComponentFactory {
+        void add(string type, void* (*create)());
+        Component* create(string type);
+        Component* load(json);
+    }
+
 }
 
 #include "pancake/core/entity.hpp"

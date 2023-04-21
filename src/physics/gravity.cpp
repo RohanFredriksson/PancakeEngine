@@ -1,18 +1,22 @@
 #include "pancake/physics/gravity.hpp"
 
-Gravity::Gravity(vec2 gravity) {
-    this->gravity = gravity;
-}
+namespace Pancake {
 
-void Gravity::updateForce(Rigidbody* rigidbody, float dt)  {
-    vec2 acceleration = this->gravity * rigidbody->getMass();
-    rigidbody->addForce(acceleration);
-}
+    Gravity::Gravity(vec2 gravity) {
+        this->gravity = gravity;
+    }
 
-vec2 Gravity::getGravity() {
-    return this->gravity;
-}
+    void Gravity::updateForce(Rigidbody* rigidbody, float dt)  {
+        vec2 acceleration = this->gravity * rigidbody->getMass();
+        rigidbody->addForce(acceleration);
+    }
 
-void Gravity::setGravity(vec2 gravity)  {
-    this->gravity = gravity;
+    vec2 Gravity::getGravity() {
+        return this->gravity;
+    }
+
+    void Gravity::setGravity(vec2 gravity)  {
+        this->gravity = gravity;
+    }
+
 }

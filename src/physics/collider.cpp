@@ -4,181 +4,185 @@
 
 using std::unordered_map;
 
-void Collider::init(string type, float mass, vec2 positionOffset, float rotationOffset) {
-    this->rigidbody = nullptr;
-    this->type = type;
-    this->mass = mass;
-    this->positionOffset = positionOffset;
-    this->rotationOffset = rotationOffset;
-}
+namespace Pancake {
 
-Collider::Collider(string type) {
-    this->init(type, 0.0f, vec2(0.0f, 0.0f), 0.0f);
-}
-
-Collider::~Collider() {
-
-}
-
-json Collider::serialise() {
-
-    json j;
-
-    j.emplace("type", this->type);
-    j.emplace("mass", this->mass);
-
-    j.emplace("positionOffset", json::array());
-    j["positionOffset"].push_back(this->positionOffset.x);
-    j["positionOffset"].push_back(this->positionOffset.y);
-
-    j.emplace("rotationOffset", this->rotationOffset);
-
-    return j;
-
-}
-
-bool Collider::load(json j) {
-    
-    if (!j.contains("type") || !j["type"].is_string()) {return false;}
-    if (!j.contains("mass") || !j["mass"].is_number()) {return false;}
-    
-    if (!j.contains("positionOffset") || !j["positionOffset"].is_array()) {return false;}
-    if (j["positionOffset"].size() != 2) {return false;}
-    if (!j["positionOffset"][0].is_number()) {return false;}
-    if (!j["positionOffset"][1].is_number()) {return false;}
-
-    if (!j.contains("rotationOffset") || !j["rotationOffset"].is_number()) {return false;}
-
-    this->init(j["type"], j["mass"], vec2(j["positionOffset"][0], j["positionOffset"][1]), j["rotationOffset"]);
-
-    return true;
-
-}
-
-Rigidbody* Collider::getRigidbody() {
-    return this->rigidbody;
-}
-
-float Collider::getMass() {
-    return this->mass;
-}
-
-float Collider::getMomentOfInertia() {
-    return FLT_MAX;
-}
-
-vec2 Collider::getPosition() {
-    return this->rigidbody->getEntity()->getPosition() + this->positionOffset;
-}
-
-vec2 Collider::getPositionOffset() {
-    return this->positionOffset;
-}
-
-float Collider::getRotation() {
-    return this->rigidbody->getEntity()->getRotation() + this->rotationOffset;
-}
-
-float Collider::getRotationOffset() {
-    return this->rotationOffset;
-}
-
-bool Collider::hasInfiniteMass() {
-    return this->mass <= 0.0f;
-}
-
-Collider* Collider::setRigidbody(Rigidbody* rigidbody) {
-    this->rigidbody = rigidbody;
-    return this;
-}
-
-Collider* Collider::setMass(float mass) {
-
-    if (this->rigidbody != nullptr) {
-        this->rigidbody->setCentroidDirty();
-        this->rigidbody->setMomentDirty();
-        this->rigidbody->setMassDirty();
+    void Collider::init(string type, float mass, vec2 positionOffset, float rotationOffset) {
+        this->rigidbody = nullptr;
+        this->type = type;
+        this->mass = mass;
+        this->positionOffset = positionOffset;
+        this->rotationOffset = rotationOffset;
     }
 
-    if (mass < 0.0f) {std::cout << "WARNING::COLLIDER::SET_MASS::NEGATIVE_MASS\n";}
-    this->mass = mass;
-    return this;
-}
-
-Collider* Collider::setPositionOffset(vec2 offset){
-
-    if (this->rigidbody != nullptr) {
-        this->rigidbody->setCentroidDirty();
-        this->rigidbody->setMomentDirty();
+    Collider::Collider(string type) {
+        this->init(type, 0.0f, vec2(0.0f, 0.0f), 0.0f);
     }
 
-    this->positionOffset = offset;
-    return this;
-}
+    Collider::~Collider() {
 
-Collider* Collider::setRotationOffset(float offset) {
-
-    if (this->rigidbody != nullptr) {
-        this->rigidbody->setCentroidDirty();
-        this->rigidbody->setMomentDirty();
     }
 
-    this->rotationOffset = offset;
-    return this;
-}
+    json Collider::serialise() {
 
-Collider* Collider::setPositionOffset(vec2 offset, bool update) {
+        json j;
 
-    if (update && this->rigidbody != nullptr) {
-        this->rigidbody->setCentroidDirty();
-        this->rigidbody->setMomentDirty();
+        j.emplace("type", this->type);
+        j.emplace("mass", this->mass);
+
+        j.emplace("positionOffset", json::array());
+        j["positionOffset"].push_back(this->positionOffset.x);
+        j["positionOffset"].push_back(this->positionOffset.y);
+
+        j.emplace("rotationOffset", this->rotationOffset);
+
+        return j;
+
     }
 
-    this->positionOffset = offset;
-    return this;
-}
-
-Collider* Collider::setRotationOffset(float offset, bool update) {
-
-    if (update && this->rigidbody != nullptr) {
-        this->rigidbody->setCentroidDirty();
-        this->rigidbody->setMomentDirty();
-    }
-
-    this->rotationOffset = offset;
-    return this;
-}
-
-namespace {
-    unordered_map<string, void*(*)()> colliders;
-}
-
-namespace ColliderFactory {
-
-    void add(string type, void*(*method)()) {
-        colliders[type] = method;
-    }
-
-    Collider* create(string type) {
-        auto search = colliders.find(type);
-        if (search == colliders.end()) {return nullptr;}
-        return (Collider*)(search->second());
-    }
-
-    Collider* load(json j) {
+    bool Collider::load(json j) {
         
-        if (!j.contains("type") || !j["type"].is_string()) {return nullptr;}
-        auto search = colliders.find(j["type"]);
-        if (search == colliders.end()) {return nullptr;}
+        if (!j.contains("type") || !j["type"].is_string()) {return false;}
+        if (!j.contains("mass") || !j["mass"].is_number()) {return false;}
         
-        Collider* collider = (Collider*)(search->second());
-        if (collider == nullptr) {return nullptr;}
-        if (!collider->load(j)) {
-            delete collider; 
-            return nullptr;
+        if (!j.contains("positionOffset") || !j["positionOffset"].is_array()) {return false;}
+        if (j["positionOffset"].size() != 2) {return false;}
+        if (!j["positionOffset"][0].is_number()) {return false;}
+        if (!j["positionOffset"][1].is_number()) {return false;}
+
+        if (!j.contains("rotationOffset") || !j["rotationOffset"].is_number()) {return false;}
+
+        this->init(j["type"], j["mass"], vec2(j["positionOffset"][0], j["positionOffset"][1]), j["rotationOffset"]);
+
+        return true;
+
+    }
+
+    Rigidbody* Collider::getRigidbody() {
+        return this->rigidbody;
+    }
+
+    float Collider::getMass() {
+        return this->mass;
+    }
+
+    float Collider::getMomentOfInertia() {
+        return FLT_MAX;
+    }
+
+    vec2 Collider::getPosition() {
+        return this->rigidbody->getEntity()->getPosition() + this->positionOffset;
+    }
+
+    vec2 Collider::getPositionOffset() {
+        return this->positionOffset;
+    }
+
+    float Collider::getRotation() {
+        return this->rigidbody->getEntity()->getRotation() + this->rotationOffset;
+    }
+
+    float Collider::getRotationOffset() {
+        return this->rotationOffset;
+    }
+
+    bool Collider::hasInfiniteMass() {
+        return this->mass <= 0.0f;
+    }
+
+    Collider* Collider::setRigidbody(Rigidbody* rigidbody) {
+        this->rigidbody = rigidbody;
+        return this;
+    }
+
+    Collider* Collider::setMass(float mass) {
+
+        if (this->rigidbody != nullptr) {
+            this->rigidbody->setCentroidDirty();
+            this->rigidbody->setMomentDirty();
+            this->rigidbody->setMassDirty();
         }
 
-        return collider;
+        if (mass < 0.0f) {std::cout << "WARNING::COLLIDER::SET_MASS::NEGATIVE_MASS\n";}
+        this->mass = mass;
+        return this;
+    }
+
+    Collider* Collider::setPositionOffset(vec2 offset){
+
+        if (this->rigidbody != nullptr) {
+            this->rigidbody->setCentroidDirty();
+            this->rigidbody->setMomentDirty();
+        }
+
+        this->positionOffset = offset;
+        return this;
+    }
+
+    Collider* Collider::setRotationOffset(float offset) {
+
+        if (this->rigidbody != nullptr) {
+            this->rigidbody->setCentroidDirty();
+            this->rigidbody->setMomentDirty();
+        }
+
+        this->rotationOffset = offset;
+        return this;
+    }
+
+    Collider* Collider::setPositionOffset(vec2 offset, bool update) {
+
+        if (update && this->rigidbody != nullptr) {
+            this->rigidbody->setCentroidDirty();
+            this->rigidbody->setMomentDirty();
+        }
+
+        this->positionOffset = offset;
+        return this;
+    }
+
+    Collider* Collider::setRotationOffset(float offset, bool update) {
+
+        if (update && this->rigidbody != nullptr) {
+            this->rigidbody->setCentroidDirty();
+            this->rigidbody->setMomentDirty();
+        }
+
+        this->rotationOffset = offset;
+        return this;
+    }
+
+    namespace {
+        unordered_map<string, void*(*)()> colliders;
+    }
+
+    namespace ColliderFactory {
+
+        void add(string type, void*(*method)()) {
+            colliders[type] = method;
+        }
+
+        Collider* create(string type) {
+            auto search = colliders.find(type);
+            if (search == colliders.end()) {return nullptr;}
+            return (Collider*)(search->second());
+        }
+
+        Collider* load(json j) {
+            
+            if (!j.contains("type") || !j["type"].is_string()) {return nullptr;}
+            auto search = colliders.find(j["type"]);
+            if (search == colliders.end()) {return nullptr;}
+            
+            Collider* collider = (Collider*)(search->second());
+            if (collider == nullptr) {return nullptr;}
+            if (!collider->load(j)) {
+                delete collider; 
+                return nullptr;
+            }
+
+            return collider;
+        }
+
     }
 
 }

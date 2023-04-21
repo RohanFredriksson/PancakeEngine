@@ -2,19 +2,23 @@
 
 #include "pancake/physics/collider.hpp"
 
-class Circle : public Collider {
+namespace Pancake {
 
-    private:
+    class Circle : public Collider {
 
-        float radius;
+        private:
 
-    public:
+            float radius;
 
-        Circle();
-        json serialise() override;
-        bool load(json j) override;
+        public:
 
-        float getMomentOfInertia() override;
-        float getRadius();
-        Circle* setRadius(float radius);
-};
+            Circle();
+            json serialise() override;
+            bool load(json j) override;
+
+            float getMomentOfInertia() override;
+            float getRadius();
+            Circle* setRadius(float radius);
+    };
+
+}

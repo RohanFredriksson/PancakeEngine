@@ -1,100 +1,104 @@
 #include <algorithm>
 #include "pancake/components/fade.hpp"
 
-FadeFromBlack::FadeFromBlack() : Transition("FadeFromBlack") {
-    this->spriterenderer = nullptr;
-    this->duration = 0.0f;
-    this->time = 0.0f;
-}
+namespace Pancake {
 
-void FadeFromBlack::start() {
-    this->spriterenderer = new SpriteRenderer();
-    this->spriterenderer->setSerialisable(false);
-    this->spriterenderer->setSizeScale(vec2(10000.0f, 10000.0f));
-    this->spriterenderer->setColour(vec4(0.0f, 0.0f, 0.0f, 1.0f));
-    this->spriterenderer->setZIndex(1000);
-    this->getEntity()->addComponent(this->spriterenderer);
-}
+    FadeFromBlack::FadeFromBlack() : Transition("FadeFromBlack") {
+        this->spriterenderer = nullptr;
+        this->duration = 0.0f;
+        this->time = 0.0f;
+    }
 
-void FadeFromBlack::end() {
-    this->spriterenderer->kill();
-}
+    void FadeFromBlack::start() {
+        this->spriterenderer = new SpriteRenderer();
+        this->spriterenderer->setSerialisable(false);
+        this->spriterenderer->setSizeScale(vec2(10000.0f, 10000.0f));
+        this->spriterenderer->setColour(vec4(0.0f, 0.0f, 0.0f, 1.0f));
+        this->spriterenderer->setZIndex(1000);
+        this->getEntity()->addComponent(this->spriterenderer);
+    }
 
-void FadeFromBlack::update(float dt) {
-    this->time += dt;
-    this->spriterenderer->setColour(vec4(0.0f, 0.0f, 0.0f, std::max(0.0f, 1.0f - (this->time / this->duration))));
-    if (this->time >= this->duration) {this->flag();}
-}
+    void FadeFromBlack::end() {
+        this->spriterenderer->kill();
+    }
 
-json FadeFromBlack::serialise() {
-    json j = this->Component::serialise();
-    j.emplace("duration", this->duration);
-    j.emplace("time", this->time);
-    return j;
-}
+    void FadeFromBlack::update(float dt) {
+        this->time += dt;
+        this->spriterenderer->setColour(vec4(0.0f, 0.0f, 0.0f, std::max(0.0f, 1.0f - (this->time / this->duration))));
+        if (this->time >= this->duration) {this->flag();}
+    }
 
-bool FadeFromBlack::load(json j) {
-    if (!this->Component::load(j)) {return false;}
-    if (!j.contains("duration") || !j["duration"].is_number()) {return false;}
-    if (!j.contains("time") || !j["time"].is_number()) {return false;}
-    this->duration = j["duration"];
-    this->time = j["time"];
-    return true;
-}
+    json FadeFromBlack::serialise() {
+        json j = this->Component::serialise();
+        j.emplace("duration", this->duration);
+        j.emplace("time", this->time);
+        return j;
+    }
 
-void FadeFromBlack::setDuration(float duration) {
-    this->duration = duration;
-}
+    bool FadeFromBlack::load(json j) {
+        if (!this->Component::load(j)) {return false;}
+        if (!j.contains("duration") || !j["duration"].is_number()) {return false;}
+        if (!j.contains("time") || !j["time"].is_number()) {return false;}
+        this->duration = j["duration"];
+        this->time = j["time"];
+        return true;
+    }
 
-float FadeFromBlack::getDuration() {
-    return this->duration;
-}
+    void FadeFromBlack::setDuration(float duration) {
+        this->duration = duration;
+    }
 
-FadeToBlack::FadeToBlack() : Transition("FadeToBlack") {
-    this->spriterenderer = nullptr;
-    this->duration = 0.0f;
-    this->time = 0.0f;
-}
+    float FadeFromBlack::getDuration() {
+        return this->duration;
+    }
 
-void FadeToBlack::start() {
-    this->spriterenderer = new SpriteRenderer();
-    this->spriterenderer->setSerialisable(false);
-    this->spriterenderer->setSizeScale(vec2(10000.0f, 10000.0f));
-    this->spriterenderer->setColour(vec4(0.0f, 0.0f, 0.0f, 0.0f));
-    this->spriterenderer->setZIndex(1000);
-    this->getEntity()->addComponent(this->spriterenderer);
-}
+    FadeToBlack::FadeToBlack() : Transition("FadeToBlack") {
+        this->spriterenderer = nullptr;
+        this->duration = 0.0f;
+        this->time = 0.0f;
+    }
 
-void FadeToBlack::end() {
-    this->spriterenderer->kill();
-}
+    void FadeToBlack::start() {
+        this->spriterenderer = new SpriteRenderer();
+        this->spriterenderer->setSerialisable(false);
+        this->spriterenderer->setSizeScale(vec2(10000.0f, 10000.0f));
+        this->spriterenderer->setColour(vec4(0.0f, 0.0f, 0.0f, 0.0f));
+        this->spriterenderer->setZIndex(1000);
+        this->getEntity()->addComponent(this->spriterenderer);
+    }
 
-void FadeToBlack::update(float dt) {
-    this->time += dt;
-    this->spriterenderer->setColour(vec4(0.0f, 0.0f, 0.0f, std::min(1.0f, this->time / this->duration)));
-    if (this->time >= this->duration) {this->flag();}
-}
+    void FadeToBlack::end() {
+        this->spriterenderer->kill();
+    }
 
-json FadeToBlack::serialise() {
-    json j = this->Component::serialise();
-    j.emplace("duration", this->duration);
-    j.emplace("time", this->time);
-    return j;
-}
+    void FadeToBlack::update(float dt) {
+        this->time += dt;
+        this->spriterenderer->setColour(vec4(0.0f, 0.0f, 0.0f, std::min(1.0f, this->time / this->duration)));
+        if (this->time >= this->duration) {this->flag();}
+    }
 
-bool FadeToBlack::load(json j) {
-    if (!this->Component::load(j)) {return false;}
-    if (!j.contains("duration") || !j["duration"].is_number()) {return false;}
-    if (!j.contains("time") || !j["time"].is_number()) {return false;}
-    this->duration = j["duration"];
-    this->time = j["time"];
-    return true;
-}
+    json FadeToBlack::serialise() {
+        json j = this->Component::serialise();
+        j.emplace("duration", this->duration);
+        j.emplace("time", this->time);
+        return j;
+    }
 
-void FadeToBlack::setDuration(float duration) {
-    this->duration = duration;
-}
+    bool FadeToBlack::load(json j) {
+        if (!this->Component::load(j)) {return false;}
+        if (!j.contains("duration") || !j["duration"].is_number()) {return false;}
+        if (!j.contains("time") || !j["time"].is_number()) {return false;}
+        this->duration = j["duration"];
+        this->time = j["time"];
+        return true;
+    }
 
-float FadeToBlack::getDuration() {
-    return this->duration;
+    void FadeToBlack::setDuration(float duration) {
+        this->duration = duration;
+    }
+
+    float FadeToBlack::getDuration() {
+        return this->duration;
+    }
+
 }

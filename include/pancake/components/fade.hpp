@@ -3,46 +3,50 @@
 #include "pancake/components/transition.hpp"
 #include "pancake/graphics/spriterenderer.hpp"
 
-class FadeFromBlack : public Transition {
+namespace Pancake {
 
-    private:
+    class FadeFromBlack : public Transition {
 
-        SpriteRenderer* spriterenderer;
-        float duration;
-        float time;
+        private:
 
-    public:
+            SpriteRenderer* spriterenderer;
+            float duration;
+            float time;
 
-        FadeFromBlack();
-        void start() override;
-        void end() override;
-        void update(float dt) override;
-        json serialise() override;
-        bool load(json j) override;
+        public:
 
-        void setDuration(float duration);
-        float getDuration();
+            FadeFromBlack();
+            void start() override;
+            void end() override;
+            void update(float dt) override;
+            json serialise() override;
+            bool load(json j) override;
 
-};
+            void setDuration(float duration);
+            float getDuration();
 
-class FadeToBlack : public Transition {
+    };
 
-    private:
+    class FadeToBlack : public Transition {
 
-        SpriteRenderer* spriterenderer;
-        float duration;
-        float time;
+        private:
 
-    public:
+            SpriteRenderer* spriterenderer;
+            float duration;
+            float time;
 
-        FadeToBlack();
-        void start() override;
-        void end() override;
-        void update(float dt) override;
-        json serialise() override;
-        bool load(json j) override;
+        public:
 
-        void setDuration(float duration);
-        float getDuration();
+            FadeToBlack();
+            void start() override;
+            void end() override;
+            void update(float dt) override;
+            json serialise() override;
+            bool load(json j) override;
 
-};
+            void setDuration(float duration);
+            float getDuration();
+
+    };
+
+}

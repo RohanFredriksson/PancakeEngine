@@ -5,31 +5,35 @@
 
 using glm::vec2;
 
-class Ray {
-  
-    public:
+namespace Pancake {
 
-        vec2 origin;
-        vec2 direction;
+    class Ray {
+    
+        public:
 
-        Ray(vec2 origin, vec2 direction);
+            vec2 origin;
+            vec2 direction;
 
-};
+            Ray(vec2 origin, vec2 direction);
 
-class RaycastResult {
+    };
 
-    public:
+    class RaycastResult {
 
-        vec2 point;
-        vec2 normal;
-        float distance;
-        Entity* hit;
+        public:
 
-        RaycastResult(vec2 point, vec2 normal, float distance, Entity* hit);
-        RaycastResult();
-        
-};
+            vec2 point;
+            vec2 normal;
+            float distance;
+            Entity* hit;
 
-namespace Raycast {
-    RaycastResult raycast(Rigidbody* rigidbody, Ray* ray);
+            RaycastResult(vec2 point, vec2 normal, float distance, Entity* hit);
+            RaycastResult();
+            
+    };
+
+    namespace Raycast {
+        RaycastResult raycast(Rigidbody* rigidbody, Ray* ray);
+    }
+
 }

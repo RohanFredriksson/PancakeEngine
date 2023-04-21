@@ -9,60 +9,64 @@
 using std::deque;
 using std::vector;
 
-class RenderBatch;
+namespace Pancake {
 
-class Renderer {
+    class RenderBatch;
 
-    private:
+    class Renderer {
 
-        deque<RenderBatch*> batches;
+        private:
 
-    public:
+            deque<RenderBatch*> batches;
 
-        Renderer();
-        ~Renderer();
+        public:
 
-        void render();
-        void add(SpriteRenderer* sprite);
-        void remove(SpriteRenderer* sprite);
-        static void bindShader(Shader* shader);
-        static Shader* getBoundShader(Shader* shader);
+            Renderer();
+            ~Renderer();
 
-};
+            void render();
+            void add(SpriteRenderer* sprite);
+            void remove(SpriteRenderer* sprite);
+            static void bindShader(Shader* shader);
+            static Shader* getBoundShader(Shader* shader);
 
-class RenderBatch {
+    };
 
-    private:
+    class RenderBatch {
 
-        Renderer* renderer;
-        vector<SpriteRenderer*> sprites;
-        vector<Texture*> textures;
-        
-        float* vertices;
-        unsigned int vao;
-        unsigned int vbo;
-        int zIndex;
+        private:
 
-    public:
+            Renderer* renderer;
+            vector<SpriteRenderer*> sprites;
+            vector<Texture*> textures;
+            
+            float* vertices;
+            unsigned int vao;
+            unsigned int vbo;
+            int zIndex;
 
-        RenderBatch(Renderer* renderer, int zIndex);
-        ~RenderBatch();
+        public:
 
-        static void generateIndices(int* elements);
-        static void loadElementIndices(int* elements, int index);
-        void loadVertexProperties(int index);
+            RenderBatch(Renderer* renderer, int zIndex);
+            ~RenderBatch();
 
-        void render();
-        void addSprite(SpriteRenderer* sprite);
-        void removeSprite(SpriteRenderer* sprite);
+            static void generateIndices(int* elements);
+            static void loadElementIndices(int* elements, int index);
+            void loadVertexProperties(int index);
 
-        void addTexture(Texture* texture);
-        void removeTextureIfNotUsed(Texture* texture);
+            void render();
+            void addSprite(SpriteRenderer* sprite);
+            void removeSprite(SpriteRenderer* sprite);
 
-        bool hasRoom();
-        bool hasTextureRoom();
-        bool hasTexture(Texture* texture);
+            void addTexture(Texture* texture);
+            void removeTextureIfNotUsed(Texture* texture);
 
-        int getZIndex();
+            bool hasRoom();
+            bool hasTextureRoom();
+            bool hasTexture(Texture* texture);
 
-};
+            int getZIndex();
+
+    };
+
+}

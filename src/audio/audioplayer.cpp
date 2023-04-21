@@ -2,57 +2,61 @@
 #include "pancake/audio/audioengine.hpp"
 #include "pancake/asset/assetpool.hpp"
 
-AudioPlayer::AudioPlayer() : Component("AudioPlayer") {
-    this->audio = nullptr;
-}
+namespace Pancake {
 
-json AudioPlayer::serialise() {
-    json j = this->Component::serialise();
-    j.emplace("filename", this->getFilename());
-    return j;
-}
+    AudioPlayer::AudioPlayer() : Component("AudioPlayer") {
+        this->audio = nullptr;
+    }
 
-bool AudioPlayer::load(json j) {
-    if (!this->Component::load(j)) {return false;}
-    if (!j.contains("filename") || !j["filename"].is_string()) {return false;}
-    AudioWave* a = AudioPool::get(j["filename"]);
-    this->setAudioWave(a);
-    return true;
-}
+    json AudioPlayer::serialise() {
+        json j = this->Component::serialise();
+        j.emplace("filename", this->getFilename());
+        return j;
+    }
 
-AudioWave* AudioPlayer::getAudioWave() {
-    return this->audio;
-}
+    bool AudioPlayer::load(json j) {
+        if (!this->Component::load(j)) {return false;}
+        if (!j.contains("filename") || !j["filename"].is_string()) {return false;}
+        AudioWave* a = AudioPool::get(j["filename"]);
+        this->setAudioWave(a);
+        return true;
+    }
 
-string AudioPlayer::getFilename() {
-    if (this->audio == nullptr) {return "nullptr";}
-    return this->audio->getFilename();
-}
+    AudioWave* AudioPlayer::getAudioWave() {
+        return this->audio;
+    }
 
-float AudioPlayer::getLength() {
-    if (this->audio == nullptr) {return -1.0f;}
-    return this->audio->getLength();
-}
+    string AudioPlayer::getFilename() {
+        if (this->audio == nullptr) {return "nullptr";}
+        return this->audio->getFilename();
+    }
 
-AudioPlayer* AudioPlayer::setAudioWave(AudioWave* audio) {
-    this->audio = audio;
-    return this;
-}
+    float AudioPlayer::getLength() {
+        if (this->audio == nullptr) {return -1.0f;}
+        return this->audio->getLength();
+    }
 
-AudioPlayer* AudioPlayer::setVolume(float volume) {
-    if (this->audio != nullptr) {this->audio->setVolume(volume);}
-    return this;
-}
+    AudioPlayer* AudioPlayer::setAudioWave(AudioWave* audio) {
+        this->audio = audio;
+        return this;
+    }
 
-AudioPlayer* AudioPlayer::setLooping(bool looping) {
-    if (this->audio != nullptr) {this->audio->setLooping(looping);}
-    return this;
-}
+    AudioPlayer* AudioPlayer::setVolume(float volume) {
+        if (this->audio != nullptr) {this->audio->setVolume(volume);}
+        return this;
+    }
 
-void AudioPlayer::play() {
-    if (this->audio != nullptr) {AudioEngine::play(this->audio);}
-}
+    AudioPlayer* AudioPlayer::setLooping(bool looping) {
+        if (this->audio != nullptr) {this->audio->setLooping(looping);}
+        return this;
+    }
 
-void AudioPlayer::stop() {
-    if (this->audio != nullptr) {this->audio->stop();}
+    void AudioPlayer::play() {
+        if (this->audio != nullptr) {AudioEngine::play(this->audio);}
+    }
+
+    void AudioPlayer::stop() {
+        if (this->audio != nullptr) {this->audio->stop();}
+    }
+
 }

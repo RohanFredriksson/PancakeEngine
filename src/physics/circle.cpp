@@ -1,32 +1,36 @@
 #include "pancake/physics/circle.hpp"
 
-Circle::Circle() : Collider("Circle") {
-    this->radius = 0.5f;
-}
+namespace Pancake {
 
-json Circle::serialise() {
-    json j = this->Collider::serialise();
-    j.emplace("radius", this->radius);
-    return j;
-}
+    Circle::Circle() : Collider("Circle") {
+        this->radius = 0.5f;
+    }
 
-bool Circle::load(json j) {
-    if (!this->Collider::load(j)) {return false;}
-    if (!j.contains("radius") || !j["radius"].is_number()) {return false;}
-    this->setRadius(j["radius"]);
-    return true;
-}
+    json Circle::serialise() {
+        json j = this->Collider::serialise();
+        j.emplace("radius", this->radius);
+        return j;
+    }
 
-float Circle::getMomentOfInertia() {
-    if (this->mass <= 0.0f) {return FLT_MAX;}
-    return 0.5f * this->mass * this->radius * this->radius;
-}
+    bool Circle::load(json j) {
+        if (!this->Collider::load(j)) {return false;}
+        if (!j.contains("radius") || !j["radius"].is_number()) {return false;}
+        this->setRadius(j["radius"]);
+        return true;
+    }
 
-float Circle::getRadius() {
-    return this->radius;
-}
+    float Circle::getMomentOfInertia() {
+        if (this->mass <= 0.0f) {return FLT_MAX;}
+        return 0.5f * this->mass * this->radius * this->radius;
+    }
 
-Circle* Circle::setRadius(float radius) {
-    this->radius = radius;
-    return this;
+    float Circle::getRadius() {
+        return this->radius;
+    }
+
+    Circle* Circle::setRadius(float radius) {
+        this->radius = radius;
+        return this;
+    }
+
 }

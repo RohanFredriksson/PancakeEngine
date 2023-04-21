@@ -3,26 +3,30 @@
 #include "pancake/core/component.hpp"
 #include "pancake/audio/audiowave.hpp"
 
-class AudioPlayer : public Component {
+namespace Pancake {
 
-    private:
-        AudioWave* audio;
+    class AudioPlayer : public Component {
 
-    public:
+        private:
+            AudioWave* audio;
 
-        AudioPlayer();
-        json serialise() override;
-        bool load(json j) override;
- 
-        AudioWave* getAudioWave();
-        string getFilename();
-        float getLength();
+        public:
 
-        AudioPlayer* setAudioWave(AudioWave* audio);
-        AudioPlayer* setVolume(float volume);
-        AudioPlayer* setLooping(bool looping);
+            AudioPlayer();
+            json serialise() override;
+            bool load(json j) override;
+    
+            AudioWave* getAudioWave();
+            string getFilename();
+            float getLength();
 
-        void play();
-        void stop();
+            AudioPlayer* setAudioWave(AudioWave* audio);
+            AudioPlayer* setVolume(float volume);
+            AudioPlayer* setLooping(bool looping);
 
-};
+            void play();
+            void stop();
+
+    };
+
+}

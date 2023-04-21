@@ -2,9 +2,13 @@
 
 #include "pancake/physics/rigidbody.hpp"
 
-class ForceGenerator {
+namespace Pancake {
 
-    public:
-        virtual void updateForce(Rigidbody* rigidbody, float dt) = 0;
+    class ForceGenerator {
 
-};
+        public:
+            virtual void updateForce(Rigidbody* rigidbody, float dt) = 0;
+
+    };
+
+}

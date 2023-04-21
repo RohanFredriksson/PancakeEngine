@@ -5,24 +5,28 @@
 using glm::vec2;
 using glm::vec3;
 
-namespace DebugDraw {
+namespace Pancake {
 
-    void init();
-    void render();
-    void destroy();
+    namespace DebugDraw {
 
-    void drawLine(vec2 from, vec2 to, vec3 colour, int lifetime);
-    void drawLine(vec2 from, vec2 to, vec3 colour);
-    void drawLine(vec2 from, vec2 to);
+        void init();
+        void render();
+        void destroy();
 
-    void drawBox(vec2 centre, vec2 dimensions, float rotation, vec3 colour, int lifetime);
-    void drawBox(vec2 centre, vec2 dimensions, float rotation, vec3 colour);
-    void drawBox(vec2 centre, vec2 dimensions, float rotation);
-    void drawBox(vec2 centre, vec2 dimensions, vec3 colour);
-    void drawBox(vec2 centre, vec2 dimensions);
+        void drawLine(vec2 from, vec2 to, vec3 colour, int lifetime);
+        void drawLine(vec2 from, vec2 to, vec3 colour);
+        void drawLine(vec2 from, vec2 to);
 
-    void drawCircle(vec2 centre, float radius, vec3 colour, int lifetime);
-    void drawCircle(vec2 centre, float radius, vec3 colour);
-    void drawCircle(vec2 centre, float radius);
+        void drawBox(vec2 centre, vec2 dimensions, float rotation, vec3 colour, int lifetime);
+        void drawBox(vec2 centre, vec2 dimensions, float rotation, vec3 colour);
+        void drawBox(vec2 centre, vec2 dimensions, float rotation);
+        void drawBox(vec2 centre, vec2 dimensions, vec3 colour);
+        void drawBox(vec2 centre, vec2 dimensions);
+
+        void drawCircle(vec2 centre, float radius, vec3 colour, int lifetime);
+        void drawCircle(vec2 centre, float radius, vec3 colour);
+        void drawCircle(vec2 centre, float radius);
+
+    }
 
 }
