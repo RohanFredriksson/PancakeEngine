@@ -4,6 +4,7 @@
 #include <algorithm>
 #include <glm/glm.hpp>
 #include <glm/geometric.hpp>
+#include "pancake/physics/force.hpp"
 #include "pancake/physics/collision.hpp"
 #include "pancake/physics/circle.hpp"
 #include "pancake/physics/box.hpp"

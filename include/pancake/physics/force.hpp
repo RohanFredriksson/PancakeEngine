@@ -1,12 +1,20 @@
 #pragma once
 
-#include <vector>
-#include "pancake/physics/forcegenerator.hpp"
 #include "pancake/physics/rigidbody.hpp"
+#include <glm/glm.hpp>
+#include <vector>
 
 using std::vector;
+using glm::vec2;
 
 namespace Pancake {
+
+    class ForceGenerator {
+
+        public:
+            virtual void updateForce(Rigidbody* rigidbody, float dt) = 0;
+
+    };
 
     class ForceRegistry;
 
@@ -33,6 +41,22 @@ namespace Pancake {
             void clear();
             void updateForces(float dt);
             void zeroForces();
+
+    };
+
+    class Gravity : public ForceGenerator {
+
+        private:
+
+            vec2 gravity;
+
+        public:
+
+            Gravity(vec2 gravity);
+            void updateForce(Rigidbody* rigidbody, float dt) override;
+
+            vec2 getGravity();
+            void setGravity(vec2 gravity);
 
     };
 

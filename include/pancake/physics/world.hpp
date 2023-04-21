@@ -3,9 +3,8 @@
 #include <vector>
 #include <nlohmann/json.hpp>
 
-#include "pancake/physics/forceregistry.hpp"
+#include "pancake/physics/force.hpp"
 #include "pancake/physics/collision.hpp"
-#include "pancake/physics/gravity.hpp"
 #include "pancake/physics/raycast.hpp"
 
 using std::vector;

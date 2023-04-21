@@ -1,4 +1,4 @@
-#include "pancake/physics/forceregistry.hpp"
+#include "pancake/physics/force.hpp"
 
 namespace Pancake {
 
@@ -41,6 +41,23 @@ namespace Pancake {
             ForceRegistration registration = this->registry[i];
             registration.rigidbody->zeroForces();
         }
+    }
+
+    Gravity::Gravity(vec2 gravity) {
+        this->gravity = gravity;
+    }
+
+    void Gravity::updateForce(Rigidbody* rigidbody, float dt)  {
+        vec2 acceleration = this->gravity * rigidbody->getMass();
+        rigidbody->addForce(acceleration);
+    }
+
+    vec2 Gravity::getGravity() {
+        return this->gravity;
+    }
+
+    void Gravity::setGravity(vec2 gravity)  {
+        this->gravity = gravity;
     }
 
 }
