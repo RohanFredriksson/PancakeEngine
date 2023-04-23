@@ -4,9 +4,11 @@
 #include "pancake/graphics/sprite.hpp"
 #include <unordered_map>
 #include <tuple>
+#include <glm/glm.hpp>
 
 using std::unordered_map;
 using std::tuple;
+using glm::vec4;
 
 namespace Pancake {
 
@@ -69,14 +71,26 @@ namespace Pancake {
 
     };
 
-    class Animation : public Component {
+    class Animation : public TransformableComponent {
 
         private:
 
             unordered_map<string, AnimationState*> states;
             unordered_map<tuple<string, string>, string, StringTupleHash, StringTupleEqual> transfers;
-            AnimationState* current;
+            AnimationState* currentState;
             string defaultState;
+            int spriterenderer;
+
+            vec4 colour;
+            int zIndex;
+
+            vec4 lastColour;
+            int lastZIndex;
+            vec2 lastPositionOffset;
+            vec2 lastSizeScale;
+            float lastRotationOffset;
+            
+            bool dirty;
 
         public:
 
@@ -91,6 +105,12 @@ namespace Pancake {
             void addTransfer(string from, string to, string trigger);
             void addState(AnimationState* state);
             void clearStates();
+
+            void setColour(vec4 colour);
+            void setZIndex(int zIndex);
+
+            vec4 getColour();
+            int getZIndex();
 
             void trigger(string trigger);
 

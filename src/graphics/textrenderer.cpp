@@ -49,6 +49,11 @@ namespace Pancake {
             this->dirty = true;
         }
 
+        if (this->zIndex != this->lastZIndex) {
+            this->lastZIndex = this->zIndex;
+            this->dirty = true;
+        }
+
         if (this->getPositionOffset() != this->lastPositionOffset) {
             this->lastPositionOffset = this->getPositionOffset();
             this->dirty = true;
@@ -64,7 +69,7 @@ namespace Pancake {
             this->dirty = true;
         }
 
-        if (!dirty) {return;}
+        if (!this->dirty) {return;}
 
         int n = this->components.size();
         for (int i = 0; i < n; i++) {

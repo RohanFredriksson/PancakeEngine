@@ -1,5 +1,6 @@
 #include "pancake/components/animation.hpp"
 #include "pancake/graphics/spriterenderer.hpp"
+#include "pancake/core/engine.hpp"
 #include "pancake/asset/assetpool.hpp"
 
 #include <utility>
@@ -142,34 +143,90 @@ namespace Pancake {
         return this->loop;
     }
 
-    Animation::Animation() : Component("Animation") {
-        this->current = nullptr;
+    Animation::Animation() : TransformableComponent("Animation") {
+
+        this->currentState = nullptr;
         this->defaultState = "";
+        this->spriterenderer = -1;
+
+        this->colour = vec4(1.0f, 1.0f, 1.0f, 1.0f);
+        this->zIndex = 0;
+
+        this->lastColour = vec4(1.0f, 1.0f, 1.0f, 1.0f);
+        this->lastZIndex = 0;
+        this->lastPositionOffset = glm::vec2(0.0f, 0.0f);
+        this->lastSizeScale = glm::vec2(0.0f, 0.0f);
+        this->lastRotationOffset = 0.0f;
+
     }
 
     void Animation::start() {
+
+        SpriteRenderer* s = new SpriteRenderer(); 
+        s->setSerialisable(false);
+        s->setColour(this->colour);
+        s->setZIndex(this->zIndex);
+        s->setPositionOffset(this->getPositionOffset());
+        s->setSizeScale(this->getSizeScale());
+        s->setRotationOffset(this->getRotationOffset());
+        this->spriterenderer = s->getId();
+        this->getEntity()->addComponent(s);
+
         auto search = this->states.find(this->defaultState);
-        if (search != this->states.end()) {this->current = search->second;}
+        if (search != this->states.end()) {this->currentState = search->second;}
+
     }
 
     void Animation::end()  {
         this->clearStates();
+        Component* component = Pancake::getComponent(this->spriterenderer);
+        if (component != nullptr) {component->kill();}
     }
 
     void Animation::update(float dt)  {
-        if (this->current == nullptr) {return;}
-        this->current->update(dt);
-        SpriteRenderer* spriterenderer = dynamic_cast<SpriteRenderer*>(this->getEntity()->getComponent("SpriteRenderer"));
-        if (spriterenderer == nullptr) {return;}
-        spriterenderer->setSprite(this->current->getCurrentSprite());
+
+        // Find the spriterenderer component, if not exists, make one.
+        SpriteRenderer* s = dynamic_cast<SpriteRenderer*>(Pancake::getComponent(this->spriterenderer));
+        if (s == nullptr) {
+            s = new SpriteRenderer(); 
+            s->setSerialisable(false);
+            s->setColour(this->colour);
+            s->setZIndex(this->zIndex);
+            s->setPositionOffset(this->getPositionOffset());
+            s->setSizeScale(this->getSizeScale());
+            s->setRotationOffset(this->getRotationOffset());
+            this->spriterenderer = s->getId();
+            this->getEntity()->addComponent(s);
+        }
+
+        // Check if we need to update the spriterenderers attributes since it is linked to this object.
+        if (this->colour != this->lastColour) {this->lastColour = this->colour; s->setColour(this->colour);}
+        if (this->zIndex != this->lastZIndex) {this->lastZIndex = this->zIndex; s->setZIndex(this->zIndex);}
+        if (this->getPositionOffset() != this->lastPositionOffset) {this->lastPositionOffset = this->getPositionOffset(); s->setPositionOffset(this->getPositionOffset());}
+        if (this->getSizeScale() != this->lastSizeScale) {this->lastSizeScale = this->getSizeScale(); s->setSizeScale(this->getSizeScale());}
+        if (this->getRotationOffset() != this->lastRotationOffset) {this->lastRotationOffset = this->getRotationOffset(); s->setRotationOffset(this->getRotationOffset());}
+
+        // Update the current state.
+        if (this->currentState == nullptr) {return;}
+        this->currentState->update(dt);
+        s->setSprite(this->currentState->getCurrentSprite());
+
     }
 
     json Animation::serialise()  {
 
-        json j = this->Component::serialise();
+        json j = this->TransformableComponent::serialise();
         j.emplace("defaultState", this->defaultState);
-        string currentState = (this->current == nullptr ? "" : this->current->getTitle());
+        string currentState = (this->currentState == nullptr ? "" : this->currentState->getTitle());
         j.emplace("currentState", currentState);
+
+        j.emplace("colour", json::array());
+        j["colour"].push_back(this->colour.x);
+        j["colour"].push_back(this->colour.y);
+        j["colour"].push_back(this->colour.z);
+        j["colour"].push_back(this->colour.w);
+
+        j.emplace("zIndex", this->zIndex);
 
         j.emplace("states", json::array());
         for (auto const& x: this->states) {
@@ -199,11 +256,20 @@ namespace Pancake {
 
     bool Animation::load(json j)  {
         
-        if (!this->Component::load(j)) {return false;}
+        if (!this->TransformableComponent::load(j)) {return false;}
         if (!j.contains("defaultState") || !j["defaultState"].is_string()) {return false;}
         if (!j.contains("currentState") || !j["currentState"].is_string()) {return false;}
         if (!j.contains("states") || !j["states"].is_array()) {return false;}
         if (!j.contains("transfers") || !j["transfers"].is_array()) {return false;}
+
+        if (!j.contains("colour") || !j["colour"].is_array()) {return false;}
+        if (j["colour"].size() != 4) {return false;}
+        if (!j["colour"][0].is_number()) {return false;}
+        if (!j["colour"][1].is_number()) {return false;}
+        if (!j["colour"][2].is_number()) {return false;}
+        if (!j["colour"][3].is_number()) {return false;}
+        
+        if (!j.contains("zIndex") || !j["zIndex"].is_number_integer()) {return false;}
 
         for (auto element : j["states"]) {
             if (element.is_object()) {
@@ -222,11 +288,13 @@ namespace Pancake {
         }
 
         this->setDefaultState(j["defaultState"]);
-
         auto search = this->states.find(j["currentState"]);
         if (search != this->states.end()) {
-            this->current = search->second;
+            this->currentState = search->second;
         }
+
+        this->setColour(vec4(j["colour"][0], j["colour"][1], j["colour"][2], j["colour"][3]));
+        this->setZIndex(j["zIndex"]);
         
         return true;
     }
@@ -236,7 +304,7 @@ namespace Pancake {
         auto search = this->states.find(title);
         if (search != this->states.end()) {
             this->defaultState = title;
-            if (this->current == nullptr) {this->current = search->second;}
+            if (this->currentState == nullptr) {this->currentState = search->second;}
         }
 
     }
@@ -259,13 +327,29 @@ namespace Pancake {
         }
     }
 
+    void Animation::setColour(vec4 colour) {
+        this->colour = colour;
+    }
+
+    void Animation::setZIndex(int zIndex) {
+        this->zIndex = zIndex;
+    }
+
+    vec4 Animation::getColour() {
+        return this->colour;
+    }
+
+    int Animation::getZIndex() {
+        return this->zIndex;
+    }
+
     void Animation::trigger(string trigger)  {
         
         // If we are at the null state, we can't transfer to any other states.
-        if (this->current == nullptr) {return;}
+        if (this->currentState == nullptr) {return;}
 
         // Check if there is a transfer for this trigger on the current state.
-        tuple<string, string> key(this->current->getTitle(), trigger);
+        tuple<string, string> key(this->currentState->getTitle(), trigger);
         auto search1 = this->transfers.find(key);
         if (search1 == this->transfers.end()) {return;}
         
@@ -273,8 +357,8 @@ namespace Pancake {
         string next = search1->second;
         auto search2 = this->states.find(next);
         if (search2 == this->states.end()) {return;}
-        this->current = search2->second;
-        this->current->setCurrent(0);
+        this->currentState = search2->second;
+        this->currentState->setCurrent(0);
 
     }
 
