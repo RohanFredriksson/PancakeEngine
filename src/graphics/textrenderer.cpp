@@ -1,6 +1,6 @@
-#include <string.h>
 #include "pancake/graphics/textrenderer.hpp"
 #include "pancake/graphics/spriterenderer.hpp"
+#include "pancake/core/engine.hpp"
 #include "pancake/asset/assetpool.hpp"
 
 namespace Pancake {
@@ -27,7 +27,8 @@ namespace Pancake {
     void TextRenderer::end() {
         int n = this->components.size();
         for (int i = 0; i < n; i++) {
-            this->components[i]->kill();
+            Component* component = Pancake::getComponent(this->components[i]);
+            if (component != nullptr) {component->kill();}
         }
     }
 
@@ -67,7 +68,8 @@ namespace Pancake {
 
         int n = this->components.size();
         for (int i = 0; i < n; i++) {
-            this->components[i]->kill();
+            Component* component = Pancake::getComponent(this->components[i]);
+            if (component != nullptr) {component->kill();}
         }
         this->components.clear();
 
@@ -109,7 +111,7 @@ namespace Pancake {
                     s->setRotationOffset(-this->getEntity()->getRotation());
 
                     this->getEntity()->addComponent(s);
-                    this->components.push_back(s);
+                    this->components.push_back(s->getId());
 
                 }
                 x += width;

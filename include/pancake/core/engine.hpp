@@ -1,6 +1,8 @@
 #pragma once
 
 #include "pancake/core/scene.hpp"
+#include "pancake/core/entity.hpp"
+#include "pancake/core/component.hpp"
 
 namespace Pancake {
     
@@ -15,5 +17,7 @@ namespace Pancake {
     void save(string filename);
 
     Scene* getScene();
+    Entity* getEntity(int id);
+    Component* getComponent(int id);
 
 }

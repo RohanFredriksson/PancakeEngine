@@ -87,4 +87,12 @@ namespace Pancake {
         return Window::getScene();
     }
 
+    Entity* getEntity(int id) {
+        return Window::getScene()->getEntity(id);
+    }
+
+    Component* getComponent(int id) {
+        return Window::getScene()->getComponent(id);
+    }
+
 }

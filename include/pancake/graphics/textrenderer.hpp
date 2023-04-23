@@ -22,7 +22,7 @@ namespace Pancake {
             vec4 colour;
             int zIndex;
 
-            vector<Component*> components;
+            vector<int> components;
 
             string lastText;
             Font* lastFont;
