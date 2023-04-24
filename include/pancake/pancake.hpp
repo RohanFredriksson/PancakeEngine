@@ -31,8 +31,6 @@
 #include "pancake/graphics/textrenderer.hpp"
 #include "pancake/graphics/texture.hpp"
 
-#include "pancake/physics/box.hpp"
-#include "pancake/physics/circle.hpp"
 #include "pancake/physics/collider.hpp"
 #include "pancake/physics/collision.hpp"
 #include "pancake/physics/force.hpp"

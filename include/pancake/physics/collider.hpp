@@ -48,6 +48,46 @@ namespace Pancake {
 
     };
 
+    class Box : public Collider {
+
+        private:
+
+            vec2 size;
+            vec2 halfSize;
+
+        public:
+
+            Box();
+            json serialise() override;
+            bool load(json j) override;
+
+            float getMomentOfInertia() override;
+            vec2 getSize();
+            vec2 getHalfSize();
+            vec2 getMin();
+            vec2 getMax();
+
+            Box* setSize(vec2 size);
+
+    };
+
+    class Circle : public Collider {
+
+        private:
+
+            float radius;
+
+        public:
+
+            Circle();
+            json serialise() override;
+            bool load(json j) override;
+
+            float getMomentOfInertia() override;
+            float getRadius();
+            Circle* setRadius(float radius);
+    };
+
     namespace ColliderFactory {
         void add(string type, void* (*create)());
         Collider* create(string type);

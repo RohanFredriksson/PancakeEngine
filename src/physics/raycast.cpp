@@ -2,8 +2,6 @@
 #include <algorithm>
 #include "pancake/physics/raycast.hpp"
 #include "pancake/physics/collider.hpp"
-#include "pancake/physics/box.hpp"
-#include "pancake/physics/circle.hpp"
 
 namespace Pancake {
 

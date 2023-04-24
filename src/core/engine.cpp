@@ -12,8 +12,6 @@
 #include "pancake/components/transition.hpp"
 
 #include "pancake/physics/collider.hpp"
-#include "pancake/physics/box.hpp"
-#include "pancake/physics/circle.hpp"
 #include "pancake/pancake.hpp"
 
 namespace Pancake {
