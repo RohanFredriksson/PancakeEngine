@@ -310,25 +310,15 @@ namespace Pancake {
         }
     }
 
-    RaycastResult World::raycast(Ray* ray) {
+    RaycastResult World::raycast(Ray ray) {
 
-        bool hit = false;
         RaycastResult best;
-        float bestDistance = FLT_MAX;
-
-        int n = this->rigidbodies.size();
-        for (int i = 0; i < n; i++) {
-            RaycastResult current = Raycast::raycast(this->rigidbodies[i], ray);
-            if (current.hit != nullptr && current.distance < bestDistance) {
-                bestDistance = current.distance;
-                best = current;
-                hit = true;
-            }
+        for (Rigidbody* rigidbody : this->rigidbodies) {
+            RaycastResult current = Raycast::raycast(rigidbody, ray);
+            if (current.hit != nullptr && current.distance < best.distance) {best = current;}
         }
 
-        if (hit) {return RaycastResult();}
         return best;
-
     }
 
     vec2 World::getGravity() {

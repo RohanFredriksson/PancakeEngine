@@ -39,7 +39,7 @@ namespace Pancake {
             void load(json j);
             void add(Rigidbody* rigidbody);
             void remove(Rigidbody* rigidbody);
-            RaycastResult raycast(Ray* ray);
+            RaycastResult raycast(Ray ray);
 
             vec2 getGravity();
             void setGravity(vec2 gravity);

@@ -15,6 +15,7 @@ namespace Pancake {
             vec2 direction;
 
             Ray(vec2 origin, vec2 direction);
+            void rotate(vec2 around, float rCos, float rSin);
 
     };
 
@@ -33,7 +34,7 @@ namespace Pancake {
     };
 
     namespace Raycast {
-        RaycastResult raycast(Rigidbody* rigidbody, Ray* ray);
+        RaycastResult raycast(Rigidbody* rigidbody, Ray ray);
     }
 
 }

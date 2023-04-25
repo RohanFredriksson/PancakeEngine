@@ -1,13 +1,30 @@
 #include <cmath>
+#include <limits>
 #include <algorithm>
 #include "pancake/physics/raycast.hpp"
 #include "pancake/physics/collider.hpp"
 
 namespace Pancake {
 
+    namespace {
+
+        void rotateVector(vec2& vec, vec2 origin, float rCos, float rSin) {
+            float x = vec.x - origin.x;
+            float y = vec.y - origin.y;
+            vec.x = origin.x + ((x * rCos) - (y * rSin));
+            vec.y = origin.y + ((x * rSin) + (y * rCos));
+        }
+
+    }
+
     Ray::Ray(vec2 origin, vec2 direction) {
         this->origin = origin;
         this->direction = glm::normalize(direction);
+    }
+
+    void Ray::rotate(vec2 around, float rCos, float rSin) {
+        rotateVector(this->origin, around, rCos, rSin);
+        rotateVector(this->direction, vec2(0.0f, 0.0f), rCos, rSin);
     }
 
     RaycastResult::RaycastResult(vec2 point, vec2 normal, float distance, Entity* hit) {
@@ -20,15 +37,23 @@ namespace Pancake {
     RaycastResult::RaycastResult() {
         this->point = glm::vec2(0.0f, 0.0f);
         this->normal = glm::vec2(0.0f, 0.0f);
-        this->distance = 0.0f;
+        this->distance = FLT_MAX;
         this->hit = nullptr;
     }
 
     namespace {
 
-        RaycastResult raycastBox(Box* box, Ray* ray) {
+        RaycastResult raycastBox(Box* box, Ray ray) {
 
-            vec2 unitVector = glm::normalize(ray->direction);
+            // Rotate the ray into the box's local space.
+            vec2 centre = box->getPosition();
+            float radians = box->getRotation();
+            float rCos = cosf(radians);
+            float rSin = sinf(radians);
+            ray.rotate(centre, rCos, rSin);
+
+            // Perform the ray cast in local space.
+            vec2 unitVector = glm::normalize(ray.direction);
             vec2 min = box->getMin();
             vec2 max = box->getMax();
 
@@ -41,21 +66,27 @@ namespace Pancake {
             bool hit = t > 0.0f;
             if (!hit) {return RaycastResult();}
 
-            vec2 point = ray->direction * t + ray->origin;
-            vec2 normal = glm::normalize(ray->origin - point);
+            // Get the point and normal in the box's local space.
+            vec2 point = ray.direction * t + ray.origin;
+            vec2 normal = glm::normalize(ray.origin - point);
+
+            // Rotate the result back into global space.
+            rotateVector(point, centre, rCos, -rSin);
+            rotateVector(normal, vec2(0.0f, 0.0f), rCos, -rSin);
+
             return RaycastResult(point, normal, t, box->getRigidbody()->getEntity());
 
         }
 
-        RaycastResult raycastCircle(Circle* circle, Ray* ray) {
+        RaycastResult raycastCircle(Circle* circle, Ray ray) {
 
             vec2 position = circle->getPosition();
-            vec2 originToCircle = position - ray->origin;
+            vec2 originToCircle = position - ray.origin;
             float radiusSquared = circle->getRadius() * circle->getRadius();
             float originToCircleLengthSquared = glm::dot(originToCircle, originToCircle);
 
             // Project the vector from the ray origin onto the direction of the ray.
-            float a = glm::dot(originToCircle, ray->direction);
+            float a = glm::dot(originToCircle, ray.direction);
             float b2 = originToCircleLengthSquared - (a * a);
             if (radiusSquared - b2 < 0.0f) {return RaycastResult();}
 
@@ -64,8 +95,8 @@ namespace Pancake {
             if (originToCircleLengthSquared < radiusSquared) {t = a + f;}
             else {t = a - f;}
 
-            vec2 point = ray->direction * t + ray->origin;
-            vec2 normal = glm::normalize(ray->origin - point);
+            vec2 point = ray.direction * t + ray.origin;
+            vec2 normal = glm::normalize(ray.origin - point);
             return RaycastResult(point, normal, t, circle->getRigidbody()->getEntity());
 
         }
@@ -74,20 +105,17 @@ namespace Pancake {
 
     namespace Raycast {
 
-        RaycastResult raycast(Rigidbody* rigidbody, Ray* ray) {
+        RaycastResult raycast(Rigidbody* rigidbody, Ray ray) {
 
-            //Collider* collider = rigidbody->getCollider();
-            //if (collider == nullptr) {return RaycastResult();}
+            RaycastResult best;
+            for (Collider* collider : rigidbody->getColliders()) {
+                RaycastResult current;
+                if (dynamic_cast<Box*>(collider) != nullptr) {current = raycastBox((Box*) collider, ray);}
+                if (dynamic_cast<Circle*>(collider) != nullptr) {current = raycastCircle((Circle*) collider, ray);}
+                if (current.hit != nullptr && current.distance < best.distance) {best = current;}
+            }
 
-            //if (dynamic_cast<Box*>(collider) != nullptr) {
-            //    return raycastBox((Box*) collider, ray);
-            //}
-
-            //else if (dynamic_cast<Circle*>(collider) != nullptr) {
-            //    return raycastCircle((Circle*) collider, ray);
-            //}
-
-            return RaycastResult();
+            return best;
         }
 
     }
