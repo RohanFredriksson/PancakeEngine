@@ -11,6 +11,44 @@
 namespace Pancake {
 
     namespace {
+
+        class ImpulseResult {
+            
+            public:
+
+                vec2 aVelocity;
+                vec2 bVelocity;
+                float aAngularVelocity;
+                float bAngularVelocity;
+                float aAngularMagnitude;
+                float bAngularMagnitude;
+                float aAngularVelocityLost;
+                float bAngularVelocityLost;
+
+                ImpulseResult(vec2 aVelocity, vec2 bVelocity, float aAngularVelocity, float bAngularVelocity) {
+                    this->aVelocity = aVelocity;
+                    this->bVelocity = bVelocity;
+                    this->aAngularVelocity = aAngularVelocity;
+                    this->bAngularVelocity = bAngularVelocity;
+                    this->aAngularVelocityLost = 0.0f;
+                    this->bAngularVelocityLost = 0.0f;
+                }
+
+                ImpulseResult operator*(float scalar) const {
+                    return ImpulseResult(this->aVelocity * scalar, this->bVelocity * scalar, this->aAngularVelocity * scalar, this->bAngularVelocity * scalar);
+                }
+
+                ImpulseResult& operator+=(const ImpulseResult& rhs) {
+                    this->aVelocity += rhs.aVelocity;
+                    this->bVelocity += rhs.bVelocity;
+                    if ((this->aAngularVelocity > 0 && rhs.aAngularVelocity < 0) || (this->aAngularVelocity < 0 && rhs.aAngularVelocity > 0)) {this->aAngularVelocityLost += fabsf(rhs.aAngularVelocity);}
+                    if ((this->bAngularVelocity > 0 && rhs.bAngularVelocity < 0) || (this->bAngularVelocity < 0 && rhs.bAngularVelocity > 0)) {this->bAngularVelocityLost += fabsf(rhs.bAngularVelocity);}
+                    this->aAngularVelocity += rhs.aAngularVelocity;
+                    this->bAngularVelocity += rhs.bAngularVelocity;
+                    return *this;
+                }
+
+        };
         
         const int IMPULSE_ITERATIONS = 6;
         
@@ -22,10 +60,11 @@ namespace Pancake {
             return glm::dot(a, b) / glm::length(b);
         }
 
-        void applyImpulse(Rigidbody* a, Rigidbody* b, CollisionManifold* m) {
+        ImpulseResult applyImpulse(Rigidbody* a, Rigidbody* b, CollisionManifold* m) {
 
             // Check for infinite mass objects.
-            if (a->hasInfiniteMass() && b->hasInfiniteMass()) {return;}
+            ImpulseResult result(vec2(0.0f, 0.0f), vec2(0.0f, 0.0f), 0.0f, 0.0f);
+            if (a->hasInfiniteMass() && b->hasInfiniteMass()) {return result;}
 
             DebugDraw::drawBox(m->contactPoint, vec2(0.1f, 0.1f), 0.0f, vec3(1.0f, 0.0f, 0.0f), 10);
             DebugDraw::drawLine(m->contactPoint, m->contactPoint + m->normal * 0.3f, vec3(0.0f, 0.0f, 1.0f), 10);
@@ -50,16 +89,16 @@ namespace Pancake {
             float vreg = proj(vAB, tangent);
 
             // If both bodies are moving away from each other.
-            if (vproj >= 0.0f) {return;}
+            if (vproj >= 0.0f) {return result;}
 
             // Calculate the impulse of the collision.
             float impulse =  -((1 + restitution) * vproj) / (invMassA + invMassB + (invMoiA * rAreg * rAreg) + (invMoiB * rBreg * rBreg));
 
             // Resolve the collision.
-            b->addVelocity(m->normal * impulse * invMassB);
-            b->addAngularVelocity(-impulse * invMoiB * rBreg);
-            a->addVelocity(-m->normal * impulse * invMassA);
-            a->addAngularVelocity(impulse * invMoiA * rAreg);
+            result.aVelocity += -m->normal * impulse * invMassA;
+            result.bVelocity += m->normal * impulse * invMassB;
+            result.aAngularVelocity += impulse * invMoiA * rAreg;
+            result.bAngularVelocity += -impulse * invMoiB * rBreg;
 
             // Calculate friction.
             if (friction > 0.0f) {
@@ -70,10 +109,10 @@ namespace Pancake {
                 impulse = std::min(impulse, max);
                 impulse *= sign;
 
-                b->addVelocity(-tangent * impulse * invMassB);
-                b->addAngularVelocity(-impulse * invMoiB * rBproj);
-                a->addVelocity(tangent * impulse * invMassA);
-                a->addAngularVelocity(impulse * invMoiA * rAproj);
+                result.aVelocity += tangent * impulse * invMassA;
+                result.bVelocity += -tangent * impulse * invMassB;
+                result.aAngularVelocity += impulse * invMoiA * rAproj;
+                result.bAngularVelocity += -impulse * invMoiB * rBproj;
 
             }
 
@@ -89,6 +128,7 @@ namespace Pancake {
             if (b->hasInfiniteMass()) {a->getEntity()->addPosition(1.01f * -m->depth * m->normal);}
             if (a->hasInfiniteMass()) {b->getEntity()->addPosition(1.01f *  m->depth * m->normal);}
 
+            return result;
         }
 
     }
@@ -173,12 +213,24 @@ namespace Pancake {
         for (int k = 0; k < IMPULSE_ITERATIONS; k++) {
             int m = this->collisions.size();
             for (int i = 0; i < m; i++) {
+
                 Rigidbody* r1 = this->bodies1[i];
                 Rigidbody* r2 = this->bodies2[i];
-                for (int j = 0; j < this->collisions[i].size(); j++) {
-                    applyImpulse(r1, r2, this->collisions[i][j]);
-                }
+                ImpulseResult sum(vec2(0.0f, 0.0f), vec2(0.0f, 0.0f), 0.0f, 0.0f);
+
+                float depthTotal = 0.0f;
+                for (int j = 0; j < this->collisions[i].size(); j++) {depthTotal += this->collisions[i][j]->depth;}
+                for (int j = 0; j < this->collisions[i].size(); j++) {sum += applyImpulse(r1, r2, this->collisions[i][j]) * (this->collisions[i][j]->depth / depthTotal);}
+
+                r1->addVelocity(sum.aVelocity);
+                r2->addVelocity(sum.bVelocity);
+                if (sum.aAngularVelocityLost > 0.0f && glm::dot(sum.aVelocity, sum.aVelocity) > 0.0f) {r1->addVelocity(glm::normalize(sum.aVelocity) * sum.aAngularVelocityLost);}
+                if (sum.bAngularVelocityLost > 0.0f && glm::dot(sum.bVelocity, sum.bVelocity) > 0.0f) {r2->addVelocity(glm::normalize(sum.bVelocity) * sum.bAngularVelocityLost);}
+                r1->addAngularVelocity(sum.aAngularVelocity);
+                r2->addAngularVelocity(sum.bAngularVelocity);
+
             }
+            
         }
 
     }
