@@ -60,14 +60,14 @@ namespace Pancake {
             return glm::dot(a, b) / glm::length(b);
         }
 
-        ImpulseResult applyImpulse(Rigidbody* a, Rigidbody* b, CollisionManifold* m) {
+        ImpulseResult applyImpulse(Rigidbody* a, Rigidbody* b, CollisionManifold m) {
 
             // Check for infinite mass objects.
             ImpulseResult result(vec2(0.0f, 0.0f), vec2(0.0f, 0.0f), 0.0f, 0.0f);
             if (a->hasInfiniteMass() && b->hasInfiniteMass()) {return result;}
 
-            DebugDraw::drawBox(m->contactPoint, vec2(0.1f, 0.1f), 0.0f, vec3(1.0f, 0.0f, 0.0f), 10);
-            DebugDraw::drawLine(m->contactPoint, m->contactPoint + m->normal * 0.3f, vec3(0.0f, 0.0f, 1.0f), 10);
+            DebugDraw::drawBox(m.contactPoint, vec2(0.1f, 0.1f), 0.0f, vec3(1.0f, 0.0f, 0.0f), 10);
+            DebugDraw::drawLine(m.contactPoint, m.contactPoint + m.normal * 0.3f, vec3(0.0f, 0.0f, 1.0f), 10);
 
             float invMassA = a->getInverseMass();
             float invMassB = b->getInverseMass();
@@ -77,15 +77,15 @@ namespace Pancake {
             float angVelB = b->getAngularVelocity();
             float restitution = a->getRestitution() * b->getRestitution();
             float friction = std::max(a->getFriction(), b->getFriction());
-            vec2 tangent = perp(m->normal);
-            vec2 rA = m->contactPoint - a->getCentroid();
-            vec2 rB = m->contactPoint - b->getCentroid();
+            vec2 tangent = perp(m.normal);
+            vec2 rA = m.contactPoint - a->getCentroid();
+            vec2 rB = m.contactPoint - b->getCentroid();
             vec2 vAB = b->getVelocity() + perp(rB) * angVelB - a->getVelocity() - perp(rA) * angVelA;
-            float rAproj = proj(rA, m->normal);
+            float rAproj = proj(rA, m.normal);
             float rAreg = proj(rA, tangent);
-            float rBproj = proj(rB, m->normal);
+            float rBproj = proj(rB, m.normal);
             float rBreg = proj(rB, tangent);
-            float vproj = proj(vAB, m->normal);
+            float vproj = proj(vAB, m.normal);
             float vreg = proj(vAB, tangent);
 
             // If both bodies are moving away from each other.
@@ -95,8 +95,8 @@ namespace Pancake {
             float impulse =  -((1 + restitution) * vproj) / (invMassA + invMassB + (invMoiA * rAreg * rAreg) + (invMoiB * rBreg * rBreg));
 
             // Resolve the collision.
-            result.aVelocity += -m->normal * impulse * invMassA;
-            result.bVelocity += m->normal * impulse * invMassB;
+            result.aVelocity += -m.normal * impulse * invMassA;
+            result.bVelocity += m.normal * impulse * invMassB;
             result.aAngularVelocity += impulse * invMoiA * rAreg;
             result.bAngularVelocity += -impulse * invMoiB * rBreg;
 
@@ -120,13 +120,13 @@ namespace Pancake {
             if (!a->hasInfiniteMass() && !b->hasInfiniteMass()) {
                 const float slop = 0.01f;
                 const float percent = 0.2f;
-                vec2 correction = std::max(m->depth - slop, 0.0f) / (invMassA + invMassB) * percent * m->normal;
+                vec2 correction = std::max(m.depth - slop, 0.0f) / (invMassA + invMassB) * percent * m.normal;
                 a->getEntity()->addPosition(-correction * invMassA);
                 b->getEntity()->addPosition(correction * invMassB);
             }
             
-            if (b->hasInfiniteMass()) {a->getEntity()->addPosition(1.01f * -m->depth * m->normal);}
-            if (a->hasInfiniteMass()) {b->getEntity()->addPosition(1.01f *  m->depth * m->normal);}
+            if (b->hasInfiniteMass()) {a->getEntity()->addPosition(1.01f * -m.depth * m.normal);}
+            if (a->hasInfiniteMass()) {b->getEntity()->addPosition(1.01f *  m.depth * m.normal);}
 
             return result;
         }
@@ -178,15 +178,15 @@ namespace Pancake {
 
                 if (colliders1.size() == 0 || colliders2.size() == 0) {continue;}
 
-                vector<CollisionManifold*> results;
+                vector<CollisionManifold> results;
                 for (int k = 0; k < colliders1.size(); k++) {
                     for (int l = 0; l < colliders2.size(); l++) {
                         
                         Collider* collider1 = colliders1[k];
                         Collider* collider2 = colliders2[l];
 
-                        CollisionManifold* result = Collision::findCollisionFeatures(collider1, collider2);
-                        if (result != nullptr) {results.push_back(result);}
+                        CollisionManifold result = Collision::findCollisionFeatures(collider1, collider2);
+                        if (result.colliding) {results.push_back(result);}
 
                     }
                 }
@@ -219,8 +219,8 @@ namespace Pancake {
                 ImpulseResult sum(vec2(0.0f, 0.0f), vec2(0.0f, 0.0f), 0.0f, 0.0f);
 
                 float depthTotal = 0.0f;
-                for (int j = 0; j < this->collisions[i].size(); j++) {depthTotal += this->collisions[i][j]->depth;}
-                for (int j = 0; j < this->collisions[i].size(); j++) {sum += applyImpulse(r1, r2, this->collisions[i][j]) * (this->collisions[i][j]->depth / depthTotal);}
+                for (int j = 0; j < this->collisions[i].size(); j++) {depthTotal += this->collisions[i][j].depth;}
+                for (int j = 0; j < this->collisions[i].size(); j++) {sum += applyImpulse(r1, r2, this->collisions[i][j]) * (this->collisions[i][j].depth / depthTotal);}
 
                 r1->addVelocity(sum.aVelocity);
                 r2->addVelocity(sum.bVelocity);
@@ -236,19 +236,9 @@ namespace Pancake {
     }
 
     void World::clearCollisionLists() {
-        
-        int n = this->collisions.size();
-        for (int i = 0; i < n; i++) {
-            int m = this->collisions[i].size();
-            for (int j = 0; j < m; j++) {
-                delete this->collisions[i][j];
-            }
-        }
-
         this->collisions.clear();
         this->bodies1.clear();
         this->bodies2.clear();
-
     }
 
     void World::render() {

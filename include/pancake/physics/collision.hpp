@@ -14,6 +14,7 @@ namespace Pancake {
             vec2 normal;
             vec2 contactPoint;
             float depth;
+            bool colliding;
 
             CollisionManifold();
             CollisionManifold(vec2 normal, vec2 contactPoint, float depth);
@@ -21,7 +22,7 @@ namespace Pancake {
     };
 
     namespace Collision {
-        CollisionManifold* findCollisionFeatures(Collider* c1, Collider* c2);
+        CollisionManifold findCollisionFeatures(Collider* c1, Collider* c2);
     }
 
 }

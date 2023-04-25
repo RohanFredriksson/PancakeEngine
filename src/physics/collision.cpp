@@ -16,12 +16,14 @@ namespace Pancake {
         this->normal = glm::vec2(0.0f, 0.0f);
         this->contactPoint = glm::vec2(0.0f, 0.0f);
         this->depth = 0.0f;
+        this->colliding = false;
     }
 
     CollisionManifold::CollisionManifold(vec2 normal, vec2 contactPoint, float depth) {
         this->normal = normal;
         this->contactPoint = contactPoint;
         this->depth = depth;
+        this->colliding = true;
     }
 
     namespace {
@@ -95,7 +97,7 @@ namespace Pancake {
         }
 
 
-        CollisionManifold* findCollisionFeaturesCircleAndCircle(Circle* a, Circle* b) {
+        CollisionManifold findCollisionFeaturesCircleAndCircle(Circle* a, Circle* b) {
 
             vec2 aPosition = a->getPosition();
             vec2 bPosition = b->getPosition();
@@ -103,7 +105,7 @@ namespace Pancake {
             // Determine if the two circles are colliding.
             float sumRadii = a->getRadius() + b->getRadius();
             vec2 distance = bPosition - aPosition;
-            if (glm::dot(distance, distance) - (sumRadii * sumRadii) > 0) {return nullptr;}
+            if (glm::dot(distance, distance) - (sumRadii * sumRadii) > 0) {return CollisionManifold();}
 
             // Find the depth and normal of the collision
             float depth = fabsf(glm::length(distance) - sumRadii) * 0.5f;
@@ -113,10 +115,10 @@ namespace Pancake {
             float distanceToPoint = a->getRadius() - depth;
             vec2 contactPoint = distanceToPoint * normal + aPosition;
 
-            return new CollisionManifold(normal, contactPoint, depth);
+            return CollisionManifold(normal, contactPoint, depth);
         }
 
-        CollisionManifold* findCollisionFeaturesBoxAndBox(Box* a, Box* b) {
+        CollisionManifold findCollisionFeaturesBoxAndBox(Box* a, Box* b) {
 
             // Store all the information that is required.
             float aRotation = a->getRotation();
@@ -233,7 +235,7 @@ namespace Pancake {
 
                 rotate(normal, vec2(0.0f, 0.0f), aCos, aSin);
                 rotate(contactPoint, aPos, aCos, aSin);
-                return new CollisionManifold(normal, contactPoint, depth);
+                return CollisionManifold(normal, contactPoint, depth);
             }
 
             bool flip = false;
@@ -321,13 +323,13 @@ namespace Pancake {
                 rotate(normal, vec2(0.0f, 0.0f), aCos, aSin);
                 rotate(contactPoint, aPos, aCos, aSin);
                 if (flip) {normal = -normal;}
-                return new CollisionManifold(normal, contactPoint, depth);
+                return CollisionManifold(normal, contactPoint, depth);
             }
 
-            return nullptr;
+            return CollisionManifold();
         }
 
-        CollisionManifold* findCollisionFeaturesCircleAndBox(Circle* c, Box* b, bool flip) {
+        CollisionManifold findCollisionFeaturesCircleAndBox(Circle* c, Box* b, bool flip) {
 
             // Get the circle's properties.
             vec2 cPos = c->getPosition();
@@ -364,7 +366,7 @@ namespace Pancake {
                 if (bRot != 0.0f) {rotate(normal, vec2(0.0f, 0.0f), rCos, -rSin); rotate(contactPoint, bPos, rCos, -rSin);}
                 if (flip) {normal = -normal;}
 
-                return new CollisionManifold(normal, contactPoint, depth);
+                return CollisionManifold(normal, contactPoint, depth);
             }
 
             // Colliding with the bottom face of the box.
@@ -376,7 +378,7 @@ namespace Pancake {
                 if (bRot != 0.0f) {rotate(normal, vec2(0.0f, 0.0f), rCos, -rSin); rotate(contactPoint, bPos, rCos, -rSin);}
                 if (flip) {normal = -normal;}
 
-                return new CollisionManifold(normal, contactPoint, depth);
+                return CollisionManifold(normal, contactPoint, depth);
             }
 
             // Colliding with the right face of the box
@@ -388,7 +390,7 @@ namespace Pancake {
                 if (bRot != 0.0f) {rotate(normal, vec2(0.0f, 0.0f), rCos, -rSin); rotate(contactPoint, bPos, rCos, -rSin);}
                 if (flip) {normal = -normal;}
 
-                return new CollisionManifold(normal, contactPoint, depth);
+                return CollisionManifold(normal, contactPoint, depth);
             }
 
             // Colliding with the left face of the box.
@@ -400,7 +402,7 @@ namespace Pancake {
                 if (bRot != 0.0f) {rotate(normal, vec2(0.0f, 0.0f), rCos, -rSin); rotate(contactPoint, bPos, rCos, -rSin);}
                 if (flip) {normal = -normal;}
 
-                return new CollisionManifold(normal, contactPoint, depth);
+                return CollisionManifold(normal, contactPoint, depth);
             }
 
             // Colliding with the top left corner of the box.
@@ -414,7 +416,7 @@ namespace Pancake {
                 if (bRot != 0.0f) {rotate(normal, vec2(0.0f, 0.0f), rCos, -rSin); rotate(contactPoint, bPos, rCos, -rSin);}
                 if (flip) {normal = -normal;}
 
-                return new CollisionManifold(normal, contactPoint, depth);
+                return CollisionManifold(normal, contactPoint, depth);
             }
 
             // Colliding with the top right corner of the box.
@@ -428,7 +430,7 @@ namespace Pancake {
                 if (bRot != 0.0f) {rotate(normal, vec2(0.0f, 0.0f), rCos, -rSin); rotate(contactPoint, bPos, rCos, -rSin);}
                 if (flip) {normal = -normal;}
 
-                return new CollisionManifold(normal, contactPoint, depth);
+                return CollisionManifold(normal, contactPoint, depth);
             }
 
             // Colliding with the bottom left corner of the box.
@@ -442,7 +444,7 @@ namespace Pancake {
                 if (bRot != 0.0f) {rotate(normal, vec2(0.0f, 0.0f), rCos, -rSin); rotate(contactPoint, bPos, rCos, -rSin);}
                 if (flip) {normal = -normal;}
 
-                return new CollisionManifold(normal, contactPoint, depth);
+                return CollisionManifold(normal, contactPoint, depth);
             }
 
             // Colliding with the bottom right corner of the box.
@@ -456,24 +458,24 @@ namespace Pancake {
                 if (bRot != 0.0f) {rotate(normal, vec2(0.0f, 0.0f), rCos, -rSin); rotate(contactPoint, bPos, rCos, -rSin);}
                 if (flip) {normal = -normal;}
 
-                return new CollisionManifold(normal, contactPoint, depth);
+                return CollisionManifold(normal, contactPoint, depth);
             }
             
-            return nullptr;
+            return CollisionManifold();
         }
 
     }
 
     namespace Collision {
         
-        CollisionManifold* findCollisionFeatures(Collider* c1, Collider* c2) {
+        CollisionManifold findCollisionFeatures(Collider* c1, Collider* c2) {
 
             if (dynamic_cast<Box*>(c1) != nullptr && dynamic_cast<Box*>(c2) != nullptr) {return findCollisionFeaturesBoxAndBox((Box*) c1, (Box*) c2);}
             if (dynamic_cast<Circle*>(c1) != nullptr && dynamic_cast<Circle*>(c2) != nullptr) {return findCollisionFeaturesCircleAndCircle((Circle*) c1, (Circle*) c2);}
             if (dynamic_cast<Circle*>(c1) != nullptr && dynamic_cast<Box*>(c2) != nullptr) {return findCollisionFeaturesCircleAndBox((Circle*) c1, (Box*) c2, false);}
             if (dynamic_cast<Box*>(c1) != nullptr && dynamic_cast<Circle*>(c2) != nullptr) {return findCollisionFeaturesCircleAndBox((Circle*) c2, (Box*) c1, true);}
 
-            return nullptr;
+            return CollisionManifold();
         }
 
     }
