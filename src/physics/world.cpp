@@ -41,8 +41,8 @@ namespace Pancake {
                 ImpulseResult& operator+=(const ImpulseResult& rhs) {
                     this->aVelocity += rhs.aVelocity;
                     this->bVelocity += rhs.bVelocity;
-                    if ((this->aAngularVelocity > 0 && rhs.aAngularVelocity < 0) || (this->aAngularVelocity < 0 && rhs.aAngularVelocity > 0)) {this->aAngularVelocityLost += fabsf(rhs.aAngularVelocity);}
-                    if ((this->bAngularVelocity > 0 && rhs.bAngularVelocity < 0) || (this->bAngularVelocity < 0 && rhs.bAngularVelocity > 0)) {this->bAngularVelocityLost += fabsf(rhs.bAngularVelocity);}
+                    if ((this->aAngularVelocity > 0 && rhs.aAngularVelocity < 0) || (this->aAngularVelocity < 0 && rhs.aAngularVelocity > 0)) {this->aAngularVelocityLost += std::min(fabsf(this->aAngularVelocity), fabsf(rhs.aAngularVelocity));}
+                    if ((this->bAngularVelocity > 0 && rhs.bAngularVelocity < 0) || (this->bAngularVelocity < 0 && rhs.bAngularVelocity > 0)) {this->bAngularVelocityLost += std::min(fabsf(this->bAngularVelocity), fabsf(rhs.bAngularVelocity));}
                     this->aAngularVelocity += rhs.aAngularVelocity;
                     this->bAngularVelocity += rhs.bAngularVelocity;
                     return *this;
