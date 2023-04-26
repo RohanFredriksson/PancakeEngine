@@ -15,6 +15,7 @@
 
 #include "pancake/core/camera.hpp"
 #include "pancake/core/component.hpp"
+#include "pancake/core/console.hpp"
 #include "pancake/core/engine.hpp"
 #include "pancake/core/entity.hpp"
 #include "pancake/core/listener.hpp"

@@ -26,8 +26,10 @@ namespace Pancake {
         int height = 800;
         Scene* scene;
 
-        bool saveFlag;
+        bool saveFlag = false;
         string saveFilename;
+
+        bool exitFlag = false;
 
         bool loadFlag;
         string loadName;
@@ -80,8 +82,7 @@ namespace Pancake {
             // Load GLAD so it configures OpenGL
             gladLoadGL();
 
-            // TEST IMGUI CODE
-            // Initialize ImGui
+            // Initialise ImGui
             IMGUI_CHECKVERSION();
             ImGui::CreateContext();
             ImGuiIO& io = ImGui::GetIO();
@@ -89,7 +90,6 @@ namespace Pancake {
             ImGui::StyleColorsDark();
             ImGui_ImplGlfw_InitForOpenGL(window, true);
             ImGui_ImplOpenGL3_Init("#version 330");
-            // END TEST IMGUI CODE
 
             // Enable alpha transparency
             glEnable(GL_BLEND);
@@ -143,24 +143,15 @@ namespace Pancake {
             // Debug draw
             DebugDraw::render();
 
-            // TEST IMGUI CODE
-            // Start a new ImGui frame
+            // Imgui Render
             ImGui_ImplOpenGL3_NewFrame();
             ImGui_ImplGlfw_NewFrame();
             ImGui::NewFrame();
 
-            // Create a window with a button
-            ImGui::Begin("Hello, world!");
-            if (ImGui::Button("Click me!"))
-            {
-                std::cout << "Button clicked!" << std::endl;
-            }
-            ImGui::End();
+            Console::render();
 
-            // Render ImGui and swap buffers
             ImGui::Render();
             ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-            // END TEST IMGUI CODE
 
             glfwSwapBuffers(window);
 
@@ -189,13 +180,17 @@ namespace Pancake {
             saveFilename = filename;
         }
 
+        void exit() {
+            exitFlag = true;
+        }
+
         void loop() {
 
             float beginTime = (float)glfwGetTime();
             float endTime = (float)glfwGetTime();
             float dt = -1.0f;
 
-            while (!glfwWindowShouldClose(window)) {
+            while (!glfwWindowShouldClose(window) && !exitFlag) {
 
                 glfwPollEvents();
 
@@ -277,6 +272,14 @@ namespace Pancake {
             // Return the value of this pixel.
             return (int)pixel - 1;
 
+        }
+
+        void openConsole() {
+            Console::open();
+        }
+
+        void closeConsole() {
+            Console::close();
         }
 
     }
