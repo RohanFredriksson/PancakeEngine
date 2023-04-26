@@ -5,6 +5,10 @@
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
 
+#include <imgui.h>
+#include <imgui_impl_glfw.h>
+#include <imgui_impl_opengl3.h>
+
 #include "pancake/core/window.hpp"
 #include "pancake/core/listener.hpp"
 #include "pancake/graphics/shader.hpp"
@@ -76,6 +80,17 @@ namespace Pancake {
             // Load GLAD so it configures OpenGL
             gladLoadGL();
 
+            // TEST IMGUI CODE
+            // Initialize ImGui
+            IMGUI_CHECKVERSION();
+            ImGui::CreateContext();
+            ImGuiIO& io = ImGui::GetIO();
+            (void)io;
+            ImGui::StyleColorsDark();
+            ImGui_ImplGlfw_InitForOpenGL(window, true);
+            ImGui_ImplOpenGL3_Init("#version 330");
+            // END TEST IMGUI CODE
+
             // Enable alpha transparency
             glEnable(GL_BLEND);
             glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -127,6 +142,25 @@ namespace Pancake {
 
             // Debug draw
             DebugDraw::render();
+
+            // TEST IMGUI CODE
+            // Start a new ImGui frame
+            ImGui_ImplOpenGL3_NewFrame();
+            ImGui_ImplGlfw_NewFrame();
+            ImGui::NewFrame();
+
+            // Create a window with a button
+            ImGui::Begin("Hello, world!");
+            if (ImGui::Button("Click me!"))
+            {
+                std::cout << "Button clicked!" << std::endl;
+            }
+            ImGui::End();
+
+            // Render ImGui and swap buffers
+            ImGui::Render();
+            ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+            // END TEST IMGUI CODE
 
             glfwSwapBuffers(window);
 
