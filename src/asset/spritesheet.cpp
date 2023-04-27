@@ -4,20 +4,19 @@
 #include <fstream>
 #include <iostream>
 #include <glm/glm.hpp>
-#include <nlohmann/json.hpp>
 
 #include "pancake/asset/spritesheet.hpp"
 #include "pancake/asset/assetpool.hpp"
 
 using std::vector;
 using glm::vec2;
-using json = nlohmann::json;
 
 namespace Pancake {
 
     namespace {
 
         char jsonext[] = ".json";
+        vector<string> loaded;
 
         class Metadata {
             
@@ -159,6 +158,7 @@ namespace Pancake {
                 // If the sprite name is already taken, do not overwrite it.
                 if (!SpritePool::has(metadata.names[i])) {
                     Sprite* sprite = new Sprite(metadata.names[i], texture, texCoords);
+                    sprite->setSerialisable(false);
                     SpritePool::put(sprite);
                 }
 
@@ -170,6 +170,17 @@ namespace Pancake {
 
             }
 
+            loaded.push_back(filename);
+        }
+
+        void clear() {
+            loaded.clear();
+        }
+
+        json serialise() {
+            json j = json::array();
+            for (string sheet : loaded) {j.push_back(sheet);}
+            return j;
         }
 
     }

@@ -8,6 +8,7 @@
 #include "pancake/core/scene.hpp"
 #include "pancake/core/listener.hpp"
 #include "pancake/asset/assetpool.hpp"
+#include "pancake/asset/spritesheet.hpp"
 
 using std::deque;
 using std::pair;
@@ -157,6 +158,7 @@ namespace Pancake {
         j.emplace("camera", this->camera->serialise());
         j.emplace("physics", this->physics->serialise());
         j.emplace("fonts", FontPool::serialise());
+        j.emplace("spritesheets", Spritesheet::serialise());
         j.emplace("sprites", SpritePool::serialise());
         j.emplace("audio", AudioPool::serialise());
 
@@ -223,6 +225,15 @@ namespace Pancake {
             for (auto element : j["fonts"]) {
                 if (element.is_object()) {
                     AudioWave::load(element);
+                }
+            }
+        }
+
+        // Load sprites from spritesheets into the sprite pool.
+        if (j.contains("spritesheets") && j["spritesheets"].is_array()) {
+            for (auto element : j["spritesheets"]) {
+                if (element.is_string()) {
+                    Spritesheet::load(element);
                 }
             }
         }

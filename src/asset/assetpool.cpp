@@ -3,6 +3,7 @@
 #include <iostream>
 #include <unordered_map>
 #include "pancake/asset/assetpool.hpp"
+#include "pancake/asset/spritesheet.hpp"
 
 using std::pair;
 using std::tuple;
@@ -42,6 +43,7 @@ namespace Pancake {
     void AssetPool::clear() {
         TexturePool::clear();
         SpritePool::clear();
+        Spritesheet::clear();
         FontPool::clear();
         AudioPool::clear();
     }
