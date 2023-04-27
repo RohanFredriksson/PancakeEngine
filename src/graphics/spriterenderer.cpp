@@ -2,6 +2,14 @@
 #include "pancake/core/window.hpp"
 #include "pancake/core/scene.hpp"
 #include "pancake/asset/assetpool.hpp"
+#include <cstring>
+#include <cstring>
+#include <cstring>
+#include <cstring>
+#include <cstring>
+#include <cstring>
+#include <cstring>
+#include <cstring>
 
 namespace Pancake {
 
@@ -105,6 +113,15 @@ namespace Pancake {
         TransformableComponent::imgui();
 
         // Sprite
+        char s[256];
+        strncpy(s, this->sprite->getName().c_str(), 256);
+        s[255] = '\0';
+        ImGui::Text("Sprite:         ");
+        ImGui::SameLine();
+        ImGui::InputText("##Sprite", s, sizeof(s));
+        if (ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_Enter)) && strlen(s) > 0 && strcmp(s, this->sprite->getName().c_str()) != 0) {
+            this->setSprite(SpritePool::get(string(s)));
+        }
 
         // Colour
         vec4 c = vec4(this->colour.x, this->colour.y, this->colour.z, this->colour.w);
