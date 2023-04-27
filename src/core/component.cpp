@@ -58,6 +58,11 @@ namespace Pancake {
         return true;
     }
 
+    void Component::imgui() {
+        ImGui::Text(this->type.c_str());
+        ImGui::Text("%d", this->id);
+    }
+
     void Component::kill() {
         if (this->dead) {return;}
         this->end();
@@ -135,6 +140,30 @@ namespace Pancake {
         this->setRotationOffset(j["rotationOffset"]);
 
         return true;
+
+    }
+
+    void TransformableComponent::imgui() {
+
+        Component::imgui();
+
+        // Position Offset
+        vec2 position = vec2(this->positionOffset.x, this->positionOffset.y);
+        ImGui::Text("Position Offset:");
+        ImGui::SameLine();
+        if (ImGui::DragFloat2("##PositionOffset", &position[0])) {this->setPositionOffset(position);}
+
+        // Size Scale
+        vec2 size = vec2(this->sizeScale.x, this->sizeScale.y);
+        ImGui::Text("Size Scale:     ");
+        ImGui::SameLine();
+        if (ImGui::DragFloat2("##SizeScale", &size[0])) {this->setSizeScale(size);}
+
+        // Rotation Offset
+        float rotation = this->rotationOffset;
+        ImGui::Text("Rotation Offset:");
+        ImGui::SameLine();
+        if (ImGui::DragFloat("##RotationOffset", &rotation)) {this->setRotationOffset(rotation);}
 
     }
 

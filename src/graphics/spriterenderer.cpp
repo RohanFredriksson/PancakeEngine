@@ -100,6 +100,26 @@ namespace Pancake {
 
     }
 
+    void SpriteRenderer::imgui() {
+
+        TransformableComponent::imgui();
+
+        // Sprite
+
+        // Colour
+        vec4 c = vec4(this->colour.x, this->colour.y, this->colour.z, this->colour.w);
+        ImGui::Text("Colour:         ");
+        ImGui::SameLine();
+        if (ImGui::DragFloat4("##Colour", &c[0])) {this->setColour(c);}
+
+        // Z Index
+        int z = this->zIndex;
+        ImGui::Text("Z Index:        ");
+        ImGui::SameLine();
+        if (ImGui::DragInt("##ZIndex", &z)) {this->setZIndex(z);}
+
+    }
+
     Sprite* SpriteRenderer::getSprite() {
         return this->sprite;
     }

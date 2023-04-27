@@ -4,6 +4,7 @@
 #include <string>
 #include <glm/glm.hpp>
 #include <nlohmann/json.hpp>
+#include <imgui.h>
 
 using std::vector;
 using std::string;
@@ -35,6 +36,7 @@ namespace Pancake {
             virtual void update(float dt);
             virtual json serialise();
             virtual bool load(json j);
+            virtual void imgui();
             void kill();
             
             int getId();
@@ -62,6 +64,7 @@ namespace Pancake {
             TransformableComponent(string type);
             virtual json serialise() override;
             virtual bool load(json j) override;
+            virtual void imgui() override;
 
             vec2 getPosition();
             vec2 getSize();
