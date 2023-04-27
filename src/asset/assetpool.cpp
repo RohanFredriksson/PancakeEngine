@@ -92,10 +92,12 @@ namespace Pancake {
 
         // Add the empty sprite to the pool
         Sprite* empty = new Sprite("empty", nullptr);
+        empty->setSerialisable(false);
         SpritePool::put(empty);
 
         // Add the missing sprite to the pool
         Sprite* missing = new Sprite("missing", TexturePool::get("missing"));
+        missing->setSerialisable(false);
         SpritePool::put(missing);
 
     }
@@ -116,9 +118,7 @@ namespace Pancake {
         json j = json::array();
         for (auto const& x : sprites) {
             Sprite* s = x.second;
-            if (s->getName() == "empty") {continue;}
-            if (s->getName() == "missing") {continue;}
-            j.push_back(s->serialise());
+            if (s->isSerialisable()) {j.push_back(s->serialise());}
         }
         return j;
     }

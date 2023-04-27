@@ -63,7 +63,6 @@ namespace Pancake {
         for (int i = 0; i < NUM_CHARACTERS; i++) {
 
             char character = (char) i;
-            char name[] = { character, '\0' };
 
             int ax;
             int lsb;
@@ -102,9 +101,11 @@ namespace Pancake {
 
             // Initialise the sprite object.
             Sprite* sprite = new Sprite();
-            sprite->setName(name);
+            sprite->setName(this->filename + std::to_string(character));
             sprite->setTexCoords(texCoords);
+            sprite->setSerialisable(false);
             this->sprites.push_back(sprite);
+            SpritePool::put(sprite);
 
             // Render the character
             int byteOffset = x + roundf(lsb * scale) + (y * width);
@@ -185,16 +186,13 @@ namespace Pancake {
     }
 
     Font::Font(float size) {
-        this->filename = "default";
+        this->filename = "pixellari";
         this->size = size;
         const unsigned char* buffer = reinterpret_cast<const unsigned char*>(PIXELLARI);
         this->load(buffer, this->size);
     }
 
     Font::~Font() {
-        for (int i = 0; i < NUM_CHARACTERS; i++) {
-            delete this->sprites[i];
-        }
         delete this->texture;
     }
 
