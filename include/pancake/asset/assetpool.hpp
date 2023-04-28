@@ -39,6 +39,8 @@ namespace Pancake {
         Sprite* get(string name);
         bool has(string name);
         void put(Sprite* sprite);
+        void remove(string name);
+        void remove(Sprite* sprite);
 
     }
 

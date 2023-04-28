@@ -34,23 +34,23 @@ namespace Pancake {
     }
 
     void AssetPool::init() {
+        FontPool::init();
         TexturePool::init();
         SpritePool::init();
-        FontPool::init();
         AudioPool::init();
     }
 
     void AssetPool::clear() {
+        FontPool::clear();
         TexturePool::clear();
         SpritePool::clear();
-        FontPool::clear();
         AudioPool::clear();
     }
 
     void AssetPool::destroy() {
+        FontPool::destroy();
         TexturePool::destroy();
         SpritePool::destroy();
-        FontPool::destroy();
         AudioPool::destroy();
     }
 
@@ -58,7 +58,7 @@ namespace Pancake {
 
         // Add the missing texture to the pool.
         Texture* missing = new Texture();
-        pair<string, Texture*> p(missing->getName(), missing);
+        pair<string, Texture*> p("missing", missing);
         textures.insert(p);
 
     }
@@ -66,13 +66,18 @@ namespace Pancake {
     void TexturePool::clear() {
         for (auto const& x : textures) {
             Texture* t = x.second;
+            if (t->getName() == "missing") {continue;}
             delete t;
         }
         textures.clear();
     }
 
     void TexturePool::destroy() {
-        TexturePool::clear();
+        for (auto const& x : textures) {
+            Texture* t = x.second;
+            delete t;
+        }
+        textures.clear();
     }
 
     Texture* TexturePool::get(string name) {
@@ -107,13 +112,19 @@ namespace Pancake {
         Spritesheet::clear();
         for (auto const& x : sprites) {
             Sprite* s = x.second;
+            if (s->getName() == "empty" || s->getName() == "missing" || s->isFont()) {continue;}
             delete s;
         }
         sprites.clear();
     }
 
     void SpritePool::destroy() {
-        SpritePool::clear();
+        Spritesheet::clear();
+        for (auto const& x : sprites) {
+            Sprite* s = x.second;
+            delete s;
+        }
+        sprites.clear();
     }
 
     json SpritePool::serialise() {
@@ -153,8 +164,30 @@ namespace Pancake {
     }
 
     void SpritePool::put(Sprite* sprite) {
+        if (sprite == nullptr) {return;}
         pair<string, Sprite*> p(sprite->getName(), sprite);
         sprites.insert(p);
+    }
+
+    void SpritePool::remove(string name) {
+
+        // Don't remove the default sprites.
+        if (name == "missing" || name == "empty") {return;}
+
+        // Delete the sprite if it exists.
+        auto search = sprites.find(name);
+        if (search != sprites.end()) {
+            Sprite* sprite = search->second; 
+            delete sprite;
+        }
+
+        // Remove the entry from the map
+        sprites.erase(name);
+
+    }
+
+    void SpritePool::remove(Sprite* sprite) {
+        if (sprite != nullptr) {SpritePool::remove(sprite->getName());}
     }
 
     void FontPool::init() {
@@ -174,13 +207,22 @@ namespace Pancake {
     void FontPool::clear() {
         for (auto const& x : fonts) {
             Font* f = x.second;
+            if (f->getFilename() == "default" || f->getFilename() == "pixellari") {continue;}
+            vector<Sprite*> sprites = f->getSprites();
+            for (Sprite* sprite : sprites) {SpritePool::remove(sprite);}
             delete f;
         }
         fonts.clear();
     }
 
     void FontPool::destroy() {
-        FontPool::clear();
+        for (auto const& x : fonts) {
+            Font* f = x.second;
+            vector<Sprite*> sprites = f->getSprites();
+            for (Sprite* sprite : sprites) {SpritePool::remove(sprite);}
+            delete f;
+        }
+        fonts.clear();
     }
 
     json FontPool::serialise() {
@@ -235,7 +277,11 @@ namespace Pancake {
     }
 
     void AudioPool::destroy() {
-        AudioPool::clear();
+        for (auto const& x : audio) {
+            AudioWave* a = x.second;
+            delete a;
+        }
+        audio.clear();
     }
 
     json AudioPool::serialise() {

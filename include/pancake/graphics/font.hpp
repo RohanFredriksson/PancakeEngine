@@ -44,6 +44,7 @@ namespace Pancake {
             int getLineGap();
             int getAdvance(char code);
             Sprite* getSprite(char code);
+            vector<Sprite*> getSprites();
             Texture* getTexture();
 
             float getScaleForHeight(float height);

@@ -104,6 +104,7 @@ namespace Pancake {
             sprite->setName(this->filename + std::to_string(character));
             sprite->setTexCoords(texCoords);
             sprite->setSerialisable(false);
+            sprite->setFont(true);
             this->sprites.push_back(sprite);
             SpritePool::put(sprite);
 
@@ -193,6 +194,7 @@ namespace Pancake {
     }
 
     Font::~Font() {
+        for (Sprite* sprite : this->sprites) {SpritePool::remove(sprite);}
         delete this->texture;
     }
 
@@ -243,6 +245,10 @@ namespace Pancake {
         int index = (int) code;
         if (index < 0 || index > NUM_CHARACTERS) {return nullptr;}
         return this->sprites[index];
+    }
+
+    vector<Sprite*> Font::getSprites() {
+        return this->sprites;
     }
 
     Texture* Font::getTexture() {
