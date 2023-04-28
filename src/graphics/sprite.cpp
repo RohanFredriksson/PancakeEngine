@@ -8,7 +8,6 @@ namespace Pancake {
         this->name = name;
         this->texture = texture;
         this->serialisable = true;
-        this->font = false;
         
         this->texCoords[0] = texCoords[0];
         this->texCoords[1] = texCoords[1];
@@ -97,10 +96,6 @@ namespace Pancake {
         return this->serialisable;
     }
 
-    bool Sprite::isFont() {
-        return this->font;
-    }
-
     void Sprite::setName(string name) {
         this->name = name;
     }
@@ -118,10 +113,6 @@ namespace Pancake {
 
     void Sprite::setSerialisable(bool serialisable) {
         this->serialisable = serialisable;
-    }
-
-    void Sprite::setFont(bool font) {
-        this->font = font;
     }
 
 }

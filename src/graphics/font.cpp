@@ -103,10 +103,7 @@ namespace Pancake {
             Sprite* sprite = new Sprite();
             sprite->setName(this->filename + std::to_string(character));
             sprite->setTexCoords(texCoords);
-            sprite->setSerialisable(false);
-            sprite->setFont(true);
             this->sprites.push_back(sprite);
-            SpritePool::put(sprite);
 
             // Render the character
             int byteOffset = x + roundf(lsb * scale) + (y * width);
@@ -194,7 +191,7 @@ namespace Pancake {
     }
 
     Font::~Font() {
-        for (Sprite* sprite : this->sprites) {SpritePool::remove(sprite);}
+        for (Sprite* sprite : this->sprites) {delete sprite;}
         delete this->texture;
     }
 

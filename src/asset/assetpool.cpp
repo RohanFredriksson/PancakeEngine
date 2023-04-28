@@ -64,12 +64,8 @@ namespace Pancake {
     }
 
     void TexturePool::clear() {
-        for (auto const& x : textures) {
-            Texture* t = x.second;
-            if (t->getName() == "missing") {continue;}
-            delete t;
-        }
-        textures.clear();
+        TexturePool::destroy();
+        TexturePool::init();
     }
 
     void TexturePool::destroy() {
@@ -109,13 +105,8 @@ namespace Pancake {
     }
 
     void SpritePool::clear() {
-        Spritesheet::clear();
-        for (auto const& x : sprites) {
-            Sprite* s = x.second;
-            if (s->getName() == "empty" || s->getName() == "missing" || s->isFont()) {continue;}
-            delete s;
-        }
-        sprites.clear();
+        SpritePool::destroy();
+        SpritePool::init();
     }
 
     void SpritePool::destroy() {
@@ -169,27 +160,6 @@ namespace Pancake {
         sprites.insert(p);
     }
 
-    void SpritePool::remove(string name) {
-
-        // Don't remove the default sprites.
-        if (name == "missing" || name == "empty") {return;}
-
-        // Delete the sprite if it exists.
-        auto search = sprites.find(name);
-        if (search != sprites.end()) {
-            Sprite* sprite = search->second; 
-            delete sprite;
-        }
-
-        // Remove the entry from the map
-        sprites.erase(name);
-
-    }
-
-    void SpritePool::remove(Sprite* sprite) {
-        if (sprite != nullptr) {SpritePool::remove(sprite->getName());}
-    }
-
     void FontPool::init() {
 
         // Add the default font to the pool.
@@ -205,21 +175,14 @@ namespace Pancake {
     }
 
     void FontPool::clear() {
-        for (auto const& x : fonts) {
-            Font* f = x.second;
-            if (f->getFilename() == "default" || f->getFilename() == "pixellari") {continue;}
-            vector<Sprite*> sprites = f->getSprites();
-            for (Sprite* sprite : sprites) {SpritePool::remove(sprite);}
-            delete f;
-        }
-        fonts.clear();
+        FontPool::destroy();
+        FontPool::init();
     }
 
     void FontPool::destroy() {
         for (auto const& x : fonts) {
             Font* f = x.second;
             vector<Sprite*> sprites = f->getSprites();
-            for (Sprite* sprite : sprites) {SpritePool::remove(sprite);}
             delete f;
         }
         fonts.clear();
@@ -269,11 +232,8 @@ namespace Pancake {
     }
 
     void AudioPool::clear() {
-        for (auto const& x : audio) {
-            AudioWave* a = x.second;
-            delete a;
-        }
-        audio.clear();
+        AudioPool::destroy();
+        AudioPool::init();
     }
 
     void AudioPool::destroy() {

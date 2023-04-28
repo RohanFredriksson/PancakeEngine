@@ -22,7 +22,6 @@ namespace Pancake {
             Texture* texture;
             vec2 texCoords[4];
             bool serialisable;
-            bool font;
             
             void init(string name, Texture* texture, vec2 texCoords[4]);
 
@@ -38,13 +37,11 @@ namespace Pancake {
             Texture* getTexture();
             vec2* getTexCoords();
             bool isSerialisable();
-            bool isFont();
 
             void setName(string name);
             void setTexture(Texture* texture);
             void setTexCoords(vec2 texCoords[4]);
             void setSerialisable(bool serialisable);
-            void setFont(bool font);
 
     };
 
