@@ -43,7 +43,6 @@ namespace Pancake {
     void AssetPool::clear() {
         TexturePool::clear();
         SpritePool::clear();
-        Spritesheet::clear();
         FontPool::clear();
         AudioPool::clear();
     }
@@ -105,6 +104,7 @@ namespace Pancake {
     }
 
     void SpritePool::clear() {
+        Spritesheet::clear();
         for (auto const& x : sprites) {
             Sprite* s = x.second;
             delete s;
@@ -131,8 +131,19 @@ namespace Pancake {
         auto search = sprites.find(name);
         if (search != sprites.end()) {return search->second;}
 
-        std::cout << "ERROR::SPRITEPOOL::GET::SPRITE_NOT_EXIST: '" << name << "'\n";
-        return SpritePool::get("missing");
+        // Create a sprite with the texture of name.
+        Texture* texture = TexturePool::get(name);
+
+        // Create the sprite with the texture. If the texture does not exist, don't serialise the sprite.
+        Sprite* sprite = new Sprite(name, texture);
+        if (texture->isMissing()) {
+            sprite->setSerialisable(false);
+            std::cout << "ERROR::SPRITEPOOL::GET::SPRITE_NOT_EXIST: '" << name << "'\n";
+        }
+
+        // Add the sprite to the sprite pool.
+        SpritePool::put(sprite);
+        return sprite;
 
     }
 

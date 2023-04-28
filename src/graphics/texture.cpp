@@ -28,13 +28,15 @@ namespace Pancake {
 
             if (channels == 3) {glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, image);}
             else if (channels == 4) {glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, image);}
+            this->missingFlag = false;
 
         }
 
         else {
 
             // Print a warning message.
-            if (!(channels == 3 || channels == 4)) {std::cout << "ERROR::TEXTURE::INVALID_IMAGE_CHANNELS '" << channels << "' '" << name << "'\n";}
+            if (image == nullptr) {std::cout << "ERROR::TEXTURE::IMAGE_LOAD_FAILED '" << name << "'\n";}
+            else if (!(channels == 3 || channels == 4)) {std::cout << "ERROR::TEXTURE::INVALID_IMAGE_CHANNELS '" << channels << "' '" << name << "'\n";}
             else {std::cout << "ERROR::TEXTURE::IMAGE_LOAD_FAILED '" << name << "'\n";}
 
             // Generate texture on GPU
@@ -50,6 +52,7 @@ namespace Pancake {
             // Load the image
             unsigned char missing[] = {0,0,0,255,0,255,0,0,255,0,255,0,0};
             glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 2, 2, 0, GL_RGB, GL_UNSIGNED_BYTE, missing);
+            this->missingFlag = true;
 
         }
 
@@ -59,6 +62,7 @@ namespace Pancake {
 
         // Store the string.
         this->name = "generated";
+        this->missingFlag = false;
 
         // Generate texture on GPU
         glGenTextures(1, &this->id);
@@ -77,6 +81,7 @@ namespace Pancake {
 
         // Label the texture as missing
         this->name = "missing";
+        this->missingFlag = true;
 
         // Generate texture on GPU
         glGenTextures(1, &this->id);
@@ -150,6 +155,10 @@ namespace Pancake {
 
     int Texture::getHeight() {
         return this->height;
+    }
+
+    bool Texture::isMissing() {
+        return this->missingFlag;
     }
 
 }

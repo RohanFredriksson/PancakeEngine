@@ -15,6 +15,7 @@ namespace Pancake {
             unsigned int id;
             int width;
             int height;
+            bool missingFlag;
 
             void init(string name, unsigned char* image, int width, int height, int channels);
             void generate(GLint internal, int width, int height, GLenum format, GLenum type);
@@ -35,6 +36,7 @@ namespace Pancake {
             unsigned int getId();
             int getWidth();
             int getHeight();
+            bool isMissing();
 
     };
 
