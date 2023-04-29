@@ -173,6 +173,45 @@ namespace Pancake {
 
     }
 
+    void TextRenderer::imgui() {
+
+        TransformableComponent::imgui();
+
+        // Text
+        char s[256];
+        strncpy(s, this->text.c_str(), 256);
+        s[255] = '\0';
+        ImGui::Text("Text:           ");
+        ImGui::SameLine();
+        if (ImGui::InputText("##Text", s, sizeof(s))) {this->setText(string(s));}
+
+        // Font
+        /*
+        char f[256];
+        strncpy(f, this->font->getFilename().c_str(), 256);
+        f[255] = '\0';
+        ImGui::Text("Font:           ");
+        ImGui::SameLine();
+        ImGui::InputText("##Font", f, sizeof(f));
+        if (ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_Enter)) && strlen(f) > 0 && strcmp(f, this->font->getFilename().c_str()) != 0) {
+            this->setFont(FontPool::get(string(f)));
+        }
+        */
+
+        // Colour
+        vec4 c = vec4(this->colour.x, this->colour.y, this->colour.z, this->colour.w);
+        ImGui::Text("Colour:         ");
+        ImGui::SameLine();
+        if (ImGui::DragFloat4("##Colour", &c[0])) {this->setColour(c);}
+
+        // Z Index
+        int z = this->zIndex;
+        ImGui::Text("Z Index:        ");
+        ImGui::SameLine();
+        if (ImGui::DragInt("##ZIndex", &z)) {this->setZIndex(z);}
+
+    }
+
     string TextRenderer::getText() {
         return this->text;
     }

@@ -41,6 +41,7 @@ namespace Pancake {
             void update(float dt) override;
             json serialise() override;
             bool load(json j) override;
+            void imgui() override;
 
             // Getters
             string getText();

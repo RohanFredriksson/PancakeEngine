@@ -150,7 +150,7 @@ namespace Pancake {
 
             Console::render();
 
-            Component* c = scene->getComponent(3);
+            Component* c = scene->getComponent(6);
             ImGui::BeginChild("Component");
             c->imgui();
             ImGui::EndChild();

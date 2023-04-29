@@ -113,6 +113,7 @@ namespace Pancake {
         TransformableComponent::imgui();
 
         // Sprite
+        /*
         char s[256];
         strncpy(s, this->sprite->getName().c_str(), 256);
         s[255] = '\0';
@@ -122,6 +123,7 @@ namespace Pancake {
         if (ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_Enter)) && strlen(s) > 0 && strcmp(s, this->sprite->getName().c_str()) != 0) {
             this->setSprite(SpritePool::get(string(s)));
         }
+        */
 
         // Colour
         vec4 c = vec4(this->colour.x, this->colour.y, this->colour.z, this->colour.w);
