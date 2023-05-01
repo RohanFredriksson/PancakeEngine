@@ -32,6 +32,7 @@ namespace Pancake {
             Sprite(string name, Texture* texture, vec2 texCoords[4]);
             json serialise();
             static void load(json j);
+            void imgui();
 
             string getName();
             Texture* getTexture();

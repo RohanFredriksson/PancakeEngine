@@ -3,13 +3,6 @@
 #include "pancake/core/scene.hpp"
 #include "pancake/asset/assetpool.hpp"
 #include <cstring>
-#include <cstring>
-#include <cstring>
-#include <cstring>
-#include <cstring>
-#include <cstring>
-#include <cstring>
-#include <cstring>
 
 namespace Pancake {
 
@@ -124,6 +117,7 @@ namespace Pancake {
             this->setSprite(SpritePool::get(string(s)));
         }
         */
+        this->sprite->imgui();
 
         // Colour
         vec4 c = vec4(this->colour.x, this->colour.y, this->colour.z, this->colour.w);

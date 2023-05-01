@@ -1,5 +1,7 @@
 #include "pancake/graphics/sprite.hpp"
 #include "pancake/asset/assetpool.hpp"
+#include <cstring>
+#include <imgui.h>
 
 namespace Pancake {
 
@@ -77,6 +79,20 @@ namespace Pancake {
 
         Sprite* sprite = new Sprite(name, texture, texCoords);
         SpritePool::put(sprite);
+
+    }
+
+    void Sprite::imgui() {
+
+        ImGui::Text("Sprite: ");
+        ImGui::SameLine();
+        if (ImGui::CollapsingHeader(this->name.c_str())) {
+
+            ImGui::Text("Name: ");
+            ImGui::SameLine();
+            ImGui::InputText("##SpriteName", (char*) this->name.c_str(), this->name.length(), ImGuiInputTextFlags_ReadOnly);
+
+        }
 
     }
 
