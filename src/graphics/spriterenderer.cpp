@@ -105,31 +105,24 @@ namespace Pancake {
 
         TransformableComponent::imgui();
 
-        // Sprite
-        /*
-        char s[256];
-        strncpy(s, this->sprite->getName().c_str(), 256);
-        s[255] = '\0';
-        ImGui::Text("Sprite:         ");
-        ImGui::SameLine();
-        ImGui::InputText("##Sprite", s, sizeof(s));
-        if (ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_Enter)) && strlen(s) > 0 && strcmp(s, this->sprite->getName().c_str()) != 0) {
-            this->setSprite(SpritePool::get(string(s)));
+        if (ImGui::CollapsingHeader("SpriteRenderer", ImGuiTreeNodeFlags_DefaultOpen)) {
+
+            // Sprite
+            this->sprite->imgui();
+
+            // Colour
+            vec4 c = vec4(this->colour.x, this->colour.y, this->colour.z, this->colour.w);
+            ImGui::Text("Colour:         ");
+            ImGui::SameLine();
+            if (ImGui::DragFloat4("##Colour", &c[0])) {this->setColour(c);}
+
+            // Z Index
+            int z = this->zIndex;
+            ImGui::Text("Z Index:        ");
+            ImGui::SameLine();
+            if (ImGui::DragInt("##ZIndex", &z)) {this->setZIndex(z);}
+
         }
-        */
-        this->sprite->imgui();
-
-        // Colour
-        vec4 c = vec4(this->colour.x, this->colour.y, this->colour.z, this->colour.w);
-        ImGui::Text("Colour:         ");
-        ImGui::SameLine();
-        if (ImGui::DragFloat4("##Colour", &c[0])) {this->setColour(c);}
-
-        // Z Index
-        int z = this->zIndex;
-        ImGui::Text("Z Index:        ");
-        ImGui::SameLine();
-        if (ImGui::DragInt("##ZIndex", &z)) {this->setZIndex(z);}
 
     }
 

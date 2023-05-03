@@ -91,6 +91,17 @@ namespace Pancake {
             ImGui::Text("Name: ");
             ImGui::SameLine();
             ImGui::InputText("##SpriteName", (char*) this->name.c_str(), this->name.length(), ImGuiInputTextFlags_ReadOnly);
+            
+            if (this->texture != nullptr) {
+                
+                ImGui::Image(
+                    (void*)(intptr_t)this->texture->getId(), 
+                    ImVec2(100, 100),
+                    ImVec2(this->texCoords[3].x, this->texCoords[3].y),
+                    ImVec2(this->texCoords[1].x, this->texCoords[1].y)
+                );
+            
+            }
 
         }
 

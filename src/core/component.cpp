@@ -59,8 +59,19 @@ namespace Pancake {
     }
 
     void Component::imgui() {
-        ImGui::Text(this->type.c_str());
-        ImGui::Text("%d", this->id);
+
+        if (ImGui::CollapsingHeader("Component", ImGuiTreeNodeFlags_DefaultOpen)) {
+
+            ImGui::Text("Type:           ");
+            ImGui::SameLine();
+            ImGui::InputText("##ComponentType", (char*) this->type.c_str(), this->type.length(), ImGuiInputTextFlags_ReadOnly);
+            
+            ImGui::Text("ID:             ");
+            ImGui::SameLine();
+            ImGui::InputText("##ComponentID", (char*) std::to_string(this->id).c_str(), std::to_string(this->id).length(), ImGuiInputTextFlags_ReadOnly);
+
+        }
+        
     }
 
     void Component::kill() {
@@ -147,23 +158,27 @@ namespace Pancake {
 
         Component::imgui();
 
-        // Position Offset
-        vec2 position = vec2(this->positionOffset.x, this->positionOffset.y);
-        ImGui::Text("Position Offset:");
-        ImGui::SameLine();
-        if (ImGui::DragFloat2("##PositionOffset", &position[0])) {this->setPositionOffset(position);}
+        if (ImGui::CollapsingHeader("TransformableComponent", ImGuiTreeNodeFlags_DefaultOpen)) {
 
-        // Size Scale
-        vec2 size = vec2(this->sizeScale.x, this->sizeScale.y);
-        ImGui::Text("Size Scale:     ");
-        ImGui::SameLine();
-        if (ImGui::DragFloat2("##SizeScale", &size[0])) {this->setSizeScale(size);}
+            // Position Offset
+            vec2 position = vec2(this->positionOffset.x, this->positionOffset.y);
+            ImGui::Text("Position Offset:");
+            ImGui::SameLine();
+            if (ImGui::DragFloat2("##PositionOffset", &position[0])) {this->setPositionOffset(position);}
 
-        // Rotation Offset
-        float rotation = this->rotationOffset;
-        ImGui::Text("Rotation Offset:");
-        ImGui::SameLine();
-        if (ImGui::DragFloat("##RotationOffset", &rotation)) {this->setRotationOffset(rotation);}
+            // Size Scale
+            vec2 size = vec2(this->sizeScale.x, this->sizeScale.y);
+            ImGui::Text("Size Scale:     ");
+            ImGui::SameLine();
+            if (ImGui::DragFloat2("##SizeScale", &size[0])) {this->setSizeScale(size);}
+
+            // Rotation Offset
+            float rotation = this->rotationOffset;
+            ImGui::Text("Rotation Offset:");
+            ImGui::SameLine();
+            if (ImGui::DragFloat("##RotationOffset", &rotation)) {this->setRotationOffset(rotation);}
+
+        }
 
     }
 
