@@ -190,6 +190,7 @@ namespace Pancake {
         if (s == nullptr) {
             s = new SpriteRenderer(); 
             s->setSerialisable(false);
+            s->setImguiable(false);
             s->setColour(this->colour);
             s->setZIndex(this->zIndex);
             s->setPositionOffset(this->getPositionOffset());

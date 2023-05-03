@@ -2,6 +2,8 @@
 #include <deque>
 #include <algorithm>
 #include <unordered_set>
+#include <imgui.h>
+
 #include "pancake/core/entity.hpp"
 #include "pancake/core/component.hpp"
 
@@ -125,6 +127,44 @@ namespace Pancake {
         }
 
         return e;
+    }
+
+    void Entity::imgui() {
+
+        // Position 
+        vec2 position = vec2(this->position.x, this->position.y);
+        ImGui::Text("Position:       ");
+        ImGui::SameLine();
+        if (ImGui::DragFloat2("##Position", &position[0])) {this->setPosition(position);}
+
+        // Size
+        vec2 size = vec2(this->size.x, this->size.y);
+        ImGui::Text("Size:           ");
+        ImGui::SameLine();
+        if (ImGui::DragFloat2("##Size", &size[0])) {this->setSize(size);}
+
+        // Rotation
+        float rotation = this->rotation;
+        ImGui::Text("Rotation:       ");
+        ImGui::SameLine();
+        if (ImGui::DragFloat("##Rotation", &rotation)) {this->setRotation(rotation);}
+
+        for (Component* c : this->components) {
+
+            // If the component should not have a gui, don't render it.
+            if (!c->isImguiable()) {continue;}
+
+            // Create a widget for each component that is supposed to have it.
+            ImGui::Spacing();
+            string id = c->getType() + " " + std::to_string(c->getId());
+            ImGui::PushID(id.c_str());
+            if (ImGui::CollapsingHeader(id.c_str(), ImGuiTreeNodeFlags_DefaultOpen)) {
+                c->imgui();
+            }
+            ImGui::PopID();
+
+        }
+
     }
 
     void Entity::kill() {

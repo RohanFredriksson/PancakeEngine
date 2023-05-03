@@ -104,6 +104,7 @@ namespace Pancake {
                     
                     SpriteRenderer* s = new SpriteRenderer();
                     s->setSerialisable(false);
+                    s->setImguiable(false);
                     s->setSprite(this->font->getSprite(text[i]));
                     s->setColour(this->colour);
                     s->setZIndex(this->zIndex);
@@ -177,31 +178,27 @@ namespace Pancake {
 
         TransformableComponent::imgui();
 
-        if (ImGui::CollapsingHeader("TextRenderer", ImGuiTreeNodeFlags_DefaultOpen)) {
+        // Text
+        char s[256];
+        strncpy(s, this->text.c_str(), 256);
+        s[255] = '\0';
+        ImGui::Text("Text:           ");
+        ImGui::SameLine();
+        if (ImGui::InputText("##Text", s, sizeof(s))) {this->setText(string(s));}
 
-            // Text
-            char s[256];
-            strncpy(s, this->text.c_str(), 256);
-            s[255] = '\0';
-            ImGui::Text("Text:           ");
-            ImGui::SameLine();
-            if (ImGui::InputText("##Text", s, sizeof(s))) {this->setText(string(s));}
+        // Font
 
-            // Font
+        // Colour
+        vec4 c = vec4(this->colour.x, this->colour.y, this->colour.z, this->colour.w);
+        ImGui::Text("Colour:         ");
+        ImGui::SameLine();
+        if (ImGui::DragFloat4("##Colour", &c[0])) {this->setColour(c);}
 
-            // Colour
-            vec4 c = vec4(this->colour.x, this->colour.y, this->colour.z, this->colour.w);
-            ImGui::Text("Colour:         ");
-            ImGui::SameLine();
-            if (ImGui::DragFloat4("##Colour", &c[0])) {this->setColour(c);}
-
-            // Z Index
-            int z = this->zIndex;
-            ImGui::Text("Z Index:        ");
-            ImGui::SameLine();
-            if (ImGui::DragInt("##ZIndex", &z)) {this->setZIndex(z);}
-
-        }
+        // Z Index
+        int z = this->zIndex;
+        ImGui::Text("Z Index:        ");
+        ImGui::SameLine();
+        if (ImGui::DragInt("##ZIndex", &z)) {this->setZIndex(z);}
 
     }
 

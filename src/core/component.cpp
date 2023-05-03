@@ -17,6 +17,7 @@ namespace Pancake {
         this->type = type;
         this->entity = nullptr;
         this->serialisable = true;
+        this->imguiable = true;
         this->dead = false;
 
         if (load) {nextId = std::max(nextId, id+1);}
@@ -48,29 +49,24 @@ namespace Pancake {
         json j;
         j.emplace("id", this->id);
         j.emplace("type", this->type);
+        j.emplace("imguiable", this->imguiable);
         return j;
     }
 
     bool Component::load(json j) {
+        
+        // Required attributes.
         if (!j.contains("id") || !j["id"].is_number_integer()) {return false;}
         if (!j.contains("type") || !j["type"].is_string()) {return false;}
         this->init(j["id"], j["type"], true);
+
+        // Optional attributes.
+        if (j.contains("imguiable") && j["imguiable"].is_boolean()) {this->setImguiable(j["imguiable"]);}
+
         return true;
     }
 
     void Component::imgui() {
-
-        if (ImGui::CollapsingHeader("Component", ImGuiTreeNodeFlags_DefaultOpen)) {
-
-            ImGui::Text("Type:           ");
-            ImGui::SameLine();
-            ImGui::InputText("##ComponentType", (char*) this->type.c_str(), this->type.length(), ImGuiInputTextFlags_ReadOnly);
-            
-            ImGui::Text("ID:             ");
-            ImGui::SameLine();
-            ImGui::InputText("##ComponentID", (char*) std::to_string(this->id).c_str(), std::to_string(this->id).length(), ImGuiInputTextFlags_ReadOnly);
-
-        }
         
     }
 
@@ -96,6 +92,10 @@ namespace Pancake {
         return this->serialisable;
     }
 
+    bool Component::isImguiable() {
+        return this->imguiable;
+    }
+
     bool Component::isDead() {
         return this->dead;
     }
@@ -110,6 +110,10 @@ namespace Pancake {
 
     void Component::setSerialisable(bool serialisable) {
         this->serialisable = serialisable;
+    }
+
+    void Component::setImguiable(bool imguiable) {
+        this->imguiable = imguiable;
     }
 
     TransformableComponent::TransformableComponent(string type) : Component(type) {
@@ -158,27 +162,23 @@ namespace Pancake {
 
         Component::imgui();
 
-        if (ImGui::CollapsingHeader("TransformableComponent", ImGuiTreeNodeFlags_DefaultOpen)) {
+        // Position Offset
+        vec2 position = vec2(this->positionOffset.x, this->positionOffset.y);
+        ImGui::Text("Position Offset:");
+        ImGui::SameLine();
+        if (ImGui::DragFloat2("##PositionOffset", &position[0])) {this->setPositionOffset(position);}
 
-            // Position Offset
-            vec2 position = vec2(this->positionOffset.x, this->positionOffset.y);
-            ImGui::Text("Position Offset:");
-            ImGui::SameLine();
-            if (ImGui::DragFloat2("##PositionOffset", &position[0])) {this->setPositionOffset(position);}
+        // Size Scale
+        vec2 size = vec2(this->sizeScale.x, this->sizeScale.y);
+        ImGui::Text("Size Scale:     ");
+        ImGui::SameLine();
+        if (ImGui::DragFloat2("##SizeScale", &size[0])) {this->setSizeScale(size);}
 
-            // Size Scale
-            vec2 size = vec2(this->sizeScale.x, this->sizeScale.y);
-            ImGui::Text("Size Scale:     ");
-            ImGui::SameLine();
-            if (ImGui::DragFloat2("##SizeScale", &size[0])) {this->setSizeScale(size);}
-
-            // Rotation Offset
-            float rotation = this->rotationOffset;
-            ImGui::Text("Rotation Offset:");
-            ImGui::SameLine();
-            if (ImGui::DragFloat("##RotationOffset", &rotation)) {this->setRotationOffset(rotation);}
-
-        }
+        // Rotation Offset
+        float rotation = this->rotationOffset;
+        ImGui::Text("Rotation Offset:");
+        ImGui::SameLine();
+        if (ImGui::DragFloat("##RotationOffset", &rotation)) {this->setRotationOffset(rotation);}
 
     }
 

@@ -23,6 +23,7 @@ namespace Pancake {
             string type;
             Entity* entity;
             bool serialisable;
+            bool imguiable;
             bool dead;
 
             void init(int id, string type, bool load);
@@ -43,11 +44,13 @@ namespace Pancake {
             string getType();
             Entity* getEntity();
             bool isSerialisable();
+            bool isImguiable();
             bool isDead();
             
             void setId(int id);
             void setEntity(Entity* entity);
             void setSerialisable(bool serialisable);
+            void setImguiable(bool imguiable);
 
     };
 

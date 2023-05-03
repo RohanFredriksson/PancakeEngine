@@ -40,6 +40,7 @@ namespace Pancake {
             void update(float dt);
             json serialise();
             static Entity* load(json j);
+            void imgui();
             void kill();
 
             // Getter Methods.

@@ -150,9 +150,9 @@ namespace Pancake {
 
             Console::render();
 
-            Component* c = scene->getComponent(3);
-            ImGui::BeginChild("Component");
-            c->imgui();
+            Entity* e = scene->getEntity(6);
+            ImGui::BeginChild("Entity");
+            e->imgui();
             ImGui::EndChild();
 
             ImGui::Render();
