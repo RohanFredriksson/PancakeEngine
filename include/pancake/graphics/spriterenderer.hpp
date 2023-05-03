@@ -29,6 +29,7 @@ namespace Pancake {
         public:
 
             SpriteRenderer();
+            void start() override;
             void end() override;
             void update(float dt) override;
             json serialise() override;

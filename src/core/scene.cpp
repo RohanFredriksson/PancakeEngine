@@ -26,8 +26,6 @@ namespace Pancake {
         if (!filename.empty()) {this->load(filename);}
         if (init != nullptr) {init(this);}
 
-        this->start();
-
     }
 
     Scene::~Scene() {
@@ -53,20 +51,10 @@ namespace Pancake {
 
     void Scene::addNewComponents() {
 
-        // For each entity, check their new component list.
-        // If there are components in this list, 
-        // try and add them to the renderer and physics system.
+        // Add the component to the map for quick lookups.
         for (auto const& x : this->entities) {
             Entity* e = x.second;
-            for (Component* c : e->getNewComponents()) {
-                
-                // If the component is of the correct subclass, add it to its specific system.
-                if (dynamic_cast<SpriteRenderer*>(c) != nullptr) {this->renderer->add((SpriteRenderer*) c);}
-                if (dynamic_cast<Rigidbody*>(c) != nullptr) {this->physics->add((Rigidbody*) c);}
-
-                // Add the component to the map for quick lookups.
-                this->components[c->getId()] = c;
-            }
+            for (Component* c : e->getNewComponents()) {this->components[c->getId()] = c;} 
             e->clearNewComponents();
         }
         

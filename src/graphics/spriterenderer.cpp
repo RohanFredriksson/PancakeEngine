@@ -20,6 +20,10 @@ namespace Pancake {
 
     }
 
+    void SpriteRenderer::start() {
+        Window::getScene()->getRenderer()->add(this);
+    }
+
     void SpriteRenderer::end() {
         Window::getScene()->getRenderer()->remove(this);
     }

@@ -168,7 +168,7 @@ namespace Pancake {
 
         bool init(string name, string filename, void(*init)(Scene* scene)) {
             if (!start()) {return false;}
-            try {scene = new Scene(name, filename, init);}
+            try {scene = new Scene(name, filename, init); scene->start();}
             catch (...) {return false;}
             return true;
         }
@@ -219,6 +219,7 @@ namespace Pancake {
                 if (loadFlag) {
                     delete scene;
                     scene = new Scene(loadName, loadFilename, loadInit);
+                    scene->start();
                     dt = -1.0f;
                     loadFlag = false;
                 }

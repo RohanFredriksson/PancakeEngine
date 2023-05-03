@@ -39,6 +39,7 @@ namespace Pancake {
         public:
 
             Rigidbody();
+            void start() override;
             void end() override;
             json serialise() override;
             bool load(json j) override;

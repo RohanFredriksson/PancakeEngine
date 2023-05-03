@@ -28,6 +28,10 @@ namespace Pancake {
 
     }
 
+    void Rigidbody::start() {
+        Window::getScene()->getPhysics()->add(this);
+    }
+
     void Rigidbody::end() {
         Window::getScene()->getPhysics()->remove(this);
         this->clearColliders();
