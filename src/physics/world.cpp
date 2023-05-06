@@ -66,8 +66,8 @@ namespace Pancake {
             ImpulseResult result(vec2(0.0f, 0.0f), vec2(0.0f, 0.0f), 0.0f, 0.0f);
             if (a->hasInfiniteMass() && b->hasInfiniteMass()) {return result;}
 
-            DebugDraw::drawBox(m.contactPoint, vec2(0.1f, 0.1f), 0.0f, vec3(1.0f, 0.0f, 0.0f), 10);
-            DebugDraw::drawLine(m.contactPoint, m.contactPoint + m.normal * 0.3f, vec3(0.0f, 0.0f, 1.0f), 10);
+            DebugDraw::drawBox(m.point, vec2(0.1f, 0.1f), 0.0f, vec3(1.0f, 0.0f, 0.0f), 10);
+            DebugDraw::drawLine(m.point, m.point + m.normal * 0.3f, vec3(0.0f, 0.0f, 1.0f), 10);
 
             float invMassA = a->getInverseMass();
             float invMassB = b->getInverseMass();
@@ -78,8 +78,8 @@ namespace Pancake {
             float restitution = a->getRestitution() * b->getRestitution();
             float friction = std::max(a->getFriction(), b->getFriction());
             vec2 tangent = perp(m.normal);
-            vec2 rA = m.contactPoint - a->getCentroid();
-            vec2 rB = m.contactPoint - b->getCentroid();
+            vec2 rA = m.point - a->getCentroid();
+            vec2 rB = m.point - b->getCentroid();
             vec2 vAB = b->getVelocity() + perp(rB) * angVelB - a->getVelocity() - perp(rA) * angVelA;
             float rAproj = proj(rA, m.normal);
             float rAreg = proj(rA, tangent);
@@ -193,8 +193,20 @@ namespace Pancake {
 
                 if (results.size() > 0) {
 
-                    //rigidbody1->getEntity()->onCollision(rigidbody2);
-                    //rigidbody2->getEntity()->onCollision(rigidbody1);
+                    for (CollisionManifold manifold : results) {
+
+                        for (Component* component : rigidbody1->getEntity()->getComponents()) {
+                            CollisionListener* listener = dynamic_cast<CollisionListener*>(component);
+                            if (listener != nullptr) {listener->collision(rigidbody2->getEntity(), manifold);}
+                        }
+
+                        CollisionManifold flipped = manifold.flip();
+                        for (Component* component : rigidbody2->getEntity()->getComponents()) {
+                            CollisionListener* listener = dynamic_cast<CollisionListener*>(component);
+                            if (listener != nullptr) {listener->collision(rigidbody1->getEntity(), flipped);}
+                        }
+
+                    }
 
                     this->bodies1.push_back(rigidbody1);
                     this->bodies2.push_back(rigidbody2);

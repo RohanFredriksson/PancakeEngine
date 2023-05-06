@@ -12,6 +12,10 @@ using json = nlohmann::json;
 
 namespace Pancake {
 
+    class CollisionListener {
+        public: virtual void collision(Entity* with, CollisionManifold manifold);
+    };
+
     class World {
 
         private:

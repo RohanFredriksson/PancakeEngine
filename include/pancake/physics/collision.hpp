@@ -12,12 +12,13 @@ namespace Pancake {
         public:
 
             vec2 normal;
-            vec2 contactPoint;
+            vec2 point;
             float depth;
             bool colliding;
 
             CollisionManifold();
-            CollisionManifold(vec2 normal, vec2 contactPoint, float depth);
+            CollisionManifold(vec2 normal, vec2 point, float depth);
+            CollisionManifold flip();
 
     };
 

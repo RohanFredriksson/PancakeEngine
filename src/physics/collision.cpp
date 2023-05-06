@@ -14,16 +14,21 @@ namespace Pancake {
 
     CollisionManifold::CollisionManifold() {
         this->normal = glm::vec2(0.0f, 0.0f);
-        this->contactPoint = glm::vec2(0.0f, 0.0f);
+        this->point = glm::vec2(0.0f, 0.0f);
         this->depth = 0.0f;
         this->colliding = false;
     }
 
-    CollisionManifold::CollisionManifold(vec2 normal, vec2 contactPoint, float depth) {
+    CollisionManifold::CollisionManifold(vec2 normal, vec2 point, float depth) {
         this->normal = normal;
-        this->contactPoint = contactPoint;
+        this->point = point;
         this->depth = depth;
         this->colliding = true;
+    }
+
+    CollisionManifold CollisionManifold::flip() {
+        if (this->colliding) {return CollisionManifold(this->normal * -1.0f, this->point, this->depth);}
+        return CollisionManifold();
     }
 
     namespace {
@@ -113,9 +118,9 @@ namespace Pancake {
 
             // Find the contact point of the collision
             float distanceToPoint = a->getRadius() - depth;
-            vec2 contactPoint = distanceToPoint * normal + aPosition;
+            vec2 point = distanceToPoint * normal + aPosition;
 
-            return CollisionManifold(normal, contactPoint, depth);
+            return CollisionManifold(normal, point, depth);
         }
 
         CollisionManifold findCollisionFeaturesBoxAndBox(Box* a, Box* b) {
@@ -184,7 +189,7 @@ namespace Pancake {
 
                 // Collision manifold variables.
                 vec2 normal;
-                vec2 contactPoint;
+                vec2 point;
                 float depth;
 
                 // Find the b vertex which is in a and its neighbours
@@ -228,14 +233,14 @@ namespace Pancake {
                 else if (aInsideB[1]) {corner = vec2(aMin.x, aMax.y);}
                 else if (aInsideB[2]) {corner = vec2(aMax.x, aMax.y);}
                 else if (aInsideB[3]) {corner = vec2(aMax.x, aMin.y);}
-                contactPoint = (corner + vertex) / 2.0f;
+                point = (corner + vertex) / 2.0f;
 
                 // Calculate depth.
-                depth = glm::length(project(corner - contactPoint, normal));
+                depth = glm::length(project(corner - point, normal));
 
                 rotate(normal, vec2(0.0f, 0.0f), aCos, aSin);
-                rotate(contactPoint, aPos, aCos, aSin);
-                return CollisionManifold(normal, contactPoint, depth);
+                rotate(point, aPos, aCos, aSin);
+                return CollisionManifold(normal, point, depth);
             }
 
             bool flip = false;
@@ -260,7 +265,7 @@ namespace Pancake {
                 
                 // Collision manifold variables.
                 vec2 normal;
-                vec2 contactPoint;
+                vec2 point;
                 float depth;
 
                 // Get all vertices of b inside a.
@@ -280,7 +285,7 @@ namespace Pancake {
                 if (distance < best) {
                     normal = vec2(0.0f, 1.0f); 
                     depth = (distance / (float) inside.size()) * 0.5f;
-                    contactPoint = vec2(average.x, average.y + depth);
+                    point = vec2(average.x, average.y + depth);
                     best = distance;
                 }
                 
@@ -292,7 +297,7 @@ namespace Pancake {
                 if (distance < best) {
                     normal = vec2(0.0f, -1.0f); 
                     depth = (distance / (float) inside.size()) * 0.5f;
-                    contactPoint = vec2(average.x, average.y - depth);
+                    point = vec2(average.x, average.y - depth);
                     best = distance;
                 }
 
@@ -304,7 +309,7 @@ namespace Pancake {
                 if (distance < best) {
                     normal = vec2(1.0f, 0.0f); 
                     depth = (distance / (float) inside.size()) * 0.5f;
-                    contactPoint = vec2(average.x + depth, average.y);
+                    point = vec2(average.x + depth, average.y);
                     best = distance;
                 }
                 
@@ -316,14 +321,14 @@ namespace Pancake {
                 if (distance < best) {
                     normal = vec2(-1.0f, 0.0f); 
                     depth = (distance / (float) inside.size()) * 0.5f;
-                    contactPoint = vec2(average.x - depth, average.y);
+                    point = vec2(average.x - depth, average.y);
                     best = distance;
                 }
 
                 rotate(normal, vec2(0.0f, 0.0f), aCos, aSin);
-                rotate(contactPoint, aPos, aCos, aSin);
+                rotate(point, aPos, aCos, aSin);
                 if (flip) {normal = -normal;}
-                return CollisionManifold(normal, contactPoint, depth);
+                return CollisionManifold(normal, point, depth);
             }
 
             return CollisionManifold();
@@ -355,18 +360,18 @@ namespace Pancake {
 
             float depth;
             vec2 normal;
-            vec2 contactPoint;
+            vec2 point;
 
             // Colliding with the top face of the box.
             if (cPos.x >= bMin.x && cPos.x <= bMax.x && cPos.y >= bMax.y && cPos.y < bMax.y + cRadius) {
 
                 depth = (bMax.y - (cPos.y - cRadius)) * 0.5f;
                 normal = vec2(0.0f, -1.0f);
-                contactPoint = vec2(cPos.x, bMax.y - depth);
-                if (bRot != 0.0f) {rotate(normal, vec2(0.0f, 0.0f), rCos, -rSin); rotate(contactPoint, bPos, rCos, -rSin);}
+                point = vec2(cPos.x, bMax.y - depth);
+                if (bRot != 0.0f) {rotate(normal, vec2(0.0f, 0.0f), rCos, -rSin); rotate(point, bPos, rCos, -rSin);}
                 if (flip) {normal = -normal;}
 
-                return CollisionManifold(normal, contactPoint, depth);
+                return CollisionManifold(normal, point, depth);
             }
 
             // Colliding with the bottom face of the box.
@@ -374,11 +379,11 @@ namespace Pancake {
 
                 depth = ((cPos.y + cRadius) - bMin.y) * 0.5f;
                 normal = vec2(0.0f, 1.0f);
-                contactPoint = vec2(cPos.x, bMin.y + depth);
-                if (bRot != 0.0f) {rotate(normal, vec2(0.0f, 0.0f), rCos, -rSin); rotate(contactPoint, bPos, rCos, -rSin);}
+                point = vec2(cPos.x, bMin.y + depth);
+                if (bRot != 0.0f) {rotate(normal, vec2(0.0f, 0.0f), rCos, -rSin); rotate(point, bPos, rCos, -rSin);}
                 if (flip) {normal = -normal;}
 
-                return CollisionManifold(normal, contactPoint, depth);
+                return CollisionManifold(normal, point, depth);
             }
 
             // Colliding with the right face of the box
@@ -386,11 +391,11 @@ namespace Pancake {
 
                 depth = (bMax.x - (cPos.x - cRadius)) * 0.5f;
                 normal = vec2(-1.0f, 0.0f);
-                contactPoint = vec2(bMax.x - depth, cPos.y);
-                if (bRot != 0.0f) {rotate(normal, vec2(0.0f, 0.0f), rCos, -rSin); rotate(contactPoint, bPos, rCos, -rSin);}
+                point = vec2(bMax.x - depth, cPos.y);
+                if (bRot != 0.0f) {rotate(normal, vec2(0.0f, 0.0f), rCos, -rSin); rotate(point, bPos, rCos, -rSin);}
                 if (flip) {normal = -normal;}
 
-                return CollisionManifold(normal, contactPoint, depth);
+                return CollisionManifold(normal, point, depth);
             }
 
             // Colliding with the left face of the box.
@@ -398,11 +403,11 @@ namespace Pancake {
 
                 depth = ((cPos.x + cRadius) - bMin.x) * 0.5f;
                 normal = vec2(1.0f, 0.0f);
-                contactPoint = vec2(bMin.x + depth, cPos.y);
-                if (bRot != 0.0f) {rotate(normal, vec2(0.0f, 0.0f), rCos, -rSin); rotate(contactPoint, bPos, rCos, -rSin);}
+                point = vec2(bMin.x + depth, cPos.y);
+                if (bRot != 0.0f) {rotate(normal, vec2(0.0f, 0.0f), rCos, -rSin); rotate(point, bPos, rCos, -rSin);}
                 if (flip) {normal = -normal;}
 
-                return CollisionManifold(normal, contactPoint, depth);
+                return CollisionManifold(normal, point, depth);
             }
 
             // Colliding with the top left corner of the box.
@@ -412,11 +417,11 @@ namespace Pancake {
                 normal = glm::normalize(difference);
                 vec2 depthVector = ((normal * cRadius) - difference) * 0.5f;            
                 depth = glm::length(depthVector);
-                contactPoint = vec2(bMin.x, bMax.y) + depthVector;
-                if (bRot != 0.0f) {rotate(normal, vec2(0.0f, 0.0f), rCos, -rSin); rotate(contactPoint, bPos, rCos, -rSin);}
+                point = vec2(bMin.x, bMax.y) + depthVector;
+                if (bRot != 0.0f) {rotate(normal, vec2(0.0f, 0.0f), rCos, -rSin); rotate(point, bPos, rCos, -rSin);}
                 if (flip) {normal = -normal;}
 
-                return CollisionManifold(normal, contactPoint, depth);
+                return CollisionManifold(normal, point, depth);
             }
 
             // Colliding with the top right corner of the box.
@@ -426,11 +431,11 @@ namespace Pancake {
                 normal = glm::normalize(difference);
                 vec2 depthVector = ((normal * cRadius) - difference) * 0.5f;            
                 depth = glm::length(depthVector);
-                contactPoint = vec2(bMax.x, bMax.y) + depthVector;
-                if (bRot != 0.0f) {rotate(normal, vec2(0.0f, 0.0f), rCos, -rSin); rotate(contactPoint, bPos, rCos, -rSin);}
+                point = vec2(bMax.x, bMax.y) + depthVector;
+                if (bRot != 0.0f) {rotate(normal, vec2(0.0f, 0.0f), rCos, -rSin); rotate(point, bPos, rCos, -rSin);}
                 if (flip) {normal = -normal;}
 
-                return CollisionManifold(normal, contactPoint, depth);
+                return CollisionManifold(normal, point, depth);
             }
 
             // Colliding with the bottom left corner of the box.
@@ -440,11 +445,11 @@ namespace Pancake {
                 normal = glm::normalize(difference);
                 vec2 depthVector = ((normal * cRadius) - difference) * 0.5f;            
                 depth = glm::length(depthVector);
-                contactPoint = vec2(bMin.x, bMin.y) + depthVector;
-                if (bRot != 0.0f) {rotate(normal, vec2(0.0f, 0.0f), rCos, -rSin); rotate(contactPoint, bPos, rCos, -rSin);}
+                point = vec2(bMin.x, bMin.y) + depthVector;
+                if (bRot != 0.0f) {rotate(normal, vec2(0.0f, 0.0f), rCos, -rSin); rotate(point, bPos, rCos, -rSin);}
                 if (flip) {normal = -normal;}
 
-                return CollisionManifold(normal, contactPoint, depth);
+                return CollisionManifold(normal, point, depth);
             }
 
             // Colliding with the bottom right corner of the box.
@@ -454,11 +459,11 @@ namespace Pancake {
                 normal = glm::normalize(difference);
                 vec2 depthVector = ((normal * cRadius) - difference) * 0.5f;            
                 depth = glm::length(depthVector);
-                contactPoint = vec2(bMax.x, bMin.y) + depthVector;
-                if (bRot != 0.0f) {rotate(normal, vec2(0.0f, 0.0f), rCos, -rSin); rotate(contactPoint, bPos, rCos, -rSin);}
+                point = vec2(bMax.x, bMin.y) + depthVector;
+                if (bRot != 0.0f) {rotate(normal, vec2(0.0f, 0.0f), rCos, -rSin); rotate(point, bPos, rCos, -rSin);}
                 if (flip) {normal = -normal;}
 
-                return CollisionManifold(normal, contactPoint, depth);
+                return CollisionManifold(normal, point, depth);
             }
             
             return CollisionManifold();
