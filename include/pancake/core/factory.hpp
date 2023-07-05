@@ -19,11 +19,11 @@ class Factory {
         }
 
         template<class Derived>
-        void add(const std::string& name) {
+        void add(std::string name) {
             this->constructors.insert({name, []() -> Base* { return new Derived(); }});
         }
 
-        Base* create(const std::string& name) {
+        Base* create(std::string name) {
             const auto it = this->constructors.find(name);
             if (it == this->constructors.end()) {return nullptr;}
             return (it->second)();
@@ -38,3 +38,6 @@ class Factory {
 };
 
 #define FACTORY(Class) Factory<Class>::get()
+#define CREATOR_NAME(class) Creator_##class
+#define CREATOR(base_class, derived_class) class CREATOR_NAME(derived_class) {public: explicit CREATOR_NAME(derived_class)() {FACTORY(base_class).add<derived_class>(#derived_class);}};
+#define REGISTER(base_class, derived_class) CREATOR(base_class, derived_class); CREATOR_NAME(derived_class) Singleton_##derived_class;

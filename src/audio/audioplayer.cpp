@@ -4,6 +4,8 @@
 
 namespace Pancake {
 
+    REGISTER(Component, AudioPlayer);
+
     AudioPlayer::AudioPlayer() : Component("AudioPlayer") {
         this->audio = nullptr;
     }

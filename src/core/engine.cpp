@@ -14,6 +14,8 @@
 #include "pancake/physics/collider.hpp"
 #include "pancake/pancake.hpp"
 
+#include "pancake/core/factory.hpp"
+
 namespace Pancake {
 
     namespace {
@@ -48,6 +50,9 @@ namespace Pancake {
     }
 
     int run(string name, string filename, void(*init)(Scene* scene)) {
+
+        FACTORY(Pancake::Component).list();
+
         registry();
         AudioEngine::init();
         if (!Window::init(name, filename, init)) {return 1;}

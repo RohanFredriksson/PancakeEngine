@@ -6,6 +6,8 @@
 #include <nlohmann/json.hpp>
 #include <imgui.h>
 
+#include "pancake/core/factory.hpp"
+
 using std::vector;
 using std::string;
 using glm::vec2;
