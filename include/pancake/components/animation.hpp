@@ -116,4 +116,6 @@ namespace Pancake {
 
     };
 
+    REGISTER(Component, Animation);
+
 }

@@ -90,6 +90,8 @@ namespace Pancake {
             
     };
 
+    REGISTER(Component, Rigidbody);
+
 }
 
 #include "pancake/physics/collider.hpp"

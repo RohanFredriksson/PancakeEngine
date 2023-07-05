@@ -52,4 +52,6 @@ namespace Pancake {
 
     };
 
+    REGISTER(Component, FadeTransition);
+
 }

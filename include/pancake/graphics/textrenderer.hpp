@@ -59,4 +59,6 @@ namespace Pancake {
 
     };
 
+    REGISTER(Component, TextRenderer);
+
 }

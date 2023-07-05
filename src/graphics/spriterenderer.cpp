@@ -6,8 +6,6 @@
 
 namespace Pancake {
 
-    REGISTER(Component, SpriteRenderer);
-
     SpriteRenderer::SpriteRenderer() : TransformableComponent("SpriteRenderer") {
         
         this->sprite = SpritePool::get("empty");
@@ -171,14 +169,3 @@ namespace Pancake {
     }
 
 }
-
-/*
-class Creator {
-    public:
-        explicit Creator(const std::string& name) {
-            Factory<B>::get().add<T>(name);
-        }
-};
-*/
-
-//Creator<Pancake::Component, Pancake::SpriteRenderer> s_component_spriterenderer;

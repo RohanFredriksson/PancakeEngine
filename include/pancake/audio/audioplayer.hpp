@@ -29,4 +29,6 @@ namespace Pancake {
 
     };
 
+    REGISTER(Component, AudioPlayer);
+
 }

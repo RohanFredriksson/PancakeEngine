@@ -50,4 +50,6 @@ namespace Pancake {
 
     };
 
+    REGISTER(Component, SpriteRenderer);
+
 }

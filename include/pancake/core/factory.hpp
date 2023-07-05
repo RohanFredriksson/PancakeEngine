@@ -37,7 +37,7 @@ class Factory {
 
 };
 
-#define FACTORY(Class) Factory<Class>::get()
-#define CREATOR_NAME(class) Creator_##class
-#define CREATOR(base_class, derived_class) class CREATOR_NAME(derived_class) {public: explicit CREATOR_NAME(derived_class)() {FACTORY(base_class).add<derived_class>(#derived_class);}};
-#define REGISTER(base_class, derived_class) CREATOR(base_class, derived_class); CREATOR_NAME(derived_class) Singleton_##derived_class;
+#define FACTORY(Base) Factory<Base>::get()
+#define CREATOR_NAME(Class) Creator_##Class
+#define CREATOR(BaseClass, DerivedClass) class CREATOR_NAME(DerivedClass) {public: explicit CREATOR_NAME(DerivedClass)() {FACTORY(BaseClass).add<DerivedClass>(#DerivedClass);}};
+#define REGISTER(BaseClass, DerivedClass) namespace{CREATOR(BaseClass, DerivedClass); CREATOR_NAME(DerivedClass) Singleton_##DerivedClass;}
