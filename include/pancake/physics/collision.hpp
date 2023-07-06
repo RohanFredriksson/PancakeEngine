@@ -1,8 +1,10 @@
 #pragma once
 
+#include <glm/glm.hpp>
+#include <vector>
+
 #include "pancake/physics/collider.hpp"
 
-#include "glm/glm.hpp"
 using glm::vec2;
 
 namespace Pancake {
@@ -14,7 +16,6 @@ namespace Pancake {
             vec2 normal;
             vec2 point;
             float depth;
-            bool colliding;
 
             CollisionManifold();
             CollisionManifold(vec2 normal, vec2 point, float depth);
@@ -23,7 +24,7 @@ namespace Pancake {
     };
 
     namespace Collision {
-        CollisionManifold findCollisionFeatures(Collider* c1, Collider* c2);
+        std::vector<CollisionManifold> findCollisionFeatures(Collider* c1, Collider* c2);
     }
 
 }

@@ -16,19 +16,16 @@ namespace Pancake {
         this->normal = glm::vec2(0.0f, 0.0f);
         this->point = glm::vec2(0.0f, 0.0f);
         this->depth = 0.0f;
-        this->colliding = false;
     }
 
     CollisionManifold::CollisionManifold(vec2 normal, vec2 point, float depth) {
         this->normal = normal;
         this->point = point;
         this->depth = depth;
-        this->colliding = true;
     }
 
     CollisionManifold CollisionManifold::flip() {
-        if (this->colliding) {return CollisionManifold(this->normal * -1.0f, this->point, this->depth);}
-        return CollisionManifold();
+        return CollisionManifold(this->normal * -1.0f, this->point, this->depth);
     }
 
     namespace {
@@ -102,7 +99,9 @@ namespace Pancake {
         }
 
 
-        CollisionManifold findCollisionFeaturesCircleAndCircle(Circle* a, Circle* b) {
+        std::vector<CollisionManifold> findCollisionFeaturesCircleAndCircle(Circle* a, Circle* b) {
+
+            std::vector<CollisionManifold> result;
 
             vec2 aPosition = a->getPosition();
             vec2 bPosition = b->getPosition();
@@ -110,7 +109,7 @@ namespace Pancake {
             // Determine if the two circles are colliding.
             float sumRadii = a->getRadius() + b->getRadius();
             vec2 distance = bPosition - aPosition;
-            if (glm::dot(distance, distance) - (sumRadii * sumRadii) > 0) {return CollisionManifold();}
+            if (glm::dot(distance, distance) - (sumRadii * sumRadii) > 0) {return result;}
 
             // Find the depth and normal of the collision
             float depth = fabsf(glm::length(distance) - sumRadii) * 0.5f;
@@ -120,10 +119,14 @@ namespace Pancake {
             float distanceToPoint = a->getRadius() - depth;
             vec2 point = distanceToPoint * normal + aPosition;
 
-            return CollisionManifold(normal, point, depth);
+            result.push_back(CollisionManifold(normal, point, depth));
+            return result;
+
         }
 
-        CollisionManifold findCollisionFeaturesBoxAndBox(Box* a, Box* b) {
+        std::vector<CollisionManifold> findCollisionFeaturesBoxAndBox(Box* a, Box* b) {
+
+            std::vector<CollisionManifold> result;
 
             // Store all the information that is required.
             float aRotation = a->getRotation();
@@ -240,7 +243,10 @@ namespace Pancake {
 
                 rotate(normal, vec2(0.0f, 0.0f), aCos, aSin);
                 rotate(point, aPos, aCos, aSin);
-                return CollisionManifold(normal, point, depth);
+
+                result.push_back(CollisionManifold(normal, point, depth));
+                return result;
+
             }
 
             bool flip = false;
@@ -261,80 +267,72 @@ namespace Pancake {
 
             }
 
-            if (aInsideBCount == 0 && bInsideACount == 1 || bInsideACount == 2) {
-                
+            if (aInsideBCount == 0 && bInsideACount == 1) {
+
                 // Collision manifold variables.
                 vec2 normal;
                 vec2 point;
                 float depth;
+
+                // Find the vertex of b inside a.
+                vec2 inside;
+                for (int i = 0; i < 4; i++) {if (bInsideA[i]) {inside = bVertices[i]; break;}}
+
+                // Find the side that minimises the distance
+                float best = FLT_MAX;
+                float current;
+                current = aMax.y - inside.y; if (current < best) {normal = vec2( 0.0f,  1.0f); depth = current * 0.5f; point = inside + depth; best = current;} // Top
+                current = inside.y - aMin.y; if (current < best) {normal = vec2( 0.0f, -1.0f); depth = current * 0.5f; point = inside + depth; best = current;} // Bottom
+                current = aMax.x - inside.x; if (current < best) {normal = vec2( 1.0f,  1.0f); depth = current * 0.5f; point = inside + depth; best = current;} // Right
+                current = inside.x - aMin.x; if (current < best) {normal = vec2(-1.0f,  1.0f); depth = current * 0.5f; point = inside + depth; best = current;} // Left
+
+                // Rotate back into global coordinates.
+                rotate(normal, vec2(0.0f, 0.0f), aCos, aSin);
+                rotate(point, aPos, aCos, aSin);
+                if (flip) {normal = -normal;}
+
+                result.push_back(CollisionManifold(normal, point, depth));
+                return result;
+
+            }
+
+            if (aInsideBCount == 0 && bInsideACount == 2) {
+                
+                // Collision manifold variables.
+                vec2 normal;
+                vec2 points[2];
+                float depths[2];
 
                 // Get all vertices of b inside a.
                 vector<vec2> inside;
                 for (int i = 0; i < 4; i++) {if (bInsideA[i]) {inside.push_back(bVertices[i]);}}
 
                 // Find the side that minimises the distance.
-                vec2 average;
                 float best = FLT_MAX;
-                float distance;
+                float current;
+                current = 0.0f; for (vec2 v : inside) {current += aMax.y - v.y;} if (current < best) {normal = vec2( 0.0f,  1.0f); for (int i = 0; i < 2; i++) {points[i] = inside[i]; depths[i] = (aMax.y - inside[i].y) * 0.25f; best = current;}} // Top
+                current = 0.0f; for (vec2 v : inside) {current += v.y - aMin.y;} if (current < best) {normal = vec2( 0.0f, -1.0f); for (int i = 0; i < 2; i++) {points[i] = inside[i]; depths[i] = (inside[i].y - aMin.y) * 0.25f; best = current;}} // Bottom
+                current = 0.0f; for (vec2 v : inside) {current += aMax.x - v.x;} if (current < best) {normal = vec2( 1.0f,  0.0f); for (int i = 0; i < 2; i++) {points[i] = inside[i]; depths[i] = (aMax.x - inside[i].x) * 0.25f; best = current;}} // Right
+                current = 0.0f; for (vec2 v : inside) {current += v.x - aMin.x;} if (current < best) {normal = vec2(-1.0f,  0.0f); for (int i = 0; i < 2; i++) {points[i] = inside[i]; depths[i] = (inside[i].x - aMin.x) * 0.25f; best = current;}} // Left
 
-                // Top
-                average = vec2(0.0f, 0.0f);
-                distance = 0.0f;
-                for (vec2 v : inside) {average += v; distance += aMax.y - v.y;}
-                average = average / (float) inside.size();
-                if (distance < best) {
-                    normal = vec2(0.0f, 1.0f); 
-                    depth = (distance / (float) inside.size()) * 0.5f;
-                    point = vec2(average.x, average.y + depth);
-                    best = distance;
-                }
-                
-                // Bottom
-                average = vec2(0.0f, 0.0f);
-                distance = 0.0f;
-                for (vec2 v : inside) {average += v; distance += v.y - aMin.y;}
-                average = average / (float) inside.size();
-                if (distance < best) {
-                    normal = vec2(0.0f, -1.0f); 
-                    depth = (distance / (float) inside.size()) * 0.5f;
-                    point = vec2(average.x, average.y - depth);
-                    best = distance;
-                }
-
-                // Right
-                average = vec2(0.0f, 0.0f);
-                distance = 0.0f;
-                for (vec2 v : inside) {average += v; distance += aMax.x - v.x;}
-                average = average / (float) inside.size();
-                if (distance < best) {
-                    normal = vec2(1.0f, 0.0f); 
-                    depth = (distance / (float) inside.size()) * 0.5f;
-                    point = vec2(average.x + depth, average.y);
-                    best = distance;
-                }
-                
-                // Left
-                average = vec2(0.0f, 0.0f);
-                distance = 0.0f;
-                for (vec2 v : inside) {average += v; distance += v.x - aMin.x;}
-                average = average / (float) inside.size();
-                if (distance < best) {
-                    normal = vec2(-1.0f, 0.0f); 
-                    depth = (distance / (float) inside.size()) * 0.5f;
-                    point = vec2(average.x - depth, average.y);
-                    best = distance;
-                }
-
+                // Rotate back into global coordinates.
                 rotate(normal, vec2(0.0f, 0.0f), aCos, aSin);
-                rotate(point, aPos, aCos, aSin);
+                rotate(points[0], aPos, aCos, aSin);
+                rotate(points[1], aPos, aCos, aSin);
                 if (flip) {normal = -normal;}
-                return CollisionManifold(normal, point, depth);
+
+                result.push_back(CollisionManifold(normal, points[0], depths[0]));
+                result.push_back(CollisionManifold(normal, points[1], depths[1]));
+                return result;
+
             }
 
-            return CollisionManifold();
+            return result;
         }
 
-        CollisionManifold findCollisionFeaturesCircleAndBox(Circle* c, Box* b, bool flip) {
+        std::vector<CollisionManifold> findCollisionFeaturesCircleAndBox(Circle* c, Box* b, bool flip) {
+
+            std::vector<CollisionManifold> result;
 
             // Get the circle's properties.
             vec2 cPos = c->getPosition();
@@ -371,7 +369,9 @@ namespace Pancake {
                 if (bRot != 0.0f) {rotate(normal, vec2(0.0f, 0.0f), rCos, -rSin); rotate(point, bPos, rCos, -rSin);}
                 if (flip) {normal = -normal;}
 
-                return CollisionManifold(normal, point, depth);
+                result.push_back(CollisionManifold(normal, point, depth));
+                return result;
+                
             }
 
             // Colliding with the bottom face of the box.
@@ -383,7 +383,9 @@ namespace Pancake {
                 if (bRot != 0.0f) {rotate(normal, vec2(0.0f, 0.0f), rCos, -rSin); rotate(point, bPos, rCos, -rSin);}
                 if (flip) {normal = -normal;}
 
-                return CollisionManifold(normal, point, depth);
+                result.push_back(CollisionManifold(normal, point, depth));
+                return result;
+                
             }
 
             // Colliding with the right face of the box
@@ -395,7 +397,9 @@ namespace Pancake {
                 if (bRot != 0.0f) {rotate(normal, vec2(0.0f, 0.0f), rCos, -rSin); rotate(point, bPos, rCos, -rSin);}
                 if (flip) {normal = -normal;}
 
-                return CollisionManifold(normal, point, depth);
+                result.push_back(CollisionManifold(normal, point, depth));
+                return result;
+                
             }
 
             // Colliding with the left face of the box.
@@ -407,7 +411,9 @@ namespace Pancake {
                 if (bRot != 0.0f) {rotate(normal, vec2(0.0f, 0.0f), rCos, -rSin); rotate(point, bPos, rCos, -rSin);}
                 if (flip) {normal = -normal;}
 
-                return CollisionManifold(normal, point, depth);
+                result.push_back(CollisionManifold(normal, point, depth));
+                return result;
+                
             }
 
             // Colliding with the top left corner of the box.
@@ -421,7 +427,9 @@ namespace Pancake {
                 if (bRot != 0.0f) {rotate(normal, vec2(0.0f, 0.0f), rCos, -rSin); rotate(point, bPos, rCos, -rSin);}
                 if (flip) {normal = -normal;}
 
-                return CollisionManifold(normal, point, depth);
+                result.push_back(CollisionManifold(normal, point, depth));
+                return result;
+                
             }
 
             // Colliding with the top right corner of the box.
@@ -435,7 +443,9 @@ namespace Pancake {
                 if (bRot != 0.0f) {rotate(normal, vec2(0.0f, 0.0f), rCos, -rSin); rotate(point, bPos, rCos, -rSin);}
                 if (flip) {normal = -normal;}
 
-                return CollisionManifold(normal, point, depth);
+                result.push_back(CollisionManifold(normal, point, depth));
+                return result;
+                
             }
 
             // Colliding with the bottom left corner of the box.
@@ -449,7 +459,9 @@ namespace Pancake {
                 if (bRot != 0.0f) {rotate(normal, vec2(0.0f, 0.0f), rCos, -rSin); rotate(point, bPos, rCos, -rSin);}
                 if (flip) {normal = -normal;}
 
-                return CollisionManifold(normal, point, depth);
+                result.push_back(CollisionManifold(normal, point, depth));
+                return result;
+                
             }
 
             // Colliding with the bottom right corner of the box.
@@ -463,24 +475,28 @@ namespace Pancake {
                 if (bRot != 0.0f) {rotate(normal, vec2(0.0f, 0.0f), rCos, -rSin); rotate(point, bPos, rCos, -rSin);}
                 if (flip) {normal = -normal;}
 
-                return CollisionManifold(normal, point, depth);
+                result.push_back(CollisionManifold(normal, point, depth));
+                return result;
+
             }
             
-            return CollisionManifold();
+            return result;
         }
 
     }
 
     namespace Collision {
         
-        CollisionManifold findCollisionFeatures(Collider* c1, Collider* c2) {
+        std::vector<CollisionManifold> findCollisionFeatures(Collider* c1, Collider* c2) {
 
             if (dynamic_cast<Box*>(c1) != nullptr && dynamic_cast<Box*>(c2) != nullptr) {return findCollisionFeaturesBoxAndBox((Box*) c1, (Box*) c2);}
             if (dynamic_cast<Circle*>(c1) != nullptr && dynamic_cast<Circle*>(c2) != nullptr) {return findCollisionFeaturesCircleAndCircle((Circle*) c1, (Circle*) c2);}
             if (dynamic_cast<Circle*>(c1) != nullptr && dynamic_cast<Box*>(c2) != nullptr) {return findCollisionFeaturesCircleAndBox((Circle*) c1, (Box*) c2, false);}
             if (dynamic_cast<Box*>(c1) != nullptr && dynamic_cast<Circle*>(c2) != nullptr) {return findCollisionFeaturesCircleAndBox((Circle*) c2, (Box*) c1, true);}
 
-            return CollisionManifold();
+            std::vector<CollisionManifold> empty;
+            return empty;
+
         }
 
     }

@@ -185,8 +185,8 @@ namespace Pancake {
                         Collider* collider1 = colliders1[k];
                         Collider* collider2 = colliders2[l];
 
-                        CollisionManifold result = Collision::findCollisionFeatures(collider1, collider2);
-                        if (result.colliding) {results.push_back(result);}
+                        std::vector<CollisionManifold> features = Collision::findCollisionFeatures(collider1, collider2);
+                        for (CollisionManifold feature : features) {results.push_back(feature);}
 
                     }
                 }
