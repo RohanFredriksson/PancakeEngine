@@ -2,7 +2,9 @@
 
 #include <string>
 #include <glm/glm.hpp>
+
 #include "pancake/core/component.hpp"
+#include "pancake/core/factory.hpp"
 
 using glm::vec2;
 using std::string;
@@ -71,6 +73,8 @@ namespace Pancake {
 
     };
 
+    REGISTER(Collider, Box);
+
     class Circle : public Collider {
 
         private:
@@ -87,6 +91,8 @@ namespace Pancake {
             float getRadius();
             Circle* setRadius(float radius);
     };
+
+    REGISTER(Collider, Circle);
 
     namespace ColliderFactory {
         void add(string type, void* (*create)());

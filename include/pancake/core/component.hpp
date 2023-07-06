@@ -88,12 +88,6 @@ namespace Pancake {
 
     };
 
-    namespace ComponentFactory {
-        void add(string type, void* (*create)());
-        Component* create(string type);
-        Component* load(json);
-    }
-
 }
 
 #include "pancake/core/entity.hpp"

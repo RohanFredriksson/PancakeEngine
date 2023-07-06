@@ -6,6 +6,7 @@
 
 #include "pancake/core/entity.hpp"
 #include "pancake/core/component.hpp"
+#include "pancake/core/factory.hpp"
 
 using std::deque;
 
@@ -120,8 +121,16 @@ namespace Pancake {
         if (j.contains("components") && j["components"].is_array()) {
             for (auto element : j["components"]) {
                 if (element.is_object()) {
-                    Component* c = ComponentFactory::load(element);
-                    if (c != nullptr) {e->addComponent(c);}
+
+                    if (!element.contains("type") || !element["type"].is_string()) {continue;}
+                    Component* c = FACTORY(Component).create(element["type"]);
+                    if (c == nullptr) {continue;}
+                    if (!c->load(element)) {delete c; continue;}
+                    else {e->addComponent(c);}
+
+                    //Component* c = ComponentFactory::load(element);
+                    //if (c != nullptr) {e->addComponent(c);}
+                    
                 }
             }
         }

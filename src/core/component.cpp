@@ -230,37 +230,4 @@ namespace Pancake {
         this->rotationOffset += offset;
     }
 
-    namespace{
-        unordered_map<string, void*(*)()> components;
-    }
-
-    namespace ComponentFactory {
-
-        void add(string type, void*(*method)()) {
-            components[type] = method;
-        }
-
-        Component* create(string type) {
-            auto search = components.find(type);
-            if (search == components.end()) {return nullptr;}
-            return (Component*)(search->second());
-        }
-
-        Component* load(json j) {
-            
-            if (!j.contains("type") || !j["type"].is_string()) {return nullptr;}
-            auto search = components.find(j["type"]);
-            if (search == components.end()) {return nullptr;}
-
-            Component* component = (Component*)(search->second());
-            if (!component->load(j)) {
-                delete component; // This line currently crashes the program.
-                return nullptr;
-            }
-
-            return component;
-        }
-
-    }
-
 }

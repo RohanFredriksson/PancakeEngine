@@ -241,38 +241,4 @@ namespace Pancake {
         return this;
     }
 
-    namespace {
-        unordered_map<string, void*(*)()> colliders;
-    }
-
-    namespace ColliderFactory {
-
-        void add(string type, void*(*method)()) {
-            colliders[type] = method;
-        }
-
-        Collider* create(string type) {
-            auto search = colliders.find(type);
-            if (search == colliders.end()) {return nullptr;}
-            return (Collider*)(search->second());
-        }
-
-        Collider* load(json j) {
-            
-            if (!j.contains("type") || !j["type"].is_string()) {return nullptr;}
-            auto search = colliders.find(j["type"]);
-            if (search == colliders.end()) {return nullptr;}
-            
-            Collider* collider = (Collider*)(search->second());
-            if (collider == nullptr) {return nullptr;}
-            if (!collider->load(j)) {
-                delete collider; 
-                return nullptr;
-            }
-
-            return collider;
-        }
-
-    }
-
 }
