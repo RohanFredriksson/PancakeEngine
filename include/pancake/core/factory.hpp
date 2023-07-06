@@ -37,7 +37,20 @@ class Factory {
 
 };
 
+template<class Base, class Derived>
+class Creator {
+
+    public:
+
+        explicit Creator(std::string name) {
+            Factory<Base>::get().template add<Derived>(name);
+        }
+
+};
+
+#define UNIQUE_VARIABLE_NAME() CONCATENATE(V, __COUNTER__)
+#define CONCATENATE_IMPL(x, y) x##y
+#define CONCATENATE(x, y) CONCATENATE_IMPL(x, y)
+
 #define FACTORY(Base) Factory<Base>::get()
-#define CREATOR_NAME(Class) Creator_##Class
-#define CREATOR(BaseClass, DerivedClass) class CREATOR_NAME(DerivedClass) {public: explicit CREATOR_NAME(DerivedClass)() {FACTORY(BaseClass).add<DerivedClass>(#DerivedClass);}};
-#define REGISTER(BaseClass, DerivedClass) namespace{CREATOR(BaseClass, DerivedClass); CREATOR_NAME(DerivedClass) Singleton_##DerivedClass;}
+#define REGISTER(Base, Derived) namespace{Creator<Base, Derived> UNIQUE_VARIABLE_NAME()(#Derived);}
