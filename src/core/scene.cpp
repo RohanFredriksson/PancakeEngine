@@ -75,11 +75,11 @@ namespace Pancake {
     }
 
     void Scene::start() {
+        this->started = true;
         for (auto const& x : this->entities) {
             Entity* e = x.second;
             e->start();
         }
-        this->started = true;
     }
 
     void Scene::update(float dt) {

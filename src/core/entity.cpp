@@ -48,10 +48,10 @@ namespace Pancake {
     }
 
     void Entity::start() {
+        this->started = true;
         for (Component* c : this->components) {
             c->start();
         }
-        this->started = true;
     }
 
     void Entity::update(float dt) {
@@ -121,16 +121,11 @@ namespace Pancake {
         if (j.contains("components") && j["components"].is_array()) {
             for (auto element : j["components"]) {
                 if (element.is_object()) {
-
                     if (!element.contains("type") || !element["type"].is_string()) {continue;}
                     Component* c = FACTORY(Component).create(element["type"]);
                     if (c == nullptr) {continue;}
                     if (!c->load(element)) {delete c; continue;}
                     else {e->addComponent(c);}
-
-                    //Component* c = ComponentFactory::load(element);
-                    //if (c != nullptr) {e->addComponent(c);}
-                    
                 }
             }
         }

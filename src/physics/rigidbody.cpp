@@ -97,16 +97,11 @@ namespace Pancake {
         if (j.contains("colliders") && j["colliders"].is_array()) {
             for (auto element : j["colliders"]) {
                 if (element.is_object()) {
-
                     if (!element.contains("type") || !element["type"].is_string()) {continue;}
                     Collider* c = FACTORY(Collider).create(element["type"]);
                     if (c == nullptr) {continue;}
                     if (!c->load(element)) {delete c; continue;}
                     else {this->addCollider(c);}
-
-                    //Collider* c = ColliderFactory::load(element);
-                    //if (c != nullptr) {this->addCollider(c);}
-
                 }
             }
         }
