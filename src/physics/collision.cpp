@@ -70,12 +70,10 @@ namespace Pancake {
             // If either line is vertical, rotate the problem 45 degrees.
             // Since we are solving for distance, direction does not need to be preserved.
             if (aStart.x == aEnd.x || bStart.x == bEnd.x) {
-                float rCos = cosf(M_PI * 0.25f);
-                float rSin = sinf(M_PI * 0.25f);
-                rotate(aStart, vec2(0.0f, 0.0f), rCos, rSin);
-                rotate(aEnd,   vec2(0.0f, 0.0f), rCos, rSin);
-                rotate(bStart, vec2(0.0f, 0.0f), rCos, rSin);
-                rotate(bEnd,   vec2(0.0f, 0.0f), rCos, rSin);
+                rotate(aStart, vec2(0.0f, 0.0f), 0.70710678118f, 0.70710678118f);
+                rotate(aEnd,   vec2(0.0f, 0.0f), 0.70710678118f, 0.70710678118f);
+                rotate(bStart, vec2(0.0f, 0.0f), 0.70710678118f, 0.70710678118f);
+                rotate(bEnd,   vec2(0.0f, 0.0f), 0.70710678118f, 0.70710678118f);
             }
 
             // y = ax + b
@@ -249,22 +247,13 @@ namespace Pancake {
 
             }
 
+            // Flip the problem to reduce number of cases.
             bool flip = false;
             if (aInsideBCount > bInsideACount) {
-                
-                flip = true;
-                aMax = bMax;
-                aMin = bMin;
-                aPos = bPos;
-                aCos = bCos;
-                aSin = bSin;
-                bInsideA = aInsideB;
-                bVertices = aVertices;
-
-                int tmp = aInsideBCount;
-                aInsideBCount = bInsideACount;
-                bInsideACount = tmp;
-
+                flip = true; 
+                bInsideA = aInsideB; bVertices = aVertices;
+                aMax = bMax; aMin = bMin; aPos = bPos; aCos = bCos; aSin = bSin; 
+                int tmp = aInsideBCount; aInsideBCount = bInsideACount; bInsideACount = tmp;
             }
 
             if (aInsideBCount == 0 && bInsideACount == 1) {
@@ -283,8 +272,8 @@ namespace Pancake {
                 float current;
                 current = aMax.y - inside.y; if (current < best) {normal = vec2( 0.0f,  1.0f); depth = current * 0.5f; point = inside + depth; best = current;} // Top
                 current = inside.y - aMin.y; if (current < best) {normal = vec2( 0.0f, -1.0f); depth = current * 0.5f; point = inside + depth; best = current;} // Bottom
-                current = aMax.x - inside.x; if (current < best) {normal = vec2( 1.0f,  1.0f); depth = current * 0.5f; point = inside + depth; best = current;} // Right
-                current = inside.x - aMin.x; if (current < best) {normal = vec2(-1.0f,  1.0f); depth = current * 0.5f; point = inside + depth; best = current;} // Left
+                current = aMax.x - inside.x; if (current < best) {normal = vec2( 1.0f,  0.0f); depth = current * 0.5f; point = inside + depth; best = current;} // Right
+                current = inside.x - aMin.x; if (current < best) {normal = vec2(-1.0f,  0.0f); depth = current * 0.5f; point = inside + depth; best = current;} // Left
 
                 // Rotate back into global coordinates.
                 rotate(normal, vec2(0.0f, 0.0f), aCos, aSin);
