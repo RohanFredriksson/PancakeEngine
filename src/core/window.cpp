@@ -150,10 +150,10 @@ namespace Pancake {
 
             Console::render();
 
-            Entity* e = scene->getEntity(6);
-            ImGui::BeginChild("Entity");
-            e->imgui();
-            ImGui::EndChild();
+            //Entity* e = scene->getEntity(6);
+            //ImGui::BeginChild("Entity");
+            //e->imgui();
+            //ImGui::EndChild();
 
             ImGui::Render();
             ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());

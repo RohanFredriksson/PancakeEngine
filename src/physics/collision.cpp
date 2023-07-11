@@ -96,6 +96,24 @@ namespace Pancake {
 
         }
 
+        float distance(vec2 start, vec2 end, vec2 point) {
+
+            // If the line is vertical, rotate the problem 45 degrees.
+            if (start.x == end.x) {
+                rotate(start, vec2(0.0f, 0.0f), 0.70710678118f, 0.70710678118f);
+                rotate(end,   vec2(0.0f, 0.0f), 0.70710678118f, 0.70710678118f);
+                rotate(point, vec2(0.0f, 0.0f), 0.70710678118f, 0.70710678118f);
+            }
+
+            // y = ax + b
+            float a = (end.y - start.y) / (end.x - start.x);
+            float b = start.y - a * start.x;
+
+            // Perpendicular distance formula
+            float distance = fabsf(a * point.x + -1.0f * point.y + b) / glm::distance(start, end);
+            return distance;
+
+        }
 
         std::vector<CollisionManifold> findCollisionFeaturesCircleAndCircle(Circle* a, Circle* b) {
 
@@ -128,11 +146,13 @@ namespace Pancake {
 
             // Store all the information that is required.
             float aRotation = a->getRotation();
+            vec2 aSize = a->getSize();
             vec2 aPos = a->getPosition();
             vec2 aMin = a->getMin();
             vec2 aMax = a->getMax();
 
             float bRotation = b->getRotation();
+            vec2 bSize = b->getSize();
             vec2 bPos = b->getPosition();
             vec2 bMin = b->getMin();
             vec2 bMax = b->getMax();
@@ -185,63 +205,44 @@ namespace Pancake {
                 bInsideA.push_back(current);
             }
 
+            // Collision manifold variables.
+            vec2 normal;
+            vec2 point;
+            float depth;
+
             // Special case for 1 and 1.
             if (aInsideBCount == 1 && bInsideACount == 1) {
 
-                // Collision manifold variables.
-                vec2 normal;
-                vec2 point;
-                float depth;
+                // Required variables
+                vec2 inside;
+                vec2 difference;
 
-                // Find the b vertex which is in a and its neighbours
-                vec2 vertex;
-                vec2 left;
-                vec2 right;
-                for (int i = 0; i < 4; i++) {
-                    if (bInsideA[i]) {
-                        vertex = bVertices[i]; 
-                        left =  bVertices[(i+1) % 4];
-                        right = bVertices[(i+3) % 4];
-                        break;
-                    }
-                }
+                // Find the vertex of b inside a.
+                for (int i = 0; i < 4; i++) {if (bInsideA[i]) {inside = bVertices[i]; break;}}
 
-                // Find the distance from both left and right to the edges it intersects in a.
-                float ld;
-                if      (intersects(vertex, left, vec2(aMin.x, aMin.y), vec2(aMin.x, aMax.y))) {ld = distance(vertex, left, vec2(aMin.x, aMin.y), vec2(aMin.x, aMax.y));}
-                else if (intersects(vertex, left, vec2(aMin.x, aMin.y), vec2(aMax.x, aMin.y))) {ld = distance(vertex, left, vec2(aMin.x, aMin.y), vec2(aMax.x, aMin.y));}
-                else if (intersects(vertex, left, vec2(aMin.x, aMax.y), vec2(aMax.x, aMax.y))) {ld = distance(vertex, left, vec2(aMin.x, aMax.y), vec2(aMax.x, aMax.y));}
-                else if (intersects(vertex, left, vec2(aMax.x, aMin.y), vec2(aMax.x, aMax.y))) {ld = distance(vertex, left, vec2(aMax.x, aMin.y), vec2(aMax.x, aMax.y));}
+                // Find which side of a is b.
+                difference = bPosInA - aPos;
 
-                float rd;
-                if      (intersects(vertex, right, vec2(aMin.x, aMin.y), vec2(aMin.x, aMax.y))) {rd = distance(vertex, right, vec2(aMin.x, aMin.y), vec2(aMin.x, aMax.y));}
-                else if (intersects(vertex, right, vec2(aMin.x, aMin.y), vec2(aMax.x, aMin.y))) {rd = distance(vertex, right, vec2(aMin.x, aMin.y), vec2(aMax.x, aMin.y));}
-                else if (intersects(vertex, right, vec2(aMin.x, aMax.y), vec2(aMax.x, aMax.y))) {rd = distance(vertex, right, vec2(aMin.x, aMax.y), vec2(aMax.x, aMax.y));}
-                else if (intersects(vertex, right, vec2(aMax.x, aMin.y), vec2(aMax.x, aMax.y))) {rd = distance(vertex, right, vec2(aMax.x, aMin.y), vec2(aMax.x, aMax.y));}
+                // Scale the difference vector by the size of a.
+                difference.x /= bSize.x; 
+                difference.y /= bSize.y;
 
-                // Calculate the normal.
-                if (ld > rd) {
-                    normal = glm::normalize(left - vertex);
-                    rotate(normal, vec2(0.0f, 0.0f), cosf(-M_PI * 0.5f), sinf(-M_PI * 0.5f)); 
-                } else {
-                    normal = glm::normalize(right - vertex);
-                    rotate(normal, vec2(0.0f, 0.0f), cosf(M_PI * 0.5f), sinf(M_PI * 0.5f));
-                }
+                // Determine the normal direction.
+                if (fabsf(difference.x) > fabsf(difference.y)) {if (difference.x >= 0.0f) {normal = vec2(1.0f, 0.0f);} else {normal = vec2(-1.0f, 0.0f);}}
+                else                                           {if (difference.y >= 0.0f) {normal = vec2(0.0f, 1.0f);} else {normal = vec2( 0.0f,-1.0f);}}
 
-                // Calculate the contact point.
-                vec2 corner;
-                if      (aInsideB[0]) {corner = vec2(aMin.x, aMin.y);}
-                else if (aInsideB[1]) {corner = vec2(aMin.x, aMax.y);}
-                else if (aInsideB[2]) {corner = vec2(aMax.x, aMax.y);}
-                else if (aInsideB[3]) {corner = vec2(aMax.x, aMin.y);}
-                point = (corner + vertex) / 2.0f;
+                // Determine the depth.
+                // TODO
+                depth = 0.01f;
 
-                // Calculate depth.
-                depth = glm::length(project(corner - point, normal));
+                // Determine the contact point.
+                point = inside + depth * normal;
 
+                // Rotate into global space.
                 rotate(normal, vec2(0.0f, 0.0f), aCos, aSin);
                 rotate(point, aPos, aCos, aSin);
 
+                // Add the point to the manifold.
                 result.push_back(CollisionManifold(normal, point, depth));
                 return result;
 
@@ -257,11 +258,6 @@ namespace Pancake {
             }
 
             if (aInsideBCount == 0 && bInsideACount == 1) {
-
-                // Collision manifold variables.
-                vec2 normal;
-                vec2 point;
-                float depth;
 
                 // Find the vertex of b inside a.
                 vec2 inside;
@@ -288,7 +284,6 @@ namespace Pancake {
             if (aInsideBCount == 0 && bInsideACount == 2) {
                 
                 // Collision manifold variables.
-                vec2 normal;
                 vec2 points[2];
                 float depths[2];
 
