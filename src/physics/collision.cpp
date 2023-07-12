@@ -202,11 +202,9 @@ namespace Pancake {
             if (aInsideB.size() == 1 && bInsideA.size() == 1) {
                 
                 // Find which side of a is b.
-                vec2 difference = bPosInA - aPos;
-
-                // Scale the difference vector by the size of b.
-                difference.x /= aSize.x * 0.5f; // TODO NEED TO CHANGE THIS SUCH THAT IT WORKS BOTH WAYS.
-                difference.y /= aSize.y * 0.5f; // TODO NEED TO CHANGE THIS SUCH THAT IT WORKS BOTH WAYS.
+                vec2 difference = bInsideA[0] - aPos;
+                difference.x /= aSize.x;
+                difference.y /= aSize.y;
 
                 // Determine the normal direction.
                 if (fabsf(difference.x) > fabsf(difference.y)) {if (difference.x >= 0.0f) {normal = vec2(1.0f, 0.0f);} else {normal = vec2(-1.0f, 0.0f);}}
@@ -230,11 +228,9 @@ namespace Pancake {
                 result.push_back(CollisionManifold(normal, point, depth * 0.5f));
 
                 // Find which side of a is b.
-                difference = aPosInB - bPos;
-                
-                // Scale the difference vector by the size of b.
-                difference.x /= aSize.x * 0.5f; // TODO NEED TO CHANGE THIS SUCH THAT IT WORKS BOTH WAYS.
-                difference.y /= aSize.y * 0.5f; // TODO NEED TO CHANGE THIS SUCH THAT IT WORKS BOTH WAYS.
+                difference = aInsideB[0] - bPos;
+                difference.x /= bSize.x;
+                difference.y /= bSize.y;
 
                 // Determine the normal direction.
                 if (fabsf(difference.x) > fabsf(difference.y)) {if (difference.x >= 0.0f) {normal = vec2(1.0f, 0.0f);} else {normal = vec2(-1.0f, 0.0f);}}
