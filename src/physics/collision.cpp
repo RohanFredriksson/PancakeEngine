@@ -8,6 +8,8 @@
 #include "pancake/physics/collider.hpp"
 #include "pancake/physics/collision.hpp"
 
+#include <iostream>
+
 using std::vector;
 
 namespace Pancake {
@@ -187,23 +189,9 @@ namespace Pancake {
             rotate(aPosInB, bPos, bCos, -bSin);
             rotate(bPosInA, aPos, aCos, -aSin);
 
-            // Determine which vertices of a are inside b.
-            vector<bool> aInsideB;
-            int aInsideBCount = 0;
-            for (int i = 0; i < 4; i++) {
-                bool current = aVertices[i].x >= bMin.x && aVertices[i].x <= bMax.x && aVertices[i].y >= bMin.y && aVertices[i].y <= bMax.y;
-                if (current) {aInsideBCount++;}
-                aInsideB.push_back(current);
-            }
-
-            // Determine which vertices of b are inside a.
-            vector<bool> bInsideA;
-            int bInsideACount = 0;
-            for (int i = 0; i < 4; i++) {
-                bool current = bVertices[i].x >= aMin.x && bVertices[i].x <= aMax.x && bVertices[i].y >= aMin.y && bVertices[i].y <= aMax.y;
-                if (current) {bInsideACount++;}
-                bInsideA.push_back(current);
-            }
+            // Determine which vertices of each box is in each others box.
+            vector<vec2> bInsideA; for (vec2 vertex : bVertices) {if (vertex.x >= aMin.x && vertex.x <= aMax.x && vertex.y >= aMin.y && vertex.y <= aMax.y) {bInsideA.push_back(vertex);}}
+            vector<vec2> aInsideB; for (vec2 vertex : aVertices) {if (vertex.x >= bMin.x && vertex.x <= bMax.x && vertex.y >= bMin.y && vertex.y <= bMax.y) {aInsideB.push_back(vertex);}}
 
             // Collision manifold variables.
             vec2 normal;
@@ -211,65 +199,84 @@ namespace Pancake {
             float depth;
 
             // Special case for 1 and 1.
-            if (aInsideBCount == 1 && bInsideACount == 1) {
-
-                // Required variables
-                vec2 inside;
-                vec2 difference;
-
-                // Find the vertex of b inside a.
-                for (int i = 0; i < 4; i++) {if (bInsideA[i]) {inside = bVertices[i]; break;}}
-
+            if (aInsideB.size() == 1 && bInsideA.size() == 1) {
+                
                 // Find which side of a is b.
-                difference = bPosInA - aPos;
+                vec2 difference = bPosInA - aPos;
 
-                // Scale the difference vector by the size of a.
-                difference.x /= bSize.x; 
-                difference.y /= bSize.y;
+                // Scale the difference vector by the size of b.
+                difference.x /= aSize.x * 0.5f; // TODO NEED TO CHANGE THIS SUCH THAT IT WORKS BOTH WAYS.
+                difference.y /= aSize.y * 0.5f; // TODO NEED TO CHANGE THIS SUCH THAT IT WORKS BOTH WAYS.
 
                 // Determine the normal direction.
                 if (fabsf(difference.x) > fabsf(difference.y)) {if (difference.x >= 0.0f) {normal = vec2(1.0f, 0.0f);} else {normal = vec2(-1.0f, 0.0f);}}
                 else                                           {if (difference.y >= 0.0f) {normal = vec2(0.0f, 1.0f);} else {normal = vec2( 0.0f,-1.0f);}}
 
                 // Determine the depth.
-                // TODO
-                depth = 0.01f;
-
+                vec2 end = bInsideA[0] + std::max(std::max(aSize.x, aSize.y), std::max(bSize.x, bSize.y)) * normal;
+                if      (intersects(bInsideA[0], end, vec2(aMin.x, aMin.y), vec2(aMin.x, aMax.y))) {depth = 0.5f * distance(bInsideA[0], end, vec2(aMin.x, aMin.y), vec2(aMin.x, aMax.y));}
+                else if (intersects(bInsideA[0], end, vec2(aMin.x, aMin.y), vec2(aMax.x, aMin.y))) {depth = 0.5f * distance(bInsideA[0], end, vec2(aMin.x, aMin.y), vec2(aMax.x, aMin.y));}
+                else if (intersects(bInsideA[0], end, vec2(aMin.x, aMax.y), vec2(aMax.x, aMax.y))) {depth = 0.5f * distance(bInsideA[0], end, vec2(aMin.x, aMax.y), vec2(aMax.x, aMax.y));}
+                else                                                                               {depth = 0.5f * distance(bInsideA[0], end, vec2(aMax.x, aMin.y), vec2(aMax.x, aMax.y));}
+                
                 // Determine the contact point.
-                point = inside + depth * normal;
+                point = bInsideA[0] + depth * normal;
 
                 // Rotate into global space.
                 rotate(normal, vec2(0.0f, 0.0f), aCos, aSin);
                 rotate(point, aPos, aCos, aSin);
 
                 // Add the point to the manifold.
-                result.push_back(CollisionManifold(normal, point, depth));
+                result.push_back(CollisionManifold(normal, point, depth * 0.5f));
+
+                // Find which side of a is b.
+                difference = aPosInB - bPos;
+                
+                // Scale the difference vector by the size of b.
+                difference.x /= aSize.x * 0.5f; // TODO NEED TO CHANGE THIS SUCH THAT IT WORKS BOTH WAYS.
+                difference.y /= aSize.y * 0.5f; // TODO NEED TO CHANGE THIS SUCH THAT IT WORKS BOTH WAYS.
+
+                // Determine the normal direction.
+                if (fabsf(difference.x) > fabsf(difference.y)) {if (difference.x >= 0.0f) {normal = vec2(1.0f, 0.0f);} else {normal = vec2(-1.0f, 0.0f);}}
+                else                                           {if (difference.y >= 0.0f) {normal = vec2(0.0f, 1.0f);} else {normal = vec2( 0.0f,-1.0f);}}
+
+                // Determine the depth.
+                end = aInsideB[0] + std::max(std::max(aSize.x, aSize.y), std::max(bSize.x, bSize.y)) * normal;
+                if      (intersects(aInsideB[0], end, vec2(bMin.x, bMin.y), vec2(bMin.x, bMax.y))) {depth = 0.5f * distance(aInsideB[0], end, vec2(bMin.x, bMin.y), vec2(bMin.x, bMax.y));}
+                else if (intersects(aInsideB[0], end, vec2(bMin.x, bMin.y), vec2(bMax.x, bMin.y))) {depth = 0.5f * distance(aInsideB[0], end, vec2(bMin.x, bMin.y), vec2(bMax.x, bMin.y));}
+                else if (intersects(aInsideB[0], end, vec2(bMin.x, bMax.y), vec2(bMax.x, bMax.y))) {depth = 0.5f * distance(aInsideB[0], end, vec2(bMin.x, bMax.y), vec2(bMax.x, bMax.y));}
+                else                                                                               {depth = 0.5f * distance(aInsideB[0], end, vec2(bMax.x, bMin.y), vec2(bMax.x, bMax.y));}
+                // Determine the contact point.
+                point = aInsideB[0] + depth * normal;
+
+                // Rotate into global space.
+                rotate(normal, vec2(0.0f, 0.0f), bCos, bSin);
+                rotate(point, bPos, bCos, bSin);
+
+                // Add the point to the manifold.
+                result.push_back(CollisionManifold(normal * -1.0f, point, depth * 0.5f));
                 return result;
 
             }
 
             // Flip the problem to reduce number of cases.
             bool flip = false;
-            if (aInsideBCount > bInsideACount) {
+            if (aInsideB.size() > bInsideA.size()) {
                 flip = true; 
-                bInsideA = aInsideB; bVertices = aVertices;
+                vector<vec2> tmp = bInsideA;
+                bInsideA = aInsideB; aInsideB = tmp; bVertices = aVertices;
                 aMax = bMax; aMin = bMin; aPos = bPos; aCos = bCos; aSin = bSin; 
-                int tmp = aInsideBCount; aInsideBCount = bInsideACount; bInsideACount = tmp;
             }
 
-            if (aInsideBCount == 0 && bInsideACount == 1) {
-
-                // Find the vertex of b inside a.
-                vec2 inside;
-                for (int i = 0; i < 4; i++) {if (bInsideA[i]) {inside = bVertices[i]; break;}}
+            if (aInsideB.size() == 0 && bInsideA.size() == 1) {
 
                 // Find the side that minimises the distance
                 float best = FLT_MAX;
                 float current;
-                current = aMax.y - inside.y; if (current < best) {normal = vec2( 0.0f,  1.0f); depth = current * 0.5f; point = inside + depth; best = current;} // Top
-                current = inside.y - aMin.y; if (current < best) {normal = vec2( 0.0f, -1.0f); depth = current * 0.5f; point = inside + depth; best = current;} // Bottom
-                current = aMax.x - inside.x; if (current < best) {normal = vec2( 1.0f,  0.0f); depth = current * 0.5f; point = inside + depth; best = current;} // Right
-                current = inside.x - aMin.x; if (current < best) {normal = vec2(-1.0f,  0.0f); depth = current * 0.5f; point = inside + depth; best = current;} // Left
+                current = aMax.y - bInsideA[0].y; if (current < best) {normal = vec2( 0.0f,  1.0f); depth = current * 0.5f; point = bInsideA[0] + depth; best = current;} // Top
+                current = bInsideA[0].y - aMin.y; if (current < best) {normal = vec2( 0.0f, -1.0f); depth = current * 0.5f; point = bInsideA[0] + depth; best = current;} // Bottom
+                current = aMax.x - bInsideA[0].x; if (current < best) {normal = vec2( 1.0f,  0.0f); depth = current * 0.5f; point = bInsideA[0] + depth; best = current;} // Right
+                current = bInsideA[0].x - aMin.x; if (current < best) {normal = vec2(-1.0f,  0.0f); depth = current * 0.5f; point = bInsideA[0] + depth; best = current;} // Left
 
                 // Rotate back into global coordinates.
                 rotate(normal, vec2(0.0f, 0.0f), aCos, aSin);
@@ -281,23 +288,19 @@ namespace Pancake {
 
             }
 
-            if (aInsideBCount == 0 && bInsideACount == 2) {
+            if (aInsideB.size() == 0 && bInsideA.size() == 2) {
                 
                 // Collision manifold variables.
                 vec2 points[2];
                 float depths[2];
 
-                // Get all vertices of b inside a.
-                vector<vec2> inside;
-                for (int i = 0; i < 4; i++) {if (bInsideA[i]) {inside.push_back(bVertices[i]);}}
-
                 // Find the side that minimises the distance.
                 float best = FLT_MAX;
                 float current;
-                current = 0.0f; for (vec2 v : inside) {current += aMax.y - v.y;} if (current < best) {normal = vec2( 0.0f,  1.0f); for (int i = 0; i < 2; i++) {points[i] = inside[i]; depths[i] = (aMax.y - inside[i].y) * 0.25f; best = current;}} // Top
-                current = 0.0f; for (vec2 v : inside) {current += v.y - aMin.y;} if (current < best) {normal = vec2( 0.0f, -1.0f); for (int i = 0; i < 2; i++) {points[i] = inside[i]; depths[i] = (inside[i].y - aMin.y) * 0.25f; best = current;}} // Bottom
-                current = 0.0f; for (vec2 v : inside) {current += aMax.x - v.x;} if (current < best) {normal = vec2( 1.0f,  0.0f); for (int i = 0; i < 2; i++) {points[i] = inside[i]; depths[i] = (aMax.x - inside[i].x) * 0.25f; best = current;}} // Right
-                current = 0.0f; for (vec2 v : inside) {current += v.x - aMin.x;} if (current < best) {normal = vec2(-1.0f,  0.0f); for (int i = 0; i < 2; i++) {points[i] = inside[i]; depths[i] = (inside[i].x - aMin.x) * 0.25f; best = current;}} // Left
+                current = 0.0f; for (vec2 v : bInsideA) {current += aMax.y - v.y;} if (current < best) {normal = vec2( 0.0f,  1.0f); for (int i = 0; i < 2; i++) {points[i] = bInsideA[i]; depths[i] = (aMax.y - bInsideA[i].y) * 0.25f; best = current;}} // Top
+                current = 0.0f; for (vec2 v : bInsideA) {current += v.y - aMin.y;} if (current < best) {normal = vec2( 0.0f, -1.0f); for (int i = 0; i < 2; i++) {points[i] = bInsideA[i]; depths[i] = (bInsideA[i].y - aMin.y) * 0.25f; best = current;}} // Bottom
+                current = 0.0f; for (vec2 v : bInsideA) {current += aMax.x - v.x;} if (current < best) {normal = vec2( 1.0f,  0.0f); for (int i = 0; i < 2; i++) {points[i] = bInsideA[i]; depths[i] = (aMax.x - bInsideA[i].x) * 0.25f; best = current;}} // Right
+                current = 0.0f; for (vec2 v : bInsideA) {current += v.x - aMin.x;} if (current < best) {normal = vec2(-1.0f,  0.0f); for (int i = 0; i < 2; i++) {points[i] = bInsideA[i]; depths[i] = (bInsideA[i].x - aMin.x) * 0.25f; best = current;}} // Left
 
                 // Rotate back into global coordinates.
                 rotate(normal, vec2(0.0f, 0.0f), aCos, aSin);
