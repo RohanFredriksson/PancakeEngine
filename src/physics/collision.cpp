@@ -180,8 +180,8 @@ namespace Pancake {
             bVertices.push_back(vec2(bMin.x, bMax.y)); // Top Left
             bVertices.push_back(vec2(bMax.x, bMax.y)); // Top Right
             bVertices.push_back(vec2(bMax.x, bMin.y)); // Bottom Right
-            rotate(bVertices, bPos, bCos, bSin);
-            rotate(bVertices, aPos, aCos, -aSin);
+            rotate(bVertices, bPos, bCos, bSin); // B Space -> Global
+            rotate(bVertices, aPos, aCos, -aSin);// Global -> A Space
 
             // Get the positions of each box in their local spaces.
             vec2 aPosInB = aPos;
@@ -202,7 +202,10 @@ namespace Pancake {
             if (aInsideB.size() == 1 && bInsideA.size() == 1) {
                 
                 // Find which side of a is b.
-                vec2 difference = bInsideA[0] - aPos;
+                vec2 other = aInsideB[0]; 
+                rotate(other, bPos, bCos, bSin); 
+                rotate(other, aPos, aCos, -aSin);                
+                vec2 difference = 0.5f * (bInsideA[0] + other) - aPos;
                 difference.x /= aSize.x;
                 difference.y /= aSize.y;
 
@@ -227,8 +230,11 @@ namespace Pancake {
                 // Add the point to the manifold.
                 result.push_back(CollisionManifold(normal, point, depth * 0.5f));
 
-                // Find which side of a is b.
-                difference = aInsideB[0] - bPos;
+                // Find which side of b is a.
+                other = bInsideA[0];
+                rotate(other, aPos, aCos, aSin); 
+                rotate(other, bPos, bCos, -bSin);             
+                difference = 0.5f * (aInsideB[0] + other) - bPos;
                 difference.x /= bSize.x;
                 difference.y /= bSize.y;
 
