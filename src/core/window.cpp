@@ -148,7 +148,7 @@ namespace Pancake {
             ImGui_ImplGlfw_NewFrame();
             ImGui::NewFrame();
 
-            Console::render();
+            //Console::render();
 
             //Entity* e = scene->getEntity(6);
             //ImGui::BeginChild("Entity");

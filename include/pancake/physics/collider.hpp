@@ -32,6 +32,7 @@ namespace Pancake {
             virtual json serialise();
             virtual bool load(json j);
 
+            string getType();
             Rigidbody* getRigidbody();
             float getMass();
             virtual float getMomentOfInertia();

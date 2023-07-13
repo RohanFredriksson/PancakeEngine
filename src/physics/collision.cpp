@@ -248,6 +248,7 @@ namespace Pancake {
                 else if (intersects(aInsideB[0], end, vec2(bMin.x, bMin.y), vec2(bMax.x, bMin.y))) {depth = 0.5f * distance(aInsideB[0], end, vec2(bMin.x, bMin.y), vec2(bMax.x, bMin.y));}
                 else if (intersects(aInsideB[0], end, vec2(bMin.x, bMax.y), vec2(bMax.x, bMax.y))) {depth = 0.5f * distance(aInsideB[0], end, vec2(bMin.x, bMax.y), vec2(bMax.x, bMax.y));}
                 else                                                                               {depth = 0.5f * distance(aInsideB[0], end, vec2(bMax.x, bMin.y), vec2(bMax.x, bMax.y));}
+                
                 // Determine the contact point.
                 point = aInsideB[0] + depth * normal;
 
@@ -275,10 +276,10 @@ namespace Pancake {
                 // Find the side that minimises the distance
                 float best = FLT_MAX;
                 float current;
-                current = aMax.y - bInsideA[0].y; if (current < best) {normal = vec2( 0.0f,  1.0f); depth = current * 0.5f; point = bInsideA[0] + depth; best = current;} // Top
-                current = bInsideA[0].y - aMin.y; if (current < best) {normal = vec2( 0.0f, -1.0f); depth = current * 0.5f; point = bInsideA[0] + depth; best = current;} // Bottom
-                current = aMax.x - bInsideA[0].x; if (current < best) {normal = vec2( 1.0f,  0.0f); depth = current * 0.5f; point = bInsideA[0] + depth; best = current;} // Right
-                current = bInsideA[0].x - aMin.x; if (current < best) {normal = vec2(-1.0f,  0.0f); depth = current * 0.5f; point = bInsideA[0] + depth; best = current;} // Left
+                current = aMax.y - bInsideA[0].y; if (current < best) {normal = vec2( 0.0f,  1.0f); depth = current * 0.5f; point = bInsideA[0] + normal * depth; best = current;} // Top
+                current = bInsideA[0].y - aMin.y; if (current < best) {normal = vec2( 0.0f, -1.0f); depth = current * 0.5f; point = bInsideA[0] + normal * depth; best = current;} // Bottom
+                current = aMax.x - bInsideA[0].x; if (current < best) {normal = vec2( 1.0f,  0.0f); depth = current * 0.5f; point = bInsideA[0] + normal * depth; best = current;} // Right
+                current = bInsideA[0].x - aMin.x; if (current < best) {normal = vec2(-1.0f,  0.0f); depth = current * 0.5f; point = bInsideA[0] + normal * depth; best = current;} // Left
 
                 // Rotate back into global coordinates.
                 rotate(normal, vec2(0.0f, 0.0f), aCos, aSin);
@@ -299,10 +300,10 @@ namespace Pancake {
                 // Find the side that minimises the distance.
                 float best = FLT_MAX;
                 float current;
-                current = 0.0f; for (vec2 v : bInsideA) {current += aMax.y - v.y;} if (current < best) {normal = vec2( 0.0f,  1.0f); for (int i = 0; i < 2; i++) {points[i] = bInsideA[i]; depths[i] = (aMax.y - bInsideA[i].y) * 0.25f; best = current;}} // Top
-                current = 0.0f; for (vec2 v : bInsideA) {current += v.y - aMin.y;} if (current < best) {normal = vec2( 0.0f, -1.0f); for (int i = 0; i < 2; i++) {points[i] = bInsideA[i]; depths[i] = (bInsideA[i].y - aMin.y) * 0.25f; best = current;}} // Bottom
-                current = 0.0f; for (vec2 v : bInsideA) {current += aMax.x - v.x;} if (current < best) {normal = vec2( 1.0f,  0.0f); for (int i = 0; i < 2; i++) {points[i] = bInsideA[i]; depths[i] = (aMax.x - bInsideA[i].x) * 0.25f; best = current;}} // Right
-                current = 0.0f; for (vec2 v : bInsideA) {current += v.x - aMin.x;} if (current < best) {normal = vec2(-1.0f,  0.0f); for (int i = 0; i < 2; i++) {points[i] = bInsideA[i]; depths[i] = (bInsideA[i].x - aMin.x) * 0.25f; best = current;}} // Left
+                current = 0.0f; for (vec2 v : bInsideA) {current += aMax.y - v.y;} if (current < best) {normal = vec2( 0.0f,  1.0f); for (int i = 0; i < 2; i++) {depths[i] = (aMax.y - bInsideA[i].y) * 0.5f; points[i] = bInsideA[i] + normal * depths[i]; best = current;}} // Top
+                current = 0.0f; for (vec2 v : bInsideA) {current += v.y - aMin.y;} if (current < best) {normal = vec2( 0.0f, -1.0f); for (int i = 0; i < 2; i++) {depths[i] = (bInsideA[i].y - aMin.y) * 0.5f; points[i] = bInsideA[i] + normal * depths[i]; best = current;}} // Bottom
+                current = 0.0f; for (vec2 v : bInsideA) {current += aMax.x - v.x;} if (current < best) {normal = vec2( 1.0f,  0.0f); for (int i = 0; i < 2; i++) {depths[i] = (aMax.x - bInsideA[i].x) * 0.5f; points[i] = bInsideA[i] + normal * depths[i]; best = current;}} // Right
+                current = 0.0f; for (vec2 v : bInsideA) {current += v.x - aMin.x;} if (current < best) {normal = vec2(-1.0f,  0.0f); for (int i = 0; i < 2; i++) {depths[i] = (bInsideA[i].x - aMin.x) * 0.5f; points[i] = bInsideA[i] + normal * depths[i]; best = current;}} // Left
 
                 // Rotate back into global coordinates.
                 rotate(normal, vec2(0.0f, 0.0f), aCos, aSin);

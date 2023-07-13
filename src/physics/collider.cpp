@@ -57,6 +57,10 @@ namespace Pancake {
 
     }
 
+    string Collider::getType() {
+        return this->type;
+    }
+
     Rigidbody* Collider::getRigidbody() {
         return this->rigidbody;
     }
