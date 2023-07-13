@@ -311,8 +311,8 @@ namespace Pancake {
                 rotate(points[1], aPos, aCos, aSin);
                 if (flip) {normal = -normal;}
 
-                result.push_back(CollisionManifold(normal, points[0], depths[0]));
-                result.push_back(CollisionManifold(normal, points[1], depths[1]));
+                result.push_back(CollisionManifold(normal, points[0], depths[0] * 0.5f));
+                result.push_back(CollisionManifold(normal, points[1], depths[1] * 0.5f));
                 return result;
 
             }
