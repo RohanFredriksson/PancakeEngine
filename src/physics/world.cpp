@@ -236,6 +236,7 @@ namespace Pancake {
 
                 r1->addVelocity(sum.aVelocity);
                 r2->addVelocity(sum.bVelocity);
+                // TODO: THIS IS INCORRECT, ANGULAR VELOCITY != VELOCITY, VELOCITY = ANGULAR VELOCITY * RADIUS / 2 PI.
                 if (sum.aAngularVelocityLost > 0.0f && glm::dot(sum.aVelocity, sum.aVelocity) > 0.0f) {r1->addVelocity(glm::normalize(sum.aVelocity) * sum.aAngularVelocityLost);}
                 if (sum.bAngularVelocityLost > 0.0f && glm::dot(sum.bVelocity, sum.bVelocity) > 0.0f) {r2->addVelocity(glm::normalize(sum.bVelocity) * sum.bAngularVelocityLost);}
                 r1->addAngularVelocity(sum.aAngularVelocity);
