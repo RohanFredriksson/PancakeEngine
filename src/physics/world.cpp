@@ -16,33 +16,40 @@ namespace Pancake {
             
             public:
 
+                vec2 aPosition;
+                vec2 bPosition;
                 vec2 aVelocity;
                 vec2 bVelocity;
                 float aAngularVelocity;
                 float bAngularVelocity;
-                float aAngularMagnitude;
-                float bAngularMagnitude;
-                float aAngularVelocityLost;
-                float bAngularVelocityLost;
 
-                ImpulseResult(vec2 aVelocity, vec2 bVelocity, float aAngularVelocity, float bAngularVelocity) {
+                ImpulseResult() {
+                    this->aPosition = vec2(0.0f, 0.0f);
+                    this->bPosition = vec2(0.0f, 0.0f);
+                    this->aVelocity = vec2(0.0f, 0.0f);
+                    this->bVelocity = vec2(0.0f, 0.0f);
+                    this->aAngularVelocity = 0.0f;
+                    this->bAngularVelocity = 0.0f;
+                }
+
+                ImpulseResult(vec2 aPosition, vec2 bPosition, vec2 aVelocity, vec2 bVelocity, float aAngularVelocity, float bAngularVelocity) {
+                    this->aPosition = aPosition;
+                    this->bPosition = bPosition;
                     this->aVelocity = aVelocity;
                     this->bVelocity = bVelocity;
                     this->aAngularVelocity = aAngularVelocity;
                     this->bAngularVelocity = bAngularVelocity;
-                    this->aAngularVelocityLost = 0.0f;
-                    this->bAngularVelocityLost = 0.0f;
                 }
 
                 ImpulseResult operator*(float scalar) const {
-                    return ImpulseResult(this->aVelocity * scalar, this->bVelocity * scalar, this->aAngularVelocity * scalar, this->bAngularVelocity * scalar);
+                    return ImpulseResult(this->aPosition * scalar, this->bPosition * scalar, this->aVelocity * scalar, this->bVelocity * scalar, this->aAngularVelocity * scalar, this->bAngularVelocity * scalar);
                 }
 
                 ImpulseResult& operator+=(const ImpulseResult& rhs) {
+                    this->aPosition += rhs.aPosition;
+                    this->bPosition += rhs.bPosition;
                     this->aVelocity += rhs.aVelocity;
                     this->bVelocity += rhs.bVelocity;
-                    if ((this->aAngularVelocity > 0 && rhs.aAngularVelocity < 0) || (this->aAngularVelocity < 0 && rhs.aAngularVelocity > 0)) {this->aAngularVelocityLost += std::min(fabsf(this->aAngularVelocity), fabsf(rhs.aAngularVelocity));}
-                    if ((this->bAngularVelocity > 0 && rhs.bAngularVelocity < 0) || (this->bAngularVelocity < 0 && rhs.bAngularVelocity > 0)) {this->bAngularVelocityLost += std::min(fabsf(this->bAngularVelocity), fabsf(rhs.bAngularVelocity));}
                     this->aAngularVelocity += rhs.aAngularVelocity;
                     this->bAngularVelocity += rhs.bAngularVelocity;
                     return *this;
@@ -63,7 +70,7 @@ namespace Pancake {
         ImpulseResult applyImpulse(Rigidbody* a, Rigidbody* b, CollisionManifold m) {
 
             // Check for infinite mass objects.
-            ImpulseResult result(vec2(0.0f, 0.0f), vec2(0.0f, 0.0f), 0.0f, 0.0f);
+            ImpulseResult result;
             if (a->hasInfiniteMass() && b->hasInfiniteMass()) {return result;}
 
             DebugDraw::drawBox(m.point, vec2(0.1f, 0.1f), 0.0f, vec3(1.0f, 0.0f, 0.0f), 10);
@@ -95,10 +102,10 @@ namespace Pancake {
             float impulse =  -((1 + restitution) * vproj) / (invMassA + invMassB + (invMoiA * rAreg * rAreg) + (invMoiB * rBreg * rBreg));
 
             // Resolve the collision.
-            result.aVelocity += -m.normal * impulse * invMassA;
+            result.aVelocity -= m.normal * impulse * invMassA;
             result.bVelocity += m.normal * impulse * invMassB;
             result.aAngularVelocity += impulse * invMoiA * rAreg;
-            result.bAngularVelocity += -impulse * invMoiB * rBreg;
+            result.bAngularVelocity -= impulse * invMoiB * rBreg;
 
             // Calculate friction.
             if (friction > 0.0f) {
@@ -121,12 +128,12 @@ namespace Pancake {
                 const float slop = 0.01f;
                 const float percent = 0.2f;
                 vec2 correction = std::max(m.depth - slop, 0.0f) / (invMassA + invMassB) * percent * m.normal;
-                a->getEntity()->addPosition(-correction * invMassA);
-                b->getEntity()->addPosition(correction * invMassB);
+                result.aPosition -= correction * invMassA;
+                result.bPosition += correction * invMassB;
             }
             
-            if (b->hasInfiniteMass()) {a->getEntity()->addPosition(1.01f * -m.depth * m.normal);}
-            if (a->hasInfiniteMass()) {b->getEntity()->addPosition(1.01f *  m.depth * m.normal);}
+            if (b->hasInfiniteMass()) {result.aPosition -= m.depth * m.normal;}
+            if (a->hasInfiniteMass()) {result.bPosition += m.depth * m.normal;}
 
             return result;
         }
@@ -228,17 +235,16 @@ namespace Pancake {
 
                 Rigidbody* r1 = this->bodies1[i];
                 Rigidbody* r2 = this->bodies2[i];
-                ImpulseResult sum(vec2(0.0f, 0.0f), vec2(0.0f, 0.0f), 0.0f, 0.0f);
+                ImpulseResult sum;
 
                 float depthTotal = 0.0f;
                 for (int j = 0; j < this->collisions[i].size(); j++) {depthTotal += this->collisions[i][j].depth;}
                 for (int j = 0; j < this->collisions[i].size(); j++) {sum += applyImpulse(r1, r2, this->collisions[i][j]) * (this->collisions[i][j].depth / depthTotal);}
 
+                r1->getEntity()->addPosition(sum.aPosition);
+                r2->getEntity()->addPosition(sum.bPosition);
                 r1->addVelocity(sum.aVelocity);
                 r2->addVelocity(sum.bVelocity);
-                // TODO: THIS IS INCORRECT, ANGULAR VELOCITY != VELOCITY, VELOCITY = ANGULAR VELOCITY * RADIUS / 2 PI.
-                if (sum.aAngularVelocityLost > 0.0f && glm::dot(sum.aVelocity, sum.aVelocity) > 0.0f) {r1->addVelocity(glm::normalize(sum.aVelocity) * sum.aAngularVelocityLost);}
-                if (sum.bAngularVelocityLost > 0.0f && glm::dot(sum.bVelocity, sum.bVelocity) > 0.0f) {r2->addVelocity(glm::normalize(sum.bVelocity) * sum.bAngularVelocityLost);}
                 r1->addAngularVelocity(sum.aAngularVelocity);
                 r2->addAngularVelocity(sum.bAngularVelocity);
 
