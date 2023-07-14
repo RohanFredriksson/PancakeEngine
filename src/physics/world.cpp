@@ -22,6 +22,10 @@ namespace Pancake {
                 vec2 bVelocity;
                 float aAngularVelocity;
                 float bAngularVelocity;
+                float aAngularVelocityTotal;
+                float bAngularVelocityTotal;
+                float aAngularOrbitalSpeed;
+                float bAngularOrbitalSpeed;
 
                 ImpulseResult() {
                     this->aPosition = vec2(0.0f, 0.0f);
@@ -30,19 +34,25 @@ namespace Pancake {
                     this->bVelocity = vec2(0.0f, 0.0f);
                     this->aAngularVelocity = 0.0f;
                     this->bAngularVelocity = 0.0f;
-                }
-
-                ImpulseResult(vec2 aPosition, vec2 bPosition, vec2 aVelocity, vec2 bVelocity, float aAngularVelocity, float bAngularVelocity) {
-                    this->aPosition = aPosition;
-                    this->bPosition = bPosition;
-                    this->aVelocity = aVelocity;
-                    this->bVelocity = bVelocity;
-                    this->aAngularVelocity = aAngularVelocity;
-                    this->bAngularVelocity = bAngularVelocity;
+                    this->aAngularVelocityTotal = 0.0f;
+                    this->bAngularVelocityTotal = 0.0f;
+                    this->aAngularOrbitalSpeed = 0.0f;
+                    this->bAngularOrbitalSpeed = 0.0f;
                 }
 
                 ImpulseResult operator*(float scalar) const {
-                    return ImpulseResult(this->aPosition * scalar, this->bPosition * scalar, this->aVelocity * scalar, this->bVelocity * scalar, this->aAngularVelocity * scalar, this->bAngularVelocity * scalar);
+                    ImpulseResult result;
+                    result.aPosition = this->aPosition * scalar;
+                    result.bPosition = this->bPosition * scalar;
+                    result.aVelocity = this->aVelocity * scalar;
+                    result.bVelocity = this->bVelocity * scalar;
+                    result.aAngularVelocity = this->aAngularVelocity * scalar;
+                    result.bAngularVelocity = this->bAngularVelocity * scalar;
+                    result.aAngularVelocityTotal = this->aAngularVelocityTotal * scalar;
+                    result.bAngularVelocityTotal = this->bAngularVelocityTotal * scalar;
+                    result.aAngularOrbitalSpeed = this->aAngularOrbitalSpeed * scalar;
+                    result.bAngularOrbitalSpeed = this->bAngularOrbitalSpeed * scalar;
+                    return result;                    
                 }
 
                 ImpulseResult& operator+=(const ImpulseResult& rhs) {
@@ -52,6 +62,10 @@ namespace Pancake {
                     this->bVelocity += rhs.bVelocity;
                     this->aAngularVelocity += rhs.aAngularVelocity;
                     this->bAngularVelocity += rhs.bAngularVelocity;
+                    this->aAngularVelocityTotal += rhs.aAngularVelocityTotal;
+                    this->bAngularVelocityTotal += rhs.bAngularVelocityTotal;
+                    this->aAngularOrbitalSpeed += rhs.aAngularOrbitalSpeed;
+                    this->bAngularOrbitalSpeed += rhs.bAngularOrbitalSpeed;
                     return *this;
                 }
 
@@ -106,6 +120,10 @@ namespace Pancake {
             result.bVelocity += m.normal * impulse * invMassB;
             result.aAngularVelocity += impulse * invMoiA * rAreg;
             result.bAngularVelocity -= impulse * invMoiB * rBreg;
+            result.aAngularVelocityTotal += fabsf(impulse * invMoiA * rAreg);
+            result.bAngularVelocityTotal += fabsf(impulse * invMoiB * rBreg);
+            result.aAngularOrbitalSpeed += fabsf(impulse * invMoiA * rAreg * rAreg);
+            result.bAngularOrbitalSpeed += fabsf(impulse * invMoiB * rBreg * rBreg);
 
             // Calculate friction.
             if (friction > 0.0f) {
@@ -117,9 +135,11 @@ namespace Pancake {
                 impulse *= sign;
 
                 result.aVelocity += tangent * impulse * invMassA;
-                result.bVelocity += -tangent * impulse * invMassB;
+                result.bVelocity -= tangent * impulse * invMassB;
                 result.aAngularVelocity += impulse * invMoiA * rAproj;
-                result.bAngularVelocity += -impulse * invMoiB * rBproj;
+                result.bAngularVelocity -= impulse * invMoiB * rBproj;
+                result.aAngularVelocityTotal += fabsf(impulse * invMoiA * rAproj);
+                result.bAngularVelocityTotal += fabsf(impulse * invMoiB * rBproj);
 
             }
 
@@ -247,6 +267,9 @@ namespace Pancake {
                 r2->addVelocity(sum.bVelocity);
                 r1->addAngularVelocity(sum.aAngularVelocity);
                 r2->addAngularVelocity(sum.bAngularVelocity);
+
+                if (sum.aAngularVelocityTotal > 0.0f && glm::dot(sum.aVelocity, sum.aVelocity) > 0.0f) {r1->addVelocity(((sum.aAngularVelocityTotal - fabsf(sum.aAngularVelocity)) / sum.aAngularVelocityTotal) * sum.aAngularOrbitalSpeed * glm::normalize(sum.aVelocity));}
+                if (sum.bAngularVelocityTotal > 0.0f && glm::dot(sum.bVelocity, sum.bVelocity) > 0.0f) {r2->addVelocity(((sum.bAngularVelocityTotal - fabsf(sum.bAngularVelocity)) / sum.bAngularVelocityTotal) * sum.bAngularOrbitalSpeed * glm::normalize(sum.bVelocity));}
 
             }
             
