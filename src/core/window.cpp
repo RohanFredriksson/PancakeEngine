@@ -108,18 +108,7 @@ namespace Pancake {
         }
 
         void update(float dt) {
-            
             scene->update(dt);
-
-            if (MouseListener::isMouseDragging()) {
-                if (MouseListener::getDx() != 0) {scene->getCamera()->addPosition(vec2(-MouseListener::getWorldDx(), 0.0f));}
-                if (MouseListener::getDy() != 0) {scene->getCamera()->addPosition(vec2(0.0f, MouseListener::getWorldDy()));}
-            }
-
-            //if (MouseListener::isMouseButtonBeginDown(GLFW_MOUSE_BUTTON_LEFT)) {
-            //    std::cout << Window::readPixel(MouseListener::getX(), MouseListener::getY());
-            //}
-
         }
 
         void render() {
@@ -147,14 +136,7 @@ namespace Pancake {
             ImGui_ImplOpenGL3_NewFrame();
             ImGui_ImplGlfw_NewFrame();
             ImGui::NewFrame();
-
-            //Console::render();
-
-            //Entity* e = scene->getEntity(6);
-            //ImGui::BeginChild("Entity");
-            //e->imgui();
-            //ImGui::EndChild();
-
+            Console::render();
             ImGui::Render();
             ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
@@ -226,7 +208,6 @@ namespace Pancake {
 
             }
 
-            scene->save("saves/test.scene");
         }
 
         void destroy() {
