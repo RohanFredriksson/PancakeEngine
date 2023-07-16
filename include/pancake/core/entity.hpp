@@ -21,8 +21,6 @@ namespace Pancake {
             int id;
             bool started;
             vector<Component*> components;
-            vector<Component*> newComponents;
-            vector<int> deadComponentIds;
             vec2 position;
             vec2 size;
             float rotation;
@@ -46,16 +44,11 @@ namespace Pancake {
             // Getter Methods.
             int getId();
             vector<Component*> getComponents();
-            vector<Component*> getNewComponents();
-            vector<int> getDeadComponentIds();
             vec2 getPosition();
             vec2 getSize();
             float getRotation();
             bool isSerialisable();
             bool isDead();
-
-            // Getter Component Methods.
-            Component* getComponent(string type);
 
             // Setter Methods.
             void setId(int id);
@@ -71,9 +64,8 @@ namespace Pancake {
             void addRotationAround(float radians, vec2 around);
 
             // Component Methods
+            Component* getComponent(string type);
             void addComponent(Component* component);
-            void clearNewComponents();
-            void clearDeadComponentIds();
 
     };
 

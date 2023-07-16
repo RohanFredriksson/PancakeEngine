@@ -29,9 +29,6 @@ namespace Pancake {
             Renderer* renderer;
             World* physics;
 
-            void addNewComponents();
-            void removeDeadComponents();
-
         public:
 
             Scene(string name, string filename, void (*init)(Scene* scene));
@@ -51,6 +48,8 @@ namespace Pancake {
             void addEntity(Entity* entity);
             Entity* getEntity(int id);
             Component* getComponent(int id);
+            unordered_map<int, Entity*>* getEntities();
+            unordered_map<int, Component*>* getComponents();
 
     };
 

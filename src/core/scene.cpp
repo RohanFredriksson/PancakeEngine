@@ -49,31 +49,6 @@ namespace Pancake {
 
     }
 
-    void Scene::addNewComponents() {
-
-        // Add the component to the map for quick lookups.
-        for (auto const& x : this->entities) {
-            Entity* e = x.second;
-            for (Component* c : e->getNewComponents()) {this->components[c->getId()] = c;} 
-            e->clearNewComponents();
-        }
-        
-    }
-
-    void Scene::removeDeadComponents() {
-
-        // For each entity, check their dead component list.
-        // If there are components in this list, delete them.
-        for (auto const& x : this->entities) {
-            Entity* e = x.second;
-            for (int id : e->getDeadComponentIds()) {
-                this->components.erase(id);
-            }
-            e->clearDeadComponentIds();
-        }
-
-    }
-
     void Scene::start() {
         this->started = true;
         for (auto const& x : this->entities) {
@@ -84,53 +59,26 @@ namespace Pancake {
 
     void Scene::update(float dt) {
 
-        // Add all new components to their specific systems.
-        this->addNewComponents(); 
-
         // Adjust the projection and step the physics engine.
         this->camera->adjustProjection();
         this->camera->update(dt);
         this->physics->update(dt); // This will update colliding components
 
         // Update all the entities.
-        deque<int> deadIds;
+        deque<int> dead;
         for (auto const& x : this->entities) {
             Entity* e = x.second;
-
-            // If the component is not dead, update it.
-            if (!e->isDead()) {
-                e->update(dt);
-            } 
-            
-            // If the component is dead, add its index a clear list.
-            else {
-                deadIds.push_front(e->getId());
-            }
-
+            if (!e->isDead()) {e->update(dt);} // If the component is not dead, update it.
+            else {dead.push_front(e->getId());} // If the component is dead, add its index a clear list.
         }
 
         // Delete all dead elements
-        for (int i : deadIds) {
-            
-            // Find the entity using its id.
-            auto search = this->entities.find(i);
+        for (int i : dead) {
+            auto search = this->entities.find(i); // Find the entity using its id.
             Entity* e = search->second;
-
-            // Remove all components associated with the entity from the map.
-            for (Component* c : e->getComponents()) {
-                this->components.erase(c->getId());
-            }
-
-            // Delete the entity.
-            delete e;
+            delete e; // Delete the entity.
             this->entities.erase(i);
-
         }
-        deadIds.clear();
-
-        // Add all new components to their specific systems.
-        this->addNewComponents(); 
-        this->removeDeadComponents();
 
     }
 
@@ -277,6 +225,14 @@ namespace Pancake {
         if (search == this->components.end()) {return nullptr;}
         Component* c = search->second;
         return c;
+    }
+
+    unordered_map<int, Entity*>* Scene::getEntities() {
+        return &this->entities;
+    }
+
+    unordered_map<int, Component*>* Scene::getComponents() {
+        return &this->components;
     }
 
 }

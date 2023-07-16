@@ -7,6 +7,7 @@
 #include "pancake/core/entity.hpp"
 #include "pancake/core/component.hpp"
 #include "pancake/core/factory.hpp"
+#include <pancake/core/window.hpp>
 
 using std::deque;
 
@@ -40,16 +41,17 @@ namespace Pancake {
     }
 
     Entity::~Entity() {
-
-        // Delete all the components.
-        for (Component* c: this->components) {c->kill();}
-        for (Component* c: this->components) {delete c;}
-
+        for (Component* c: this->components) {c->kill();} // Delete all the components.
+        for (Component* c: this->components) {
+            Window::getScene()->getComponents()->erase(c->getId());
+            delete c;
+        }
     }
 
     void Entity::start() {
         this->started = true;
         for (Component* c : this->components) {
+            Window::getScene()->getComponents()->insert({c->getId(), c});
             c->start();
         }
     }
@@ -57,22 +59,21 @@ namespace Pancake {
     void Entity::update(float dt) {
 
         // Update all the components.
-        deque<int> deadIndices;
+        deque<int> dead;
         int index = 0;
         for (Component* c : this->components) {
             if (!c->isDead()) {c->update(dt);} 
-            else {deadIndices.push_front(index);}
+            else {dead.push_front(index);}
             index++;
         }
 
         // Delete all dead elements
-        for (int i : deadIndices) {
+        for (int i : dead) {
             Component* c = this->components[i];
-            this->deadComponentIds.push_back(c->getId());
             this->components.erase(this->components.begin() + i);
+            Window::getScene()->getComponents()->erase(c->getId());
             delete c;
         }
-        deadIndices.clear();
 
     }
 
@@ -185,14 +186,6 @@ namespace Pancake {
         return this->components;
     }
 
-    vector<Component*> Entity::getNewComponents() {
-        return this->newComponents;
-    }
-
-    vector<int> Entity::getDeadComponentIds() {
-        return this->deadComponentIds;
-    }
-
     vec2 Entity::getPosition() {
         return this->position;
     }
@@ -211,15 +204,6 @@ namespace Pancake {
 
     bool Entity::isDead() {
         return this->dead;
-    }
-
-    Component* Entity::getComponent(string type) {
-        for (Component* c : this->components) {
-            if (c->getType() == type) {
-                return c;
-            }
-        }
-        return nullptr;
     }
 
     void Entity::setPosition(vec2 position) {
@@ -308,19 +292,22 @@ namespace Pancake {
 
     }
 
+    Component* Entity::getComponent(string type) {
+        for (Component* c : this->components) {
+            if (c->getType() == type) {
+                return c;
+            }
+        }
+        return nullptr;
+    }
+
     void Entity::addComponent(Component* component) {
         component->setEntity(this);
         this->components.push_back(component);
-        this->newComponents.push_back(component);
-        if (this->started) {component->start();}
-    }
-
-    void Entity::clearNewComponents() {
-        this->newComponents.clear();
-    }
-
-    void Entity::clearDeadComponentIds() {
-        this->deadComponentIds.clear();
+        if (this->started) {
+            Window::getScene()->getComponents()->insert({component->getId(), component});
+            component->start();
+        }
     }
 
 }

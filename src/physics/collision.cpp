@@ -8,8 +8,6 @@
 #include "pancake/physics/collider.hpp"
 #include "pancake/physics/collision.hpp"
 
-#include <iostream>
-
 using std::vector;
 
 namespace Pancake {
