@@ -31,8 +31,6 @@ make
 
 ## Example
 ```c++
-#pragma once
-
 #include "pancake/pancake.hpp"
 using namespace Pancake;
 
