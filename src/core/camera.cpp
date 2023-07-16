@@ -215,6 +215,7 @@ namespace Pancake {
 
     void Camera::setPosition(vec2 position) {
         this->position = position;
+        this->moving = false;
     }
 
     void Camera::setProjectionSize(vec2 projectionSize) {
@@ -227,6 +228,7 @@ namespace Pancake {
 
     void Camera::addPosition(vec2 position) {
         this->position += position;
+        this->moving = false;
     }
 
     void Camera::addZoom(float zoom) {
