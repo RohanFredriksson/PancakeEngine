@@ -31,6 +31,73 @@ make
 
 ## Example
 ```c++
+#pragma once
+
+#include "pancake/pancake.hpp"
+using namespace Pancake;
+
+class MousePanHandler : public Component {
+   
+    public:
+
+        MousePanHandler() : Component("MousePanHandler") {
+
+        }
+
+        void update(float dt) override {
+            
+            if (MouseListener::isMouseDragging()) {
+                if (MouseListener::getDx() != 0) {Window::getScene()->getCamera()->addPosition(vec2(-MouseListener::getWorldDx(), 0.0f));}
+                if (MouseListener::getDy() != 0) {Window::getScene()->getCamera()->addPosition(vec2(0.0f, MouseListener::getWorldDy()));}
+            }
+
+        } 
+        
+};
+
+REGISTER(Component, MousePanHandler);
+
+void TitleInit(Scene* scene) {
+
+    Entity* entity;
+    MousePanHandler* mousepanhandler;
+    Rigidbody* rigidbody;
+    Circle* circle;
+    Box* box;
+
+    // Mouse Movement Handler
+    entity = new Entity();
+    mousepanhandler = new MousePanHandler();
+    entity->addComponent(mousepanhandler);
+    scene->addEntity(entity);
+
+    // Ground
+    entity = new Entity(vec2(0.0f, -5.0f), vec2(1.0f, 1.0f), 0.0f);
+    rigidbody = new Rigidbody();
+    box = new Box();
+    box->setSize(vec2(10.0f, 1.0f));
+    rigidbody->addCollider(box);
+    entity->addComponent(rigidbody);
+    scene->addEntity(entity);
+
+    // Falling Box
+    entity = new Entity(vec2(-1.0f, 2.0f), vec2(1.0f, 1.0f), 0.0f);
+    rigidbody = new Rigidbody();
+    box = new Box();
+    box->setMass(1.0f);
+    box->setSize(vec2(0.5f, 1.0f));
+    box->setRotationOffset(0.5f);
+    rigidbody->addCollider(box);
+    rigidbody->setFriction(0.15f);
+    rigidbody->setRestitution(0.3f);
+    entity->addComponent(rigidbody);
+    scene->addEntity(entity);
+
+}
+
+int main(int argc, char* argv[]) {
+    return Pancake::run("Test", TestInit);
+}
 ```
 
 ## Features
