@@ -3,6 +3,7 @@
 #include <vector>
 #include <nlohmann/json.hpp>
 
+#include "pancake/core/spatial.hpp"
 #include "pancake/physics/force.hpp"
 #include "pancake/physics/collision.hpp"
 #include "pancake/physics/raycast.hpp"
