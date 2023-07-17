@@ -55,7 +55,7 @@ class MousePanHandler : public Component {
 
 REGISTER(Component, MousePanHandler);
 
-void TitleInit(Scene* scene) {
+void TestInit(Scene* scene) {
 
     Entity* entity;
     MousePanHandler* mousepanhandler;
