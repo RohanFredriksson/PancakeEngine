@@ -28,19 +28,19 @@ namespace Pancake {
 
         private: 
 
-            float grid_size;
+            int gridSize;
             std::unordered_map< std::tuple<int, int>, std::unordered_set<T>, IntTupleHash, IntTupleEqual > grid;
             std::unordered_map< T, std::vector<std::tuple<int, int>> > registrations;
 
         public:
 
             SpatialHashGrid<T>(float grid_size);
+            int getGridSize();
             void add(T element, float x, float y, float w, float h);
             void update(T element, float x, float y, float w, float h);
+            std::unordered_set<T> get(float x, float y, float w, float h);
             void remove(T element);
             void clear();
-
-            std::unordered_set<T> get(float x, float y);
 
     };
 
