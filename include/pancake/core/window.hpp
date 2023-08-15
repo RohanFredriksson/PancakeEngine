@@ -6,13 +6,14 @@
 namespace Pancake {
 
     namespace Window {
-    
-        bool init(string name, string filename, void(*init)(Scene* scene));
-        void load(string name, string filename, void(*init)(Scene* scene));
+
+        void load(void(*method)(Scene* scene));
+        void load(string filename);
         void save(string filename);
-        void exit();
-        void loop();
-        void destroy();
+        void reset();
+
+        void start();
+        void stop();
 
         int getWidth();
         int getHeight();

@@ -16,16 +16,16 @@ using glm::vec2;
 
 namespace Pancake {
 
-    Scene::Scene(string name, string filename, void (*init)(Scene* scene)) {
+    Scene::Scene() : Scene("New Scene") {
 
+    }
+
+    Scene::Scene(string name) {
         this->name = name;
         this->started = false;
         this->camera = new Camera(vec2(0.0f, 0.0f), vec2(12.0f, 12.0f), 1.0f);
         this->renderer = new Renderer();
         this->physics = new World(1.0f / 60.0f, vec2(0.0f, -10.0f));
-        if (!filename.empty()) {this->load(filename);}
-        if (init != nullptr) {init(this);}
-
     }
 
     Scene::~Scene() {
@@ -195,6 +195,10 @@ namespace Pancake {
 
     }
 
+    string Scene::getName() {
+        return this->name;
+    }
+
     Camera* Scene::getCamera() {
         return this->camera;
     }
@@ -205,6 +209,10 @@ namespace Pancake {
 
     World* Scene::getPhysics() {
         return this->physics;
+    }
+
+    void Scene::setName(string name) {
+        this->name = name;
     }
 
     void Scene::addEntity(Entity* entity) {

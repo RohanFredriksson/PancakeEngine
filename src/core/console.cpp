@@ -18,7 +18,7 @@ namespace Pancake {
         void parse(const char* command) {
 
             if (strcmp(command, "help") == 0) {output.push_back("Available commands: help, quit");}
-            else if (strcmp(command, "quit") == 0) {Window::exit();}
+            else if (strcmp(command, "quit") == 0) {Window::stop();}
             else {output.push_back("Unknown command. Type 'help' for a list of available commands.");}
 
         }

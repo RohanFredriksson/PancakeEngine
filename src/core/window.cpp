@@ -24,88 +24,22 @@ namespace Pancake {
         GLFWwindow* window;
         int width = 800;
         int height = 800;
-        Scene* scene;
+        Scene* scene = nullptr;
+
+        bool loadFlag = false;
+        vector<string> loadFilenames;
+        vector<void (*)(Scene*)> loadMethods;
 
         bool saveFlag = false;
         string saveFilename;
 
-        bool exitFlag = false;
+        bool resetFlag = true;
 
-        bool loadFlag;
-        string loadName;
-        string loadFilename;
-        void(*loadInit)(Scene* scene) = nullptr;
+        bool stopFlag = false;
 
         Shader* defaultShader;
         Shader* entityShader;
         Framebuffer* entityTexture;
-
-        bool start() {
-
-            // Initialise GLFW
-            if (!glfwInit()) {
-                std::cout << "ERROR::WINDOW::GLFW_INITIALIZATION_FAILED\n";
-                return false;
-            }
-
-            // Configure GLFW
-            glfwDefaultWindowHints();
-            glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-            glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-            glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-            glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
-            glfwWindowHint(GLFW_FOCUS_ON_SHOW, GLFW_TRUE);
-
-            // Create the window
-            window = glfwCreateWindow(width, height, "Pancake", nullptr, nullptr);
-            if (window == nullptr) {
-                std::cout << "ERROR::WINDOW::GLFW_WINDOW_CREATION_FAILED\n";
-                return false;
-            }
-
-            // Manage callbacks
-            glfwSetKeyCallback(window, KeyListener::keyCallback);
-            glfwSetWindowSizeCallback(window, WindowListener::resizeCallback);
-            glfwSetCursorPosCallback(window, MouseListener::mousePosCallback);
-            glfwSetMouseButtonCallback(window, MouseListener::mouseButtonCallback);
-            glfwSetScrollCallback(window, MouseListener::mouseScrollCallback);
-
-            // Make the OpenGl context current
-            glfwMakeContextCurrent(window);
-
-            // Enable v-sync
-            glfwSwapInterval(1);
-
-            // Make the window visible
-            glfwShowWindow(window);
-
-            // Load GLAD so it configures OpenGL
-            gladLoadGL();
-
-            // Initialise ImGui
-            IMGUI_CHECKVERSION();
-            ImGui::CreateContext();
-            ImGuiIO& io = ImGui::GetIO();
-            (void)io;
-            ImGui::StyleColorsDark();
-            ImGui_ImplGlfw_InitForOpenGL(window, true);
-            ImGui_ImplOpenGL3_Init("#version 330");
-
-            // Enable alpha transparency
-            glEnable(GL_BLEND);
-            glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-            // Initialise the asset pool.
-            AssetPool::init();
-
-            defaultShader = new Shader("default", "default", DEFAULT_VERTEX, DEFAULT_FRAGMENT);
-            entityShader = new Shader("default", "entity", DEFAULT_VERTEX, ENTITY_FRAGMENT);
-            entityTexture = new Framebuffer(GL_RGB32F, width, height, GL_RGB, GL_FLOAT);
-
-            DebugDraw::init();
-            return true;
-
-        }
 
         void update(float dt) {
             scene->update(dt);
@@ -148,18 +82,14 @@ namespace Pancake {
 
     namespace Window {
 
-        bool init(string name, string filename, void(*init)(Scene* scene)) {
-            if (!start()) {return false;}
-            try {scene = new Scene(name, filename, init); scene->start();}
-            catch (...) {return false;}
-            return true;
+        void load(void(*method)(Scene* scene)) {
+            loadFlag = true;
+            loadMethods.push_back(method);
         }
 
-        void load(string name, string filename, void(*init)(Scene* scene)) {
+        void load(string filename) {
             loadFlag = true;
-            loadName = name;
-            loadFilename = filename;
-            loadInit = init;
+            loadFilenames.push_back(filename);
         }
 
         void save(string filename) {
@@ -167,17 +97,80 @@ namespace Pancake {
             saveFilename = filename;
         }
 
-        void exit() {
-            exitFlag = true;
+        void reset() {
+            resetFlag = true;
         }
 
-        void loop() {
+        void start() {
 
+            // Initialise GLFW
+            if (!glfwInit()) {
+                std::cout << "ERROR::WINDOW::GLFW_INITIALIZATION_FAILED\n";
+                return;
+            }
+
+            // Configure GLFW
+            glfwDefaultWindowHints();
+            glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+            glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+            glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+            glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
+            glfwWindowHint(GLFW_FOCUS_ON_SHOW, GLFW_TRUE);
+
+            // Create the window
+            window = glfwCreateWindow(width, height, "Pancake", nullptr, nullptr);
+            if (window == nullptr) {
+                std::cout << "ERROR::WINDOW::GLFW_WINDOW_CREATION_FAILED\n";
+                return;
+            }
+
+            // Manage callbacks
+            glfwSetKeyCallback(window, KeyListener::keyCallback);
+            glfwSetWindowSizeCallback(window, WindowListener::resizeCallback);
+            glfwSetCursorPosCallback(window, MouseListener::mousePosCallback);
+            glfwSetMouseButtonCallback(window, MouseListener::mouseButtonCallback);
+            glfwSetScrollCallback(window, MouseListener::mouseScrollCallback);
+
+            // Make the OpenGl context current
+            glfwMakeContextCurrent(window);
+
+            // Enable v-sync
+            glfwSwapInterval(1);
+
+            // Make the window visible
+            glfwShowWindow(window);
+
+            // Load GLAD so it configures OpenGL
+            gladLoadGL();
+
+            // Initialise ImGui
+            IMGUI_CHECKVERSION();
+            ImGui::CreateContext();
+            ImGuiIO& io = ImGui::GetIO();
+            (void)io;
+            ImGui::StyleColorsDark();
+            ImGui_ImplGlfw_InitForOpenGL(window, true);
+            ImGui_ImplOpenGL3_Init("#version 330");
+
+            // Enable alpha transparency
+            glEnable(GL_BLEND);
+            glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+            // Start the scene
+            AssetPool::init();
+            defaultShader = new Shader("default", "default", DEFAULT_VERTEX, DEFAULT_FRAGMENT);
+            entityShader = new Shader("default", "entity", DEFAULT_VERTEX, ENTITY_FRAGMENT);
+            entityTexture = new Framebuffer(GL_RGB32F, width, height, GL_RGB, GL_FLOAT);
+            DebugDraw::init();
+            scene = new Scene();
+            scene->start();
+            
+            // Loop
             float beginTime = (float)glfwGetTime();
             float endTime = (float)glfwGetTime();
             float dt = -1.0f;
 
-            while (!glfwWindowShouldClose(window) && !exitFlag) {
+            while (!glfwWindowShouldClose(window) && !stopFlag) {
 
                 glfwPollEvents();
 
@@ -198,23 +191,34 @@ namespace Pancake {
                     saveFlag = false;
                 }
 
-                if (loadFlag) {
+                if (resetFlag) {
                     delete scene;
-                    scene = new Scene(loadName, loadFilename, loadInit);
+                    scene = new Scene();
                     scene->start();
                     dt = -1.0f;
+                    resetFlag = false;
+                }
+
+                if (loadFlag) {
+                    for (int i = 0; i < loadMethods.size(); i++) {loadMethods[i](scene);}
+                    for (int i = 0; i < loadFilenames.size(); i++) {scene->load(loadFilenames[i]);}
+                    loadMethods.clear();
+                    loadFilenames.clear();
                     loadFlag = false;
                 }
 
             }
 
-        }
-
-        void destroy() {
+            // Destroy
             DebugDraw::destroy();
             AssetPool::destroy();
             glfwDestroyWindow(window);
             glfwTerminate();
+
+        }
+
+        void stop() {
+            stopFlag = true;
         }
 
         int getWidth() {

@@ -31,7 +31,8 @@ namespace Pancake {
 
         public:
 
-            Scene(string name, string filename, void (*init)(Scene* scene));
+            Scene();
+            Scene(string name);
             ~Scene();
 
             void start();
@@ -41,10 +42,13 @@ namespace Pancake {
             void save(string filename);
             void load(string filename);
 
+            string getName();
             Camera* getCamera();
             Renderer* getRenderer();
             World* getPhysics();
 
+            void setName(string name);
+            
             void addEntity(Entity* entity);
             Entity* getEntity(int id);
             Component* getComponent(int id);

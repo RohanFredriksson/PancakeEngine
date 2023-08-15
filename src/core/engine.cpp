@@ -9,37 +9,30 @@
 
 namespace Pancake {
 
-    int run(string name, string filename, void(*init)(Scene* scene)) {
-        AudioEngine::init();
-        if (!Window::init(name, filename, init)) {return 1;}
-        Window::loop();
-        Window::destroy();
-        AudioEngine::destroy();
-        return 0;
+    void load(void (*method)(Scene* scene)) {
+        Window::load(method);
     }
 
-    int run(string name, void (*init)(Scene* scene)) {
-        return run(name, "", init);
-    }
-
-    int run(string name, string filename) {
-        return run(name, filename, nullptr);
-    }
-
-    void load(string name, string filename, void(*init)(Scene* scene)) {
-        Window::load(name, filename, init);
-    }
-
-    void load(string name, void (*init)(Scene* scene)) {
-        Window::load(name, "", init);
-    }
-
-    void load(string name, string filename) {
-        Window::load(name, filename, nullptr);
+    void load(string filename) {
+        Window::load(filename);
     }
 
     void save(string filename) {
         Window::save(filename);
+    }
+
+    void reset() {
+        Window::reset();
+    }
+
+    void start() {
+        AudioEngine::init();
+        Window::start();
+        AudioEngine::destroy();
+    }
+
+    void stop() {
+        Window::stop();
     }
 
     Scene* getScene() {
