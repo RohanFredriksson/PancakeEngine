@@ -63,6 +63,9 @@ void TestInit(Scene* scene) {
     Circle* circle;
     Box* box;
 
+    // Set the scene name
+    scene->setName("Test Scene");
+
     // Mouse Movement Handler
     entity = new Entity();
     mousepanhandler = new MousePanHandler();
@@ -94,7 +97,8 @@ void TestInit(Scene* scene) {
 }
 
 int main(int argc, char* argv[]) {
-    return Pancake::run("Test", TestInit);
+    Pancake::load(TestInit);
+    Pancake::start();
 }
 ```
 
