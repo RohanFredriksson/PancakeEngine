@@ -5,6 +5,9 @@
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
 
+#define STB_IMAGE_IMPLEMENTATION
+#include <stb/stb_image.h>
+
 #include <imgui.h>
 #include <imgui_impl_glfw.h>
 #include <imgui_impl_opengl3.h>
@@ -184,7 +187,25 @@ namespace Pancake {
                 }
 
                 if (iconFlag) {
+
+                    int width;
+                    int height;
+                    int channels;
+
+                    stbi_set_flip_vertically_on_load(0);
+                    unsigned char* image = stbi_load(iconFilename.c_str(), &width, &height, &channels, 0);
+
+                    if (image != nullptr) {
+                        GLFWimage icon;
+                        icon.width = width;
+                        icon.height = height;
+                        icon.pixels = image;
+                        glfwSetWindowIcon(window, 1, &icon);
+                        stbi_image_free(image);
+                    }
+
                     iconFlag = false;
+
                 }
 
                 glfwPollEvents();
