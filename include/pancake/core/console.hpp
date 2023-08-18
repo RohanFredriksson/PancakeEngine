@@ -6,7 +6,10 @@ namespace Pancake {
     
         void open();
         void close();
+        void set(bool state);
+        void toggle();
         void render();
+        bool opened();
 
     }
 

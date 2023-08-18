@@ -64,6 +64,14 @@ namespace Pancake {
         Window::setProjectionHeight(height);
     }
 
+    void console(bool state) {
+        Console::set(state);
+    }
+    
+    void console() {
+        Console::toggle();
+    }
+
     Scene* getScene() {
         return Window::getScene();
     }

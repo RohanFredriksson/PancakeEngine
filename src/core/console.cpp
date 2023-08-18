@@ -35,6 +35,14 @@ namespace Pancake {
             active = false;
         }
 
+        void set(bool state) {
+            active = state;
+        }
+
+        void toggle() {
+            active = !active;
+        }
+
         void render() {
             
             // If not active, don't render the terminal.
@@ -58,6 +66,10 @@ namespace Pancake {
 
             ImGui::End();
 
+        }
+
+        bool opened() {
+            return active;
         }
 
     }

@@ -36,7 +36,7 @@ namespace Pancake {
         bool saveFlag = false;
         string saveFilename;
 
-        bool resetFlag = true;
+        bool resetFlag = false;
 
         bool stopFlag = false;
 
