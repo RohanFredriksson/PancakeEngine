@@ -15,7 +15,14 @@ namespace Pancake {
     void stop();
 
     void icon(string filename);
-    void title(string title);
+    void title(string title); 
+
+    void size(int w, int h);
+    void width(int w);
+    void height(int h);
+
+    void projection(vec2 size);
+    void projection(float height);
     
     Scene* getScene();
     Entity* getEntity(int id);

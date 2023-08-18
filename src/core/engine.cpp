@@ -43,6 +43,27 @@ namespace Pancake {
         Window::setTitle(title);
     }
 
+    void size(int w, int h) {
+        Window::setWidth(w);
+        Window::setHeight(h);
+    }
+
+    void width(int w) {
+        Window::setWidth(w);
+    }
+
+    void height(int h) {
+        Window::setHeight(h);
+    }
+
+    void projection(vec2 size) {
+        Window::setProjectionHeight(size.y);
+    }
+
+    void projection(float height) {
+        Window::setProjectionHeight(height);
+    }
+
     Scene* getScene() {
         return Window::getScene();
     }

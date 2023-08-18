@@ -31,9 +31,15 @@ namespace Pancake {
 
         public:
 
+            Entity(float x, float y, float w, float h, float r);
+            Entity(float x, float y, float w, float h);
+            Entity(float x, float y);
             Entity(vec2 position, vec2 size, float radians);
+            Entity(vec2 position, vec2 size);
+            Entity(vec2 position);
             Entity();
             ~Entity();
+            
             void start();
             void update(float dt);
             json serialise();

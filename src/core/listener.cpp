@@ -67,16 +67,6 @@ namespace Pancake {
         return false;
     }
 
-    void WindowListener::resizeCallback(GLFWwindow* window, int screenWidth, int screenHeight) {
-
-        Window::setWidth(screenWidth);
-        Window::setHeight(screenHeight);
-        Window::resetFramebuffers();
-        Window::getScene()->getCamera()->adjustProjection();
-        glViewport(0, 0, screenWidth, screenHeight);
-
-    }
-
     void MouseListener::calcOrthoX() {
 
         float currentX = ((float) x / Window::getWidth()) * 2.0f - 1.0f;

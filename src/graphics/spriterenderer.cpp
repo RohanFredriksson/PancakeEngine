@@ -142,6 +142,10 @@ namespace Pancake {
         return this->dirty;
     }
 
+    SpriteRenderer* SpriteRenderer::setSprite(string sprite) {
+        return this->setSprite(SpritePool::get(sprite));
+    }
+
     SpriteRenderer* SpriteRenderer::setSprite(Sprite* sprite) {
         this->sprite = sprite;
         this->lastSprite = sprite;

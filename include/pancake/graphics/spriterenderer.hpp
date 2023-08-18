@@ -43,6 +43,7 @@ namespace Pancake {
             bool isDirty();
             
             // Setters
+            SpriteRenderer* setSprite(string sprite);
             SpriteRenderer* setSprite(Sprite* sprite);
             SpriteRenderer* setColour(vec4 colour);
             SpriteRenderer* setZIndex(int zIndex);

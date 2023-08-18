@@ -32,8 +32,28 @@ namespace Pancake {
 
     }
 
+    Entity::Entity(float x, float y, float w, float h, float r) {
+        this->init(nextId, vec2(x, y), vec2(w, h), r, false);
+    }
+
+    Entity::Entity(float x, float y, float w, float h) {
+        this->init(nextId, vec2(x, y), vec2(w, h), 0.0f, false);
+    }
+
+    Entity::Entity(float x, float y) {
+        this->init(nextId, vec2(x, y), vec2(1.0f, 1.0f), 0.0f, false);
+    }
+
     Entity::Entity(vec2 position, vec2 size, float radians) {
         this->init(nextId, position, size, radians, false);
+    }
+
+    Entity::Entity(vec2 position, vec2 size) {
+        this->init(nextId, position, size, 0.0f, false);
+    }
+
+    Entity::Entity(vec2 position) {
+        this->init(nextId, position, vec2(1.0f, 1.0f), 0.0f, false);
     }
 
     Entity::Entity() {

@@ -51,6 +51,8 @@ namespace Pancake {
 
             void setPosition(vec2 position);
             void setProjectionSize(vec2 projectionSize);
+            void setProjectionSize(float height);
+            void setProjectionHeight(float height);
             void setZoom(float zoom);
 
             void addPosition(vec2 position);

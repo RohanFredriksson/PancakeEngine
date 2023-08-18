@@ -24,7 +24,9 @@ namespace Pancake {
         void setTitle(string title);
         void setWidth(int w);
         void setHeight(int h);
-        void resetFramebuffers();
+        void setProjectionSize(vec2 size);
+        void setProjectionSize(float height);
+        void setProjectionHeight(float height);
         int readPixel(int x, int y);
 
         void openConsole();

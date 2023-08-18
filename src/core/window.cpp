@@ -46,6 +46,15 @@ namespace Pancake {
         bool iconFlag = false;
         string iconFilename;
 
+        bool projectionFlag = false;
+        float projectionHeight;
+
+        bool widthFlag = false;
+        int widthValue;
+
+        bool heightFlag = false;
+        int heightValue;
+
         Shader* defaultShader;
         Shader* entityShader;
         Framebuffer* entityTexture;
@@ -85,6 +94,15 @@ namespace Pancake {
 
             glfwSwapBuffers(window);
 
+        }
+
+        void resizeCallback(GLFWwindow* window, int screenWidth, int screenHeight) {
+            width = screenWidth;
+            height = screenHeight;
+            delete entityTexture;
+            entityTexture = new Framebuffer(GL_RGB32F, width, height, GL_RGB, GL_FLOAT);
+            scene->getCamera()->adjustProjection();
+            glViewport(0, 0, screenWidth, screenHeight);
         }
 
     }
@@ -135,7 +153,7 @@ namespace Pancake {
 
             // Manage callbacks
             glfwSetKeyCallback(window, KeyListener::keyCallback);
-            glfwSetWindowSizeCallback(window, WindowListener::resizeCallback);
+            glfwSetWindowSizeCallback(window, resizeCallback);
             glfwSetCursorPosCallback(window, MouseListener::mousePosCallback);
             glfwSetMouseButtonCallback(window, MouseListener::mouseButtonCallback);
             glfwSetScrollCallback(window, MouseListener::mouseScrollCallback);
@@ -208,19 +226,17 @@ namespace Pancake {
 
                 }
 
-                glfwPollEvents();
-
-                if (dt > 0) {
-                    update(dt);
-                    render();
+                if (widthFlag) {
+                    glfwSetWindowSize(window, widthValue, height);
+                    widthFlag = false;
                 }
 
-                MouseListener::endFrame();
-                Window::readPixel(0, 0);
+                if (heightFlag) {
+                    glfwSetWindowSize(window, width, heightValue);
+                    heightFlag = false;
+                }
 
-                endTime = (float)glfwGetTime();
-                dt = endTime - beginTime;
-                beginTime = endTime;
+                glfwPollEvents();
 
                 if (saveFlag) {
                     scene->save(saveFilename);
@@ -242,6 +258,23 @@ namespace Pancake {
                     loadFilenames.clear();
                     loadFlag = false;
                 }
+
+                if (projectionFlag) {
+                    scene->getCamera()->setProjectionHeight(projectionHeight);
+                    projectionFlag = false;
+                }
+
+                if (dt > 0) {
+                    update(dt);
+                    render();
+                }
+
+                MouseListener::endFrame();
+                Window::readPixel(0, 0);
+
+                endTime = (float)glfwGetTime();
+                dt = endTime - beginTime;
+                beginTime = endTime;
 
             }
 
@@ -284,16 +317,28 @@ namespace Pancake {
         }
 
         void setWidth(int w) {
-            width = w;
+            widthValue = w;
+            widthFlag = true;
         }
 
         void setHeight(int h) {
-            height = h;
+            heightValue = h;
+            heightFlag = true;
         }
 
-        void resetFramebuffers() {
-            delete entityTexture;
-            entityTexture = new Framebuffer(GL_RGB32F, width, height, GL_RGB, GL_FLOAT);
+        void setProjectionSize(vec2 size) {
+            projectionHeight = size.y;
+            projectionFlag = true;
+        }
+
+        void setProjectionSize(float height) {
+            projectionHeight = height;
+            projectionFlag = true;
+        }
+
+        void setProjectionHeight(float height) {
+            projectionHeight = height;
+            projectionFlag = true;
         }
 
         int readPixel(int x, int y) {

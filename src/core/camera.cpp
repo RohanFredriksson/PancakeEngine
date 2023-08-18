@@ -222,6 +222,14 @@ namespace Pancake {
         this->projectionSize = projectionSize;
     }
 
+    void Camera::setProjectionSize(float height) {
+        this->projectionSize = vec2(1.0f, height);
+    }
+
+    void Camera::setProjectionHeight(float height) {
+        this->projectionSize = vec2(1.0f, height);
+    }
+
     void Camera::setZoom(float zoom) {
         this->zoom = zoom;
     }

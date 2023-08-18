@@ -11,10 +11,6 @@ namespace Pancake {
         bool isKeyBeginDown(int key);
     }
 
-    namespace WindowListener {
-        void resizeCallback(GLFWwindow* window, int screenWidth, int screenHeight);
-    }
-
     namespace MouseListener {
         void calcOrthoX();
         void calcOrthoY();

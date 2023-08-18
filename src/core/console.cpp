@@ -11,7 +11,7 @@ namespace Pancake {
 
     namespace {
 
-        bool active = true;
+        bool active = false;
         vector<string> output;
         char input[256];
 
