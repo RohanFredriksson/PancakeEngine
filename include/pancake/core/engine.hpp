@@ -14,6 +14,9 @@ namespace Pancake {
     void start();
     void stop();
 
+    void icon(string filename);
+    void title(string title);
+    
     Scene* getScene();
     Entity* getEntity(int id);
     Component* getComponent(int id);

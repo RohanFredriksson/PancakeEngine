@@ -35,6 +35,14 @@ namespace Pancake {
         Window::stop();
     }
 
+    void icon(string filename) {
+        Window::setIcon(filename);
+    }
+
+    void title(string title) {
+        Window::setTitle(title);
+    }
+
     Scene* getScene() {
         return Window::getScene();
     }

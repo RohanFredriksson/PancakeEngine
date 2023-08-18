@@ -20,6 +20,8 @@ namespace Pancake {
         float getAspectRatio();
         Scene* getScene();
         
+        void setIcon(string filename);
+        void setTitle(string title);
         void setWidth(int w);
         void setHeight(int h);
         void resetFramebuffers();

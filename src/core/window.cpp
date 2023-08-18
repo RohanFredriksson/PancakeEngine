@@ -37,6 +37,12 @@ namespace Pancake {
 
         bool stopFlag = false;
 
+        bool titleFlag = false;
+        string titleString;
+
+        bool iconFlag = false;
+        string iconFilename;
+
         Shader* defaultShader;
         Shader* entityShader;
         Framebuffer* entityTexture;
@@ -172,6 +178,15 @@ namespace Pancake {
 
             while (!glfwWindowShouldClose(window) && !stopFlag) {
 
+                if (titleFlag) {
+                    glfwSetWindowTitle(window, titleString.c_str());
+                    titleFlag = false;
+                }
+
+                if (iconFlag) {
+                    iconFlag = false;
+                }
+
                 glfwPollEvents();
 
                 if (dt > 0) {
@@ -235,6 +250,16 @@ namespace Pancake {
 
         Scene* getScene() {
             return scene;
+        }
+
+        void setTitle(string title) {
+            titleString = title;
+            titleFlag = true;
+        }
+
+        void setIcon(string filename) {
+            iconFilename = filename;
+            iconFlag = true;
         }
 
         void setWidth(int w) {
