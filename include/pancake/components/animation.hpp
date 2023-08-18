@@ -3,10 +3,12 @@
 #include "pancake/core/component.hpp"
 #include "pancake/graphics/sprite.hpp"
 #include <unordered_map>
+#include <string>
 #include <tuple>
 #include <glm/glm.hpp>
 
 using std::unordered_map;
+using std::string;
 using std::tuple;
 using glm::vec4;
 
@@ -60,8 +62,10 @@ namespace Pancake {
             void setTime(float time);
             void setLoop(bool loop);
 
+            void addFrame(string sprite, float duration);
             void addFrame(Sprite* sprite, float duration);
             void addFrame(AnimationFrame* frame);
+            void addFrames(vector<string>, float duration);
             void addFrames(vector<Sprite*> sprites, float duration);
             void addFrames(vector<AnimationFrame*> frames);
 

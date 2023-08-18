@@ -44,6 +44,7 @@ namespace Pancake {
 
             Collider* setRigidbody(Rigidbody* rigidbody);
             Collider* setMass(float mass);
+            Collider* setPositionOffset(float x, float y);
             Collider* setPositionOffset(vec2 offset);
             Collider* setRotationOffset(float offset);
             Collider* setPositionOffset(vec2 offset, bool update);
@@ -71,6 +72,7 @@ namespace Pancake {
             vec2 getMax();
 
             Box* setSize(vec2 size);
+            Box* setSize(float w, float h);
 
     };
 

@@ -108,6 +108,10 @@ namespace Pancake {
         this->loop = loop;
     }
 
+    void AnimationState::addFrame(string sprite, float duration) {
+        this->addFrame(SpritePool::get(sprite), duration);
+    }
+
     void AnimationState::addFrame(Sprite* sprite, float duration) {
         AnimationFrame* frame = new AnimationFrame(sprite, duration);
         this->frames.push_back(frame);
@@ -117,10 +121,15 @@ namespace Pancake {
         this->frames.push_back(frame);
     }
 
+    void AnimationState::addFrames(vector<string> sprites, float duration) {
+        for (string sprite : sprites) {
+            this->addFrame(sprite, duration);
+        }
+    }
+
     void AnimationState::addFrames(vector<Sprite*> sprites, float duration) {
         for (Sprite* sprite : sprites) {
-            AnimationFrame* frame = new AnimationFrame(sprite, duration);
-            this->frames.push_back(frame);
+            this->addFrame(sprite, duration);
         }
     }
 

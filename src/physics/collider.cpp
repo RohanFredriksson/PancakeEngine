@@ -111,6 +111,10 @@ namespace Pancake {
         return this;
     }
 
+    Collider* Collider::setPositionOffset(float x, float y) {
+        return this->setPositionOffset(vec2(x, y));
+    }
+
     Collider* Collider::setPositionOffset(vec2 offset){
 
         if (this->rigidbody != nullptr) {
@@ -212,6 +216,10 @@ namespace Pancake {
         this->size = size;
         this->halfSize = size * 0.5f;
         return this;
+    }
+
+    Box* Box::setSize(float w, float h) {
+        return this->setSize(vec2(w, h));
     }
 
     Circle::Circle() : Collider("Circle") {
