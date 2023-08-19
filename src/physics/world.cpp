@@ -235,9 +235,11 @@ namespace Pancake {
 
                     }
 
-                    this->bodies1.push_back(rigidbody1);
-                    this->bodies2.push_back(rigidbody2);
-                    this->collisions.push_back(results);
+                    if (!rigidbody1->isSensor() && !rigidbody2->isSensor()) {
+                        this->bodies1.push_back(rigidbody1);
+                        this->bodies2.push_back(rigidbody2);
+                        this->collisions.push_back(results);
+                    }
 
                 }
 

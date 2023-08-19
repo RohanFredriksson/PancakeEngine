@@ -316,7 +316,14 @@ namespace Pancake {
             this->defaultState = title;
             if (this->currentState == nullptr) {this->currentState = search->second;}
         }
+    
+    }
 
+    void Animation::setState(string title) {
+        auto search = this->states.find(title);
+        if (search == this->states.end()) {return;}
+        this->currentState = search->second;
+        this->currentState->setCurrent(0);
     }
 
     void Animation::addTransfer(string from, string to, string trigger)  {

@@ -79,11 +79,15 @@ namespace Pancake {
             float getRotationOffset();
 
             void setPositionOffset(vec2 offset);
+            void setPositionOffset(float x, float y);
             void setSizeScale(vec2 scale);
+            void setSizeScale(float w, float h);
             void setRotationOffset(float offset);
 
             void addPositionOffset(vec2 offset);
+            void addPositionOffset(float x, float y);
             void addSizeScale(vec2 scale);
+            void addSizeScale(float w, float h);
             void addRotationOffset(float offset);
 
     };

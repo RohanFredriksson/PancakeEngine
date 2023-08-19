@@ -210,8 +210,16 @@ namespace Pancake {
         this->positionOffset = offset;
     }
 
+    void TransformableComponent::setPositionOffset(float x, float y) {
+        this->setPositionOffset(vec2(x, y));
+    }
+
     void TransformableComponent::setSizeScale(vec2 scale) {
         this->sizeScale = scale;
+    }
+
+    void TransformableComponent::setSizeScale(float w, float h) {
+        this->setSizeScale(vec2(w, h));
     }
 
     void TransformableComponent::setRotationOffset(float offset) {
@@ -222,8 +230,16 @@ namespace Pancake {
         this->positionOffset += offset;
     }
 
+    void TransformableComponent::addPositionOffset(float x, float y) {
+        this->addPositionOffset(vec2(x, y));
+    }
+
     void TransformableComponent::addSizeScale(vec2 scale) {
         this->sizeScale += scale;
+    }
+
+    void TransformableComponent::addSizeScale(float w, float h) {
+        this->addSizeScale(vec2(w, h));
     }
 
     void TransformableComponent::addRotationOffset(float offset) {

@@ -106,6 +106,7 @@ namespace Pancake {
             bool load(json j) override;
 
             void setDefaultState(string title);
+            void setState(string title);
             void addTransfer(string from, string to, string trigger);
             void addState(AnimationState* state);
             void clearStates();

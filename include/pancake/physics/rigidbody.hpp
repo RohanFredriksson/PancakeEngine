@@ -67,7 +67,9 @@ namespace Pancake {
             Rigidbody* clearColliders();
 
             Rigidbody* setForce(vec2 force);
+            Rigidbody* setForce(float x, float y);
             Rigidbody* setVelocity(vec2 velocity);
+            Rigidbody* setVelocity(float x, float y);
             Rigidbody* setTorque(float torque);
             Rigidbody* setAngularVelocity(float angularVelocity);
             Rigidbody* setRestitution(float cor);
@@ -82,8 +84,10 @@ namespace Pancake {
 
             void clearAccumulators();
             void addVelocity(vec2 velocity);
+            void addVelocity(float x, float y);
             void addAngularVelocity(float angularVelocity);
             void addForce(vec2 force);
+            void addForce(float x, float y);
             void addTorque(float torque);
             void zeroForces();
             void zeroTorque();

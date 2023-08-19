@@ -303,13 +303,23 @@ namespace Pancake {
     }
 
     Rigidbody* Rigidbody::setForce(vec2 force) {
+        if (this->hasInfiniteMass()) {return this;}
         this->force = force;
         return this;
     }
 
+    Rigidbody* Rigidbody::setForce(float x, float y) {
+        return this->setForce(vec2(x, y));
+    }
+
     Rigidbody* Rigidbody::setVelocity(vec2 velocity) {
+        if (this->hasInfiniteMass()) {return this;}
         this->velocity = velocity;
         return this;
+    }
+
+    Rigidbody* Rigidbody::setVelocity(float x, float y) {
+        return this->setVelocity(vec2(x, y));
     }
 
     Rigidbody* Rigidbody::setTorque(float torque) {
@@ -410,6 +420,10 @@ namespace Pancake {
         this->velocity += velocity;
     }
 
+    void Rigidbody::addVelocity(float x, float y) {
+        this->addVelocity(vec2(x, y));
+    }
+
     void Rigidbody::addAngularVelocity(float angularVelocity) {
         if (this->hasInfiniteMass() || this->fixedOrientation) {return;}
         this->angularVelocity += angularVelocity;
@@ -418,6 +432,10 @@ namespace Pancake {
     void Rigidbody::addForce(vec2 force) {
         if (this->hasInfiniteMass()) {return;}
         this->force += force;
+    }
+
+    void Rigidbody::addForce(float x, float y) {
+        this->addForce(vec2(x, y));
     }
 
     void Rigidbody::zeroForces() {
