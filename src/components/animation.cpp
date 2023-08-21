@@ -322,6 +322,7 @@ namespace Pancake {
     void Animation::setState(string title) {
         auto search = this->states.find(title);
         if (search == this->states.end()) {return;}
+        if (this->currentState == search->second) {return;}
         this->currentState = search->second;
         this->currentState->setCurrent(0);
     }
