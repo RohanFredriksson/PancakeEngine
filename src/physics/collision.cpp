@@ -188,8 +188,8 @@ namespace Pancake {
             rotate(bPosInA, aPos, aCos, -aSin);
 
             // Determine which vertices of each box is in each others box.
-            vector<vec2> bInsideA; for (vec2 vertex : bVertices) {if (vertex.x >= aMin.x && vertex.x <= aMax.x && vertex.y >= aMin.y && vertex.y <= aMax.y) {bInsideA.push_back(vertex);}}
-            vector<vec2> aInsideB; for (vec2 vertex : aVertices) {if (vertex.x >= bMin.x && vertex.x <= bMax.x && vertex.y >= bMin.y && vertex.y <= bMax.y) {aInsideB.push_back(vertex);}}
+            vector<vec2> bInsideA; for (vec2 vertex : bVertices) {if (vertex.x > aMin.x && vertex.x < aMax.x && vertex.y > aMin.y && vertex.y < aMax.y) {bInsideA.push_back(vertex);}}
+            vector<vec2> aInsideB; for (vec2 vertex : aVertices) {if (vertex.x > bMin.x && vertex.x < bMax.x && vertex.y > bMin.y && vertex.y < bMax.y) {aInsideB.push_back(vertex);}}
 
             // Collision manifold variables.
             vec2 normal;
