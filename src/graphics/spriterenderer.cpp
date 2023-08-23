@@ -160,6 +160,18 @@ namespace Pancake {
         return this;
     }
 
+    SpriteRenderer* SpriteRenderer::setColour(vec3 colour) {
+        return this->setColour(vec4(colour.x, colour.y, colour.z, 1.0f));
+    }
+
+    SpriteRenderer* SpriteRenderer::setColour(float r, float g, float b, float a) {
+        return this->setColour(vec4(r, g, b, a));
+    }
+
+    SpriteRenderer* SpriteRenderer::setColour(float r, float g, float b) {
+        return this->setColour(vec4(r, g, b, 1.0f));
+    }
+
     SpriteRenderer* SpriteRenderer::setZIndex(int zIndex) {
         this->zIndex = zIndex;
         this->lastZIndex = zIndex;
