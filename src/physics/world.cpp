@@ -146,7 +146,7 @@ namespace Pancake {
             // Position correction.
             if (!a->hasInfiniteMass() && !b->hasInfiniteMass()) {
                 const float slop = 0.01f;
-                const float percent = 0.2f;
+                const float percent = 0.4f;
                 vec2 correction = std::max(m.depth - slop, 0.0f) / (invMassA + invMassB) * percent * m.normal;
                 result.aPosition -= correction * invMassA;
                 result.bPosition += correction * invMassB;
