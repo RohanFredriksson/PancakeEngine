@@ -225,9 +225,9 @@ namespace Pancake {
                 rotate(normal, vec2(0.0f, 0.0f), aCos, aSin);
                 rotate(point, aPos, aCos, aSin);
 
-                // Add the point to the manifold.
-                result.push_back(CollisionManifold(normal, point, depth * 0.5f));
-
+                // Add the point to the manifold, if the depth is positive and non-zero.
+                depth *= 0.5f; if (depth > 0.0f) {result.push_back(CollisionManifold(normal, point, depth));}
+                
                 // Find which side of b is a.
                 other = bInsideA[0];
                 rotate(other, aPos, aCos, aSin); 
@@ -254,8 +254,8 @@ namespace Pancake {
                 rotate(normal, vec2(0.0f, 0.0f), bCos, bSin);
                 rotate(point, bPos, bCos, bSin);
 
-                // Add the point to the manifold.
-                result.push_back(CollisionManifold(normal * -1.0f, point, depth * 0.5f));
+                // Add the point to the manifold, if the depth is positive and non-zero.
+                depth *= 0.5f; if (depth > 0.0f) {result.push_back(CollisionManifold(-1.0f * normal, point, depth));}
                 return result;
 
             }
