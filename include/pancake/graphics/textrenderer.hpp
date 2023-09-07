@@ -54,6 +54,7 @@ namespace Pancake {
             TextRenderer* setText(string text);
             TextRenderer* setFont(Font* font);
             TextRenderer* setColour(vec4 colour);
+            TextRenderer* setColour(float r, float g, float b, float a);
             TextRenderer* setZIndex(int zIndex);
             TextRenderer* setClean();
 

@@ -243,6 +243,10 @@ namespace Pancake {
         return this;
     }
 
+    TextRenderer* TextRenderer::setColour(float r, float g, float b, float a) {
+        return this->setColour(vec4(r, g, b, a));
+    }
+
     TextRenderer* TextRenderer::setZIndex(int zIndex) {
         this->zIndex = zIndex;
         this->lastZIndex = zIndex;
