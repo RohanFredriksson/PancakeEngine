@@ -109,7 +109,7 @@ namespace Pancake {
                     s->setColour(this->colour);
                     s->setZIndex(this->zIndex);
 
-                    vec2 positionOffset = glm::vec2(x + width * 0.5f, y + height * 0.5f) - this->getPosition();
+                    vec2 positionOffset = glm::vec2(x + width * 0.5f, y + height * 0.5f) - this->getPosition() + this->getPositionOffset();
                     vec2 sizeScale = glm::vec2(width, height) / size;
 
                     s->setPositionOffset(positionOffset);
