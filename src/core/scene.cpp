@@ -66,7 +66,7 @@ namespace Pancake {
 
         // Update all the entities.
         deque<int> dead;
-        for (auto const& x : this->entities) {
+        for (auto const& x : this->entities) { // TODO: THIS MAY CRASH THE ENGINE. ADDITION OF NEW ENTITIES IN THE LOOP MODIFIES THE ENTITY HASHMAP.
             Entity* e = x.second;
             if (!e->isDead()) {e->update(dt);} // If the component is not dead, update it.
             else {dead.push_front(e->getId());} // If the component is dead, add its index a clear list.

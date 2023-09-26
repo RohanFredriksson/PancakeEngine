@@ -80,11 +80,9 @@ namespace Pancake {
 
         // Update all the components.
         deque<int> dead;
-        int index = 0;
-        for (Component* c : this->components) {
-            if (!c->isDead()) {c->update(dt);} 
-            else {dead.push_front(index);}
-            index++;
+        for (int i = 0; i < this->components.size(); i++) {
+            if (!this->components[i]->isDead()) {this->components[i]->update(dt);} 
+            else {dead.push_front(i);}
         }
 
         // Delete all dead elements
