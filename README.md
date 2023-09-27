@@ -10,6 +10,7 @@ The engine requires the following dependencies:
 - [glad](https://glad.dav1d.de/)
 - [stb](https://github.com/nothings/stb)
 - [json](https://github.com/nlohmann/json)
+- [imgui](https://github.com/ocornut/imgui)
 - [soloud](https://github.com/jarikomppa/soloud)
 
 ## Getting Started
