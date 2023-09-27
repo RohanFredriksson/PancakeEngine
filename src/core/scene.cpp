@@ -51,7 +51,7 @@ namespace Pancake {
 
     void Scene::start() {
         this->started = true;
-        for (auto const& x : this->entities) {
+        for (auto const& x : this->entities) { // TODO: THIS MAY CRASH THE ENGINE. ADDITION OF NEW ENTITIES IN THE LOOP MODIFIES THE ENTITY HASHMAP.
             Entity* e = x.second;
             e->start();
         }

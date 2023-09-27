@@ -70,9 +70,10 @@ namespace Pancake {
 
     void Entity::start() {
         this->started = true;
-        for (Component* c : this->components) {
-            Window::getScene()->getComponents()->insert({c->getId(), c});
-            c->start();
+        int n = this->components.size();
+        for (int i = 0; i < n; i++) { // New components added by other components starting, will also be started.
+            Window::getScene()->getComponents()->insert({this->components[i]->getId(), this->components[i]});
+            this->components[i]->start();
         }
     }
 
