@@ -19,7 +19,7 @@ namespace Pancake {
 
     class Component {
 
-        protected:
+        private:
 
             int id;
             string type;
@@ -58,7 +58,7 @@ namespace Pancake {
 
     class TransformableComponent : public Component {
 
-        protected:
+        private:
 
             vec2 positionOffset;
             vec2 sizeScale;

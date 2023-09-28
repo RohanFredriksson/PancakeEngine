@@ -15,7 +15,7 @@ namespace Pancake {
 
     class Collider {
 
-        protected:
+        private:
 
             Rigidbody* rigidbody;
             string type;

@@ -192,8 +192,8 @@ namespace Pancake {
     }
 
     float Box::getMomentOfInertia() {
-        if (this->mass <= 0.0f) {return FLT_MAX;}
-        return this->mass * (this->size.x * this->size.x + this->size.y * this->size.y) / 12.0f;
+        if (this->getMass() <= 0.0f) {return FLT_MAX;}
+        return this->getMass() * (this->size.x * this->size.x + this->size.y * this->size.y) / 12.0f;
     }
 
     vec2 Box::getSize() {
@@ -240,8 +240,8 @@ namespace Pancake {
     }
 
     float Circle::getMomentOfInertia() {
-        if (this->mass <= 0.0f) {return FLT_MAX;}
-        return 0.5f * this->mass * this->radius * this->radius;
+        if (this->getMass() <= 0.0f) {return FLT_MAX;}
+        return 0.5f * this->getMass() * this->radius * this->radius;
     }
 
     float Circle::getRadius() {
