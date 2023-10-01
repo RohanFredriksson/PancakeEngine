@@ -11,11 +11,13 @@ namespace Pancake {
         this->font = FontPool::get("default");
         this->colour = vec4(1.0f, 1.0f, 1.0f, 1.0f);
         this->zIndex = 0;
+        this->alignment = LEFT;
 
-        this->lastText = "";
+        this->lastText = this->text;
         this->lastFont = this->font;
-        this->lastColour = vec4(1.0f, 1.0f, 1.0f, 1.0f);
-        this->lastZIndex = 0;
+        this->lastColour = this->colour;
+        this->lastZIndex = this->zIndex;
+        this->lastAlignment = this->alignment;
         this->lastPositionOffset = glm::vec2(0.0f, 0.0f);
         this->lastSizeScale = glm::vec2(0.0f, 0.0f);
         this->lastRotationOffset = 0.0f;
@@ -51,6 +53,11 @@ namespace Pancake {
 
         if (this->zIndex != this->lastZIndex) {
             this->lastZIndex = this->zIndex;
+            this->dirty = true;
+        }
+
+        if (this->alignment != this->lastAlignment) {
+            this->lastAlignment = this->alignment;
             this->dirty = true;
         }
 
@@ -132,7 +139,7 @@ namespace Pancake {
         json j = this->TransformableComponent::serialise();
         j.emplace("text", this->text);
         j.emplace("font", this->font->getFilename());
-
+        
         j.emplace("colour", json::array());
         j["colour"].push_back(this->colour.x);
         j["colour"].push_back(this->colour.y);
@@ -140,6 +147,7 @@ namespace Pancake {
         j["colour"].push_back(this->colour.w);
 
         j.emplace("zIndex", this->zIndex);
+        j.emplace("alignment", this->alignment);
 
         return j;
 
@@ -159,16 +167,19 @@ namespace Pancake {
         if (!j["colour"][3].is_number()) {return false;}
         
         if (!j.contains("zIndex") || !j["zIndex"].is_number_integer()) {return false;}
+        if (!j.contains("alignment") || !j["alignment"].is_number_integer()) {return false;}
 
         string t = j["text"];
         Font* f = FontPool::get(j["font"]);
         vec4 c = vec4(j["colour"][0], j["colour"][1], j["colour"][2], j["colour"][3]);
         int z = j["zIndex"];
+        int a = j["alignment"];
 
         this->setText(t);
         this->setFont(f);
         this->setColour(c);
         this->setZIndex(z);
+        this->setAlignment(a);
 
         return true;
 
@@ -200,6 +211,9 @@ namespace Pancake {
         ImGui::SameLine();
         if (ImGui::DragInt("##ZIndex", &z)) {this->setZIndex(z);}
 
+        // Alignment
+
+
     }
 
     string TextRenderer::getText() {
@@ -216,6 +230,10 @@ namespace Pancake {
 
     int TextRenderer::getZIndex() {
         return this->zIndex;
+    }
+
+    int TextRenderer::getAlignment() {
+        return this->alignment;
     }
 
     bool TextRenderer::isDirty() {
@@ -250,6 +268,14 @@ namespace Pancake {
     TextRenderer* TextRenderer::setZIndex(int zIndex) {
         this->zIndex = zIndex;
         this->lastZIndex = zIndex;
+        this->dirty = true;
+        return this;
+    }
+
+    TextRenderer* TextRenderer::setAlignment(int alignment) {
+        if (alignment < 0 || alignment > 2) {return this;}
+        this->alignment = alignment;
+        this->lastAlignment = alignment;
         this->dirty = true;
         return this;
     }
