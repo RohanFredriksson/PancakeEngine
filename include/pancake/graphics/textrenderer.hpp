@@ -36,6 +36,10 @@ namespace Pancake {
             
             bool dirty;
 
+            void left();
+            void center();
+            void right();
+
         public:
 
             enum Alignment {

@@ -34,6 +34,115 @@ namespace Pancake {
         }
     }
 
+    void TextRenderer::left() {
+
+        vec2 size = this->getSize();
+        vec2 halfSize = size * 0.5f;
+        vec2 min = this->getPosition() - halfSize;
+        float scale = this->font->getScaleForHeight(size.y);
+
+        float x = min.x;
+        float y = min.y;
+
+        const char* text = this->text.c_str();
+        int n = strlen(text);
+        for (int i = 0; i < n; i++) {
+
+            float width = scale * this->font->getAdvance(text[i]);
+            float height = size.y;
+
+            if (text[i] == '\n') {
+                x = min.x;
+                y -= size.y;
+            }
+
+            else {
+
+                if (text[i] != ' ') {
+                    
+                    SpriteRenderer* s = new SpriteRenderer();
+                    s->setSerialisable(false);
+                    s->setImguiable(false);
+                    s->setSprite(this->font->getSprite(text[i]));
+                    s->setColour(this->colour);
+                    s->setZIndex(this->zIndex);
+
+                    vec2 positionOffset = glm::vec2(x + width * 0.5f, y + height * 0.5f) - this->getPosition() + this->getPositionOffset();
+                    vec2 sizeScale = glm::vec2(width, height) / size;
+
+                    s->setPositionOffset(positionOffset);
+                    s->setSizeScale(sizeScale);
+                    s->setRotationOffset(-this->getEntity()->getRotation());
+
+                    this->getEntity()->addComponent(s);
+                    this->components.push_back(s->getId());
+
+                }
+                x += width;
+            }
+
+        }
+
+    }
+
+    void TextRenderer::center() {
+
+    }
+
+    void TextRenderer::right() {
+
+        vec2 size = this->getSize();
+        vec2 halfSize = size * 0.5f;
+        vec2 min = this->getPosition() - halfSize;
+        vec2 max = this->getPosition() + halfSize;
+        float scale = this->font->getScaleForHeight(size.y);
+
+        float x = max.x;
+        float y = min.y;
+
+        const char* text = this->text.c_str();
+        int n = strlen(text);
+        for (int i = n - 1; i >= 0; i--) {
+
+            float width = scale * this->font->getAdvance(text[i]);
+            float height = size.y;
+
+            if (text[i] == '\n') {
+                x = max.x;
+                y -= size.y;
+            }
+
+            else {
+
+                x -= width;
+                if (text[i] != ' ') {
+                    
+                    SpriteRenderer* s = new SpriteRenderer();
+                    s->setSerialisable(false);
+                    s->setImguiable(false);
+                    s->setSprite(this->font->getSprite(text[i]));
+                    s->setColour(this->colour);
+                    s->setZIndex(this->zIndex);
+
+                    vec2 positionOffset = glm::vec2(x + width * 0.5f, y + height * 0.5f) - this->getPosition() + this->getPositionOffset();
+                    vec2 sizeScale = glm::vec2(width, height) / size;
+
+                    s->setPositionOffset(positionOffset);
+                    s->setSizeScale(sizeScale);
+                    s->setRotationOffset(-this->getEntity()->getRotation());
+
+                    this->getEntity()->addComponent(s);
+                    this->components.push_back(s->getId());
+
+                }
+                
+            }
+
+        }
+
+
+    }
+
     void TextRenderer::update(float dt) {
 
         if (this->text != this->lastText) {
@@ -85,53 +194,11 @@ namespace Pancake {
         }
         this->components.clear();
 
-        vec2 size = this->getSize();
-        vec2 halfSize = size * 0.5f;
-        vec2 min = this->getPosition() - halfSize;
-        float scale = this->font->getScaleForHeight(size.y);
-
-        float x = min.x;
-        float y = min.y;
-
-        const char* text = this->text.c_str();
-        n = strlen(text);
-        for (int i = 0; i < n; i++) {
-
-            float width = scale * this->font->getAdvance(text[i]);
-            float height = size.y;
-
-            if (text[i] == '\n') {
-                x = min.x;
-                y -= size.y;
-            }
-
-            else {
-
-                if (text[i] != ' ') {
-                    
-                    SpriteRenderer* s = new SpriteRenderer();
-                    s->setSerialisable(false);
-                    s->setImguiable(false);
-                    s->setSprite(this->font->getSprite(text[i]));
-                    s->setColour(this->colour);
-                    s->setZIndex(this->zIndex);
-
-                    vec2 positionOffset = glm::vec2(x + width * 0.5f, y + height * 0.5f) - this->getPosition() + this->getPositionOffset();
-                    vec2 sizeScale = glm::vec2(width, height) / size;
-
-                    s->setPositionOffset(positionOffset);
-                    s->setSizeScale(sizeScale);
-                    s->setRotationOffset(-this->getEntity()->getRotation());
-
-                    this->getEntity()->addComponent(s);
-                    this->components.push_back(s->getId());
-
-                }
-                x += width;
-            }
-
-        }
+        if      (this->alignment == LEFT)   {this->left();}
+        else if (this->alignment == CENTER) {this->center();}
+        else if (this->alignment == RIGHT)  {this->right();}
         this->dirty = false;
+
     }
 
     json TextRenderer::serialise() {
