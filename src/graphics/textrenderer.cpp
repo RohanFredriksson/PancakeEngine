@@ -1,3 +1,6 @@
+#include <sstream>
+#include <limits>
+
 #include "pancake/graphics/textrenderer.hpp"
 #include "pancake/graphics/spriterenderer.hpp"
 #include "pancake/core/engine.hpp"
@@ -34,113 +37,29 @@ namespace Pancake {
         }
     }
 
-    void TextRenderer::left() {
+    float TextRenderer::width() {
 
-        vec2 size = this->getSize();
-        vec2 halfSize = size * 0.5f;
-        vec2 min = this->getPosition() - halfSize;
-        float scale = this->font->getScaleForHeight(size.y);
+        std::istringstream iss(this->text);
+        std::string line;
+        float scale = this->font->getScaleForHeight(this->getSize().y);
+        float best = std::numeric_limits<float>::max();
 
-        float x = min.x;
-        float y = min.y;
+        while (std::getline(iss, line)) {
 
-        const char* text = this->text.c_str();
-        int n = strlen(text);
-        for (int i = 0; i < n; i++) {
+            // Strip whitespace.
+            size_t left = line.find_first_not_of(" \t\n");
+            size_t right = line.find_first_not_of(" \t\n");
+            if (left == std::string::npos || right == std::string::npos) {line = "";}
+            line = line.substr(left, right - left + 1);
 
-            float width = scale * this->font->getAdvance(text[i]);
-            float height = size.y;
-
-            if (text[i] == '\n') {
-                x = min.x;
-                y -= size.y;
-            }
-
-            else {
-
-                if (text[i] != ' ') {
-                    
-                    SpriteRenderer* s = new SpriteRenderer();
-                    s->setSerialisable(false);
-                    s->setImguiable(false);
-                    s->setSprite(this->font->getSprite(text[i]));
-                    s->setColour(this->colour);
-                    s->setZIndex(this->zIndex);
-
-                    vec2 positionOffset = glm::vec2(x + width * 0.5f, y + height * 0.5f) - this->getPosition() + this->getPositionOffset();
-                    vec2 sizeScale = glm::vec2(width, height) / size;
-
-                    s->setPositionOffset(positionOffset);
-                    s->setSizeScale(sizeScale);
-                    s->setRotationOffset(-this->getEntity()->getRotation());
-
-                    this->getEntity()->addComponent(s);
-                    this->components.push_back(s->getId());
-
-                }
-                x += width;
-            }
+            // Find the width of the current line.
+            float current = 0.0f;
+            for (char character : line) {current += scale * this->font->getAdvance(character);}
+            if (current > best) {best = current;}
 
         }
 
-    }
-
-    void TextRenderer::center() {
-
-    }
-
-    void TextRenderer::right() {
-
-        vec2 size = this->getSize();
-        vec2 halfSize = size * 0.5f;
-        vec2 min = this->getPosition() - halfSize;
-        vec2 max = this->getPosition() + halfSize;
-        float scale = this->font->getScaleForHeight(size.y);
-
-        float x = max.x;
-        float y = min.y;
-
-        const char* text = this->text.c_str();
-        int n = strlen(text);
-        for (int i = n - 1; i >= 0; i--) {
-
-            float width = scale * this->font->getAdvance(text[i]);
-            float height = size.y;
-
-            if (text[i] == '\n') {
-                x = max.x;
-                y -= size.y;
-            }
-
-            else {
-
-                x -= width;
-                if (text[i] != ' ') {
-                    
-                    SpriteRenderer* s = new SpriteRenderer();
-                    s->setSerialisable(false);
-                    s->setImguiable(false);
-                    s->setSprite(this->font->getSprite(text[i]));
-                    s->setColour(this->colour);
-                    s->setZIndex(this->zIndex);
-
-                    vec2 positionOffset = glm::vec2(x + width * 0.5f, y + height * 0.5f) - this->getPosition() + this->getPositionOffset();
-                    vec2 sizeScale = glm::vec2(width, height) / size;
-
-                    s->setPositionOffset(positionOffset);
-                    s->setSizeScale(sizeScale);
-                    s->setRotationOffset(-this->getEntity()->getRotation());
-
-                    this->getEntity()->addComponent(s);
-                    this->components.push_back(s->getId());
-
-                }
-                
-            }
-
-        }
-
-
+        return best;
     }
 
     void TextRenderer::update(float dt) {
@@ -194,11 +113,51 @@ namespace Pancake {
         }
         this->components.clear();
 
-        if      (this->alignment == LEFT)   {this->left();}
-        else if (this->alignment == CENTER) {this->center();}
-        else if (this->alignment == RIGHT)  {this->right();}
-        this->dirty = false;
+        glm::vec2 size = this->getSize();
+        glm::vec2 halfSize = size * 0.5f;
+        glm::vec2 min = this->getPosition() - halfSize;
+        float scale = this->font->getScaleForHeight(size.y);
 
+        float x = min.x;
+        float y = min.y;
+
+        for (char character : this->text) {
+
+            float w = scale * this->font->getAdvance(character);
+            float h = size.y;
+
+            if (character == '\n') {
+                x = min.x;
+                y -= size.y;
+                continue;
+            }
+
+            if (character != ' ') {
+                
+                SpriteRenderer* s = new SpriteRenderer();
+                s->setSerialisable(false);
+                s->setImguiable(false);
+                s->setSprite(this->font->getSprite(character));
+                s->setColour(this->colour);
+                s->setZIndex(this->zIndex);
+
+                vec2 positionOffset = glm::vec2(x + w * 0.5f, y + h * 0.5f) - this->getPosition() + this->getPositionOffset();
+                vec2 sizeScale = glm::vec2(w, h) / size;
+
+                s->setPositionOffset(positionOffset);
+                s->setSizeScale(sizeScale);
+                s->setRotationOffset(-this->getEntity()->getRotation());
+
+                this->getEntity()->addComponent(s);
+                this->components.push_back(s->getId());
+
+            }
+
+            x += w;
+        }
+
+
+        this->dirty = false;
     }
 
     json TextRenderer::serialise() {
@@ -236,9 +195,9 @@ namespace Pancake {
         if (!j.contains("zIndex") || !j["zIndex"].is_number_integer()) {return false;}
         if (!j.contains("alignment") || !j["alignment"].is_number_integer()) {return false;}
 
-        string t = j["text"];
+        std::string t = j["text"];
         Font* f = FontPool::get(j["font"]);
-        vec4 c = vec4(j["colour"][0], j["colour"][1], j["colour"][2], j["colour"][3]);
+        glm::vec4 c = vec4(j["colour"][0], j["colour"][1], j["colour"][2], j["colour"][3]);
         int z = j["zIndex"];
         int a = j["alignment"];
 
@@ -267,7 +226,7 @@ namespace Pancake {
         // Font
 
         // Colour
-        vec4 c = vec4(this->colour.x, this->colour.y, this->colour.z, this->colour.w);
+        glm::vec4 c = glm::vec4(this->colour.x, this->colour.y, this->colour.z, this->colour.w);
         ImGui::Text("Colour:         ");
         ImGui::SameLine();
         if (ImGui::DragFloat4("##Colour", &c[0])) {this->setColour(c);}

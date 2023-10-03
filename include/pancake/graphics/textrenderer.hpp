@@ -7,39 +7,33 @@
 #include "pancake/graphics/font.hpp"
 #include "pancake/graphics/sprite.hpp"
 
-using std::string;
-using glm::vec2;
-using glm::vec4;
-
 namespace Pancake {
 
     class TextRenderer : public TransformableComponent {
 
         private:
 
-            string text;
+            std::string text;
             Font* font;
-            vec4 colour;
+            glm::vec4 colour;
             int zIndex;
             int alignment;
 
-            vector<int> components;
+            std::vector<int> components;
 
-            string lastText;
+            std::string lastText;
             Font* lastFont;
-            vec4 lastColour;
-            vec2 lastPositionOffset;
-            vec2 lastSizeScale;
+            glm::vec4 lastColour;
+            glm::vec2 lastPositionOffset;
+            glm::vec2 lastSizeScale;
             float lastRotationOffset;
             int lastZIndex;
             int lastAlignment;
             
             bool dirty;
 
-            void left();
-            void center();
-            void right();
-
+            float width();
+            
         public:
 
             enum Alignment {
@@ -56,9 +50,9 @@ namespace Pancake {
             void imgui() override;
 
             // Getters
-            string getText();
+            std::string getText();
             Font* getFont();
-            vec4 getColour();
+            glm::vec4 getColour();
             int getZIndex();
             int getAlignment();
             bool isDirty();
@@ -66,7 +60,7 @@ namespace Pancake {
             // Setters
             TextRenderer* setText(string text);
             TextRenderer* setFont(Font* font);
-            TextRenderer* setColour(vec4 colour);
+            TextRenderer* setColour(glm::vec4 colour);
             TextRenderer* setColour(float r, float g, float b, float a);
             TextRenderer* setZIndex(int zIndex);
             TextRenderer* setAlignment(int alignment);
