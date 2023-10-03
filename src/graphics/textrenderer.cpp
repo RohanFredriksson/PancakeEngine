@@ -1,3 +1,4 @@
+#include <algorithm>
 #include <sstream>
 #include <limits>
 
@@ -30,10 +31,10 @@ namespace Pancake {
     }
 
     void TextRenderer::end() {
-        int n = this->components.size();
-        for (int i = 0; i < n; i++) {
-            Component* component = Pancake::getComponent(this->components[i]);
-            if (component != nullptr) {component->kill();}
+        for (SpriteRenderer* s : this->components) {
+            if (s != nullptr) {
+                s->kill();
+            }
         }
     }
 
@@ -42,21 +43,12 @@ namespace Pancake {
         std::istringstream iss(this->text);
         std::string line;
         float scale = this->font->getScaleForHeight(this->getSize().y);
-        float best = std::numeric_limits<float>::max();
+        float best = 0.0f;
 
         while (std::getline(iss, line)) {
-
-            // Strip whitespace.
-            size_t left = line.find_first_not_of(" \t\n");
-            size_t right = line.find_first_not_of(" \t\n");
-            if (left == std::string::npos || right == std::string::npos) {line = "";}
-            line = line.substr(left, right - left + 1);
-
-            // Find the width of the current line.
             float current = 0.0f;
             for (char character : line) {current += scale * this->font->getAdvance(character);}
             if (current > best) {best = current;}
-
         }
 
         return best;
@@ -106,31 +98,33 @@ namespace Pancake {
 
         if (!this->dirty) {return;}
 
-        int n = this->components.size();
-        for (int i = 0; i < n; i++) {
-            Component* component = Pancake::getComponent(this->components[i]);
-            if (component != nullptr) {component->kill();}
-        }
+        for (SpriteRenderer* s : this->components) {s->kill();}
         this->components.clear();
 
         glm::vec2 size = this->getSize();
         glm::vec2 halfSize = size * 0.5f;
         glm::vec2 min = this->getPosition() - halfSize;
+        glm::vec2 max = this->getPosition() + halfSize;
         float scale = this->font->getScaleForHeight(size.y);
 
-        float x = min.x;
+        std::string t = std::string(this->text);
+        if (this->alignment == RIGHT) {std::reverse(t.begin(), t.end());}
+
+        float x = (this->alignment == RIGHT ? max.x : min.x);
         float y = min.y;
 
-        for (char character : this->text) {
+        for (char character : t) {
 
             float w = scale * this->font->getAdvance(character);
             float h = size.y;
 
             if (character == '\n') {
-                x = min.x;
+                x = (this->alignment == RIGHT ? max.x : min.x);
                 y -= size.y;
                 continue;
             }
+
+            if (this->alignment == RIGHT) {x -= w;}
 
             if (character != ' ') {
                 
@@ -149,13 +143,20 @@ namespace Pancake {
                 s->setRotationOffset(-this->getEntity()->getRotation());
 
                 this->getEntity()->addComponent(s);
-                this->components.push_back(s->getId());
+                this->components.push_back(s);
 
             }
 
-            x += w;
+            if (this->alignment != RIGHT) {x += w;}
+
         }
 
+        if (this->alignment == CENTER) {
+            float offset = 0.5f * (this->getSize().x - this->width());
+            for (SpriteRenderer* s : this->components) {
+                s->addPositionOffset(offset, 0.0f);
+            } 
+        }
 
         this->dirty = false;
     }

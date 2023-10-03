@@ -3,9 +3,11 @@
 #include <vector>
 #include <string>
 #include <glm/glm.hpp>
+
 #include "pancake/core/component.hpp"
 #include "pancake/graphics/font.hpp"
 #include "pancake/graphics/sprite.hpp"
+#include "pancake/graphics/spriterenderer.hpp"
 
 namespace Pancake {
 
@@ -19,7 +21,7 @@ namespace Pancake {
             int zIndex;
             int alignment;
 
-            std::vector<int> components;
+            std::vector<SpriteRenderer*> components;
 
             std::string lastText;
             Font* lastFont;
