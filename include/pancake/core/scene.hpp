@@ -1,6 +1,7 @@
 #pragma once
 
 #include <string>
+#include <vector>
 #include <unordered_map>
 #include <nlohmann/json.hpp>
 
@@ -10,8 +11,6 @@
 #include "pancake/graphics/renderer.hpp"
 #include "pancake/physics/world.hpp"
 
-using std::string;
-using std::unordered_map;
 using json = nlohmann::json;
 
 namespace Pancake {
@@ -20,9 +19,11 @@ namespace Pancake {
 
         private:
 
-            string name;
-            unordered_map<int, Entity*> entities;
-            unordered_map<int, Component*> components;
+            std::string name;
+            std::vector<Entity*> entities;
+            std::unordered_map<int, Entity*> entityIndex;
+            std::unordered_map<int, Component*> componentIndex;
+            
             bool started;
             
             Camera* camera;
@@ -52,8 +53,7 @@ namespace Pancake {
             void addEntity(Entity* entity);
             Entity* getEntity(int id);
             Component* getComponent(int id);
-            unordered_map<int, Entity*>* getEntities();
-            unordered_map<int, Component*>* getComponents();
+            std::unordered_map<int, Component*>* getComponents();
 
     };
 

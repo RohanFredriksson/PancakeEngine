@@ -10,10 +10,6 @@
 #include "pancake/asset/assetpool.hpp"
 #include "pancake/asset/spritesheet.hpp"
 
-using std::deque;
-using std::pair;
-using glm::vec2;
-
 namespace Pancake {
 
     Scene::Scene() : Scene("New Scene") {
@@ -23,16 +19,15 @@ namespace Pancake {
     Scene::Scene(string name) {
         this->name = name;
         this->started = false;
-        this->camera = new Camera(vec2(0.0f, 0.0f), vec2(12.0f, 12.0f), 1.0f);
+        this->camera = new Camera(glm::vec2(0.0f, 0.0f), glm::vec2(12.0f, 12.0f), 1.0f);
         this->renderer = new Renderer();
-        this->physics = new World(1.0f / 60.0f, vec2(0.0f, -10.0f));
+        this->physics = new World(1.0f / 60.0f, glm::vec2(0.0f, -10.0f));
     }
 
     Scene::~Scene() {
         
         // Kill all entities.
-        for (auto const& x: this->entities) {
-            Entity* e = x.second;
+        for (Entity* e : this->entities) {
             e->kill();
         }
 
@@ -42,8 +37,7 @@ namespace Pancake {
         delete this->physics;
 
         // Delete all entities and their components.
-        for (auto const& x : this->entities) {
-            Entity* e = x.second;
+        for (Entity* e : this->entities) {
             delete e;
         }
 
@@ -51,9 +45,9 @@ namespace Pancake {
 
     void Scene::start() {
         this->started = true;
-        for (auto const& x : this->entities) { // TODO: THIS MAY CRASH THE ENGINE. ADDITION OF NEW ENTITIES IN THE LOOP MODIFIES THE ENTITY HASHMAP.
-            Entity* e = x.second;
-            e->start();
+        int n = this->entities.size();
+        for (int i = 0; i < n; i++) {
+            this->entities[i]->start();
         }
     }
 
@@ -65,19 +59,18 @@ namespace Pancake {
         this->physics->update(dt); // This will update colliding components
 
         // Update all the entities.
-        deque<int> dead;
-        for (auto const& x : this->entities) { // TODO: THIS MAY CRASH THE ENGINE. ADDITION OF NEW ENTITIES IN THE LOOP MODIFIES THE ENTITY HASHMAP.
-            Entity* e = x.second;
-            if (!e->isDead()) {e->update(dt);} // If the component is not dead, update it.
-            else {dead.push_front(e->getId());} // If the component is dead, add its index a clear list.
+        std::deque<int> dead;
+        for (int i = 0; i < this->entities.size(); i++) {
+            if (!this->entities[i]->isDead()) {this->entities[i]->update(dt);} 
+            else {dead.push_front(i);}
         }
 
         // Delete all dead elements
         for (int i : dead) {
-            auto search = this->entities.find(i); // Find the entity using its id.
-            Entity* e = search->second;
-            delete e; // Delete the entity.
-            this->entities.erase(i);
+            Entity* e = this->entities[i];
+            this->entityIndex.erase(e->getId());
+            this->entities.erase(this->entities.begin() + i);
+            delete e;
         }
 
     }
@@ -99,8 +92,7 @@ namespace Pancake {
         j.emplace("audio", AudioPool::serialise());
 
         j.emplace("entities", json::array());
-        for (auto const& x : this->entities) {
-            Entity* e = x.second;
+        for (Entity* e : this->entities) {
             if (e->isSerialisable() && !e->isDead()) {j["entities"].push_back(e->serialise());}
         }
 
@@ -195,7 +187,7 @@ namespace Pancake {
 
     }
 
-    string Scene::getName() {
+    std::string Scene::getName() {
         return this->name;
     }
 
@@ -216,31 +208,28 @@ namespace Pancake {
     }
 
     void Scene::addEntity(Entity* entity) {
-        pair<int, Entity*> p(entity->getId(), entity);
-        this->entities.insert(p);
+        this->entities.push_back(entity);
+        std::pair<int, Entity*> p(entity->getId(), entity);
+        this->entityIndex.insert(p);
         if (this->started) {entity->start();}
     }
 
     Entity* Scene::getEntity(int id) {
-        auto search = this->entities.find(id);
-        if (search == this->entities.end()) {return nullptr;}
+        auto search = this->entityIndex.find(id);
+        if (search == this->entityIndex.end()) {return nullptr;}
         Entity* e = search->second;
         return e;
     }
 
     Component* Scene::getComponent(int id) {
-        auto search = this->components.find(id);
-        if (search == this->components.end()) {return nullptr;}
+        auto search = this->componentIndex.find(id);
+        if (search == this->componentIndex.end()) {return nullptr;}
         Component* c = search->second;
         return c;
     }
 
-    unordered_map<int, Entity*>* Scene::getEntities() {
-        return &this->entities;
-    }
-
-    unordered_map<int, Component*>* Scene::getComponents() {
-        return &this->components;
+    std::unordered_map<int, Component*>* Scene::getComponents() {
+        return &this->componentIndex;
     }
 
 }
