@@ -34,13 +34,16 @@ namespace Pancake {
 
         public:
 
-            SpatialHashGrid<T>(float grid_size);
+            SpatialHashGrid<T>(float gridSize);            
             int getGridSize();
             void add(T element, float x, float y, float w, float h);
             void update(T element, float x, float y, float w, float h);
             std::unordered_set<T> get(float x, float y, float w, float h);
+            std::unordered_set<T> get(int x, int y);
             void remove(T element);
             void clear();
+            auto begin();
+            auto end();
 
     };
 

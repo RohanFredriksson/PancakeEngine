@@ -74,6 +74,18 @@ namespace Pancake {
     }
 
     template<class T>
+    std::unordered_set<T> SpatialHashGrid<T>::get(int x, int y) {
+
+        std::unordered_set<T> result;
+        std::tuple<int, int> coordinate = {x, y};
+
+        if (!this->grid.contains(coordinate)) {return result;}
+        auto search = this->grid.find(coordinate);
+        return search->second;
+
+    }
+
+    template<class T>
     void SpatialHashGrid<T>::remove(T element) {
 
         auto s0 = this->registrations.find(element);
@@ -94,6 +106,16 @@ namespace Pancake {
     void SpatialHashGrid<T>::clear() {
         this->grid.clear();
         this->registrations.clear();
+    }
+
+    template<class T>
+    auto SpatialHashGrid<T>::begin() {
+        return this->grid.begin();
+    }
+
+    template<class T>
+    auto SpatialHashGrid<T>::end() {
+        return this->grid.end();
     }
 
 }
