@@ -68,8 +68,8 @@ namespace Pancake {
             float getMomentOfInertia() override;
             vec2 getSize();
             vec2 getHalfSize();
-            vec2 getMin();
-            vec2 getMax();
+            vec2 getLocalMin();
+            vec2 getLocalMax();
 
             Box* setSize(vec2 size);
             Box* setSize(float w, float h);

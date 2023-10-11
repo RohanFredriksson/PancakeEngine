@@ -148,14 +148,14 @@ namespace Pancake {
             float aRotation = a->getRotation();
             vec2 aSize = a->getSize();
             vec2 aPos = a->getPosition();
-            vec2 aMin = a->getMin();
-            vec2 aMax = a->getMax();
+            vec2 aMin = a->getLocalMin();
+            vec2 aMax = a->getLocalMax();
 
             float bRotation = b->getRotation();
             vec2 bSize = b->getSize();
             vec2 bPos = b->getPosition();
-            vec2 bMin = b->getMin();
-            vec2 bMax = b->getMax();
+            vec2 bMin = b->getLocalMin();
+            vec2 bMax = b->getLocalMax();
 
             // Cache the trig ratios for rotational use.
             float aCos = cosf(aRotation);
@@ -329,8 +329,8 @@ namespace Pancake {
             // Get the box's properties.
             float bRot = b->getRotation();
             vec2 bPos = b->getPosition();
-            vec2 bMin = b->getMin();
-            vec2 bMax = b->getMax();
+            vec2 bMin = b->getLocalMin();
+            vec2 bMax = b->getLocalMax();
 
             // If we need to rotate, we need to store these variables.
             vec2 offset;

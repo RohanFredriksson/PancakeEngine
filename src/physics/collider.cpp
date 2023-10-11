@@ -204,11 +204,11 @@ namespace Pancake {
         return this->halfSize;
     }
 
-    vec2 Box::getMin() {
+    vec2 Box::getLocalMin() {
         return this->getPosition() - this->halfSize;
     }
 
-    vec2 Box::getMax() {
+    vec2 Box::getLocalMax() {
         return this->getPosition() + this->halfSize;
     }
 
