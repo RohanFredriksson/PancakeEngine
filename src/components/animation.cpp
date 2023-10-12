@@ -3,7 +3,6 @@
 #include "pancake/asset/assetpool.hpp"
 
 #include <utility>
-using std::pair;
 
 namespace Pancake {
 
@@ -324,12 +323,12 @@ namespace Pancake {
 
     void Animation::addTransfer(string from, string to, string trigger)  {
         tuple<string, string> key(from, trigger);
-        pair<tuple<string, string>, string> p(key, to);
+        std::pair<tuple<string, string>, string> p(key, to);
         this->transfers.insert(p);
     }
 
     void Animation::addState(AnimationState* state) {
-        pair<string, AnimationState*> p(state->getTitle(), state);
+        std::pair<string, AnimationState*> p(state->getTitle(), state);
         this->states.insert(p);
     }
 

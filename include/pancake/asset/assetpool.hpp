@@ -1,15 +1,12 @@
 #pragma once
 
-#include <cstring>
+#include <string>
 #include <nlohmann/json.hpp>
 
 #include "pancake/graphics/texture.hpp"
 #include "pancake/graphics/sprite.hpp"
 #include "pancake/graphics/font.hpp"
 #include "pancake/audio/audiowave.hpp"
-
-using std::string;
-using json = nlohmann::json;
 
 namespace Pancake {
 
@@ -26,7 +23,7 @@ namespace Pancake {
         void init();
         void clear();
         void destroy();
-        Texture* get(string name);
+        Texture* get(std::string name);
 
     }
 
@@ -35,9 +32,9 @@ namespace Pancake {
         void init();
         void clear();
         void destroy();
-        json serialise();
-        Sprite* get(string name);
-        bool has(string name);
+        nlohmann::json serialise();
+        Sprite* get(std::string name);
+        bool has(std::string name);
         void put(Sprite* sprite);
 
     }
@@ -47,11 +44,11 @@ namespace Pancake {
         void init();
         void clear();
         void destroy();
-        json serialise();
-        Font* get(string name);
-        Font* get(string name, float size);
-        bool has(string name);
-        bool has(string name, float size);
+        nlohmann::json serialise();
+        Font* get(std::string name);
+        Font* get(std::string name, float size);
+        bool has(std::string name);
+        bool has(std::string name, float size);
 
     }
 
@@ -60,8 +57,8 @@ namespace Pancake {
         void init();
         void clear();
         void destroy();
-        json serialise();
-        AudioWave* get(string name);
+        nlohmann::json serialise();
+        AudioWave* get(std::string name);
 
     }
 

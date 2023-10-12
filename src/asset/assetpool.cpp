@@ -5,31 +5,27 @@
 #include "pancake/asset/assetpool.hpp"
 #include "pancake/asset/spritesheet.hpp"
 
-using std::pair;
-using std::tuple;
-using std::unordered_map;
-
 namespace Pancake {
 
     namespace {
 
         struct TupleHash {
-            size_t operator()(const tuple<string, float>& t) const {
-                return std::hash<string>()(std::get<0>(t)) ^ std::hash<float>()(std::get<1>(t));
+            size_t operator()(const std::tuple<std::string, float>& t) const {
+                return std::hash<std::string>()(std::get<0>(t)) ^ std::hash<float>()(std::get<1>(t));
             }
         };
 
         struct TupleEqual {
-            bool operator()(const tuple<string, float>& lhs, const tuple<string, float>& rhs) const {
+            bool operator()(const std::tuple<std::string, float>& lhs, const std::tuple<std::string, float>& rhs) const {
                 return (std::get<0>(lhs) == std::get<0>(rhs)) && (std::get<1>(lhs) == std::get<1>(rhs));
             }
         };
 
         const float DEFAULT_FONT_SIZE = 64;
-        unordered_map<string, Texture*> textures;
-        unordered_map<string, Sprite*> sprites;
-        unordered_map<tuple<string, float>, Font*, TupleHash, TupleEqual> fonts;
-        unordered_map<string, AudioWave*> audio;
+        std::unordered_map<std::string, Texture*> textures;
+        std::unordered_map<std::string, Sprite*> sprites;
+        std::unordered_map<std::tuple<std::string, float>, Font*, TupleHash, TupleEqual> fonts;
+        std::unordered_map<std::string, AudioWave*> audio;
 
     }
 
@@ -58,7 +54,7 @@ namespace Pancake {
 
         // Add the missing texture to the pool.
         Texture* missing = new Texture();
-        pair<string, Texture*> p("missing", missing);
+        std::pair<std::string, Texture*> p("missing", missing);
         textures.insert(p);
 
     }
@@ -76,7 +72,7 @@ namespace Pancake {
         textures.clear();
     }
 
-    Texture* TexturePool::get(string name) {
+    Texture* TexturePool::get(std::string name) {
 
         // If the texture already exists, return the texture. 
         auto search = textures.find(name);
@@ -84,7 +80,7 @@ namespace Pancake {
 
         // Initialise the texture. If the texture fails to initialise a missing texture will be generated.
         Texture* texture = new Texture(name);
-        pair<string, Texture*> p(texture->getName(), texture);
+        std::pair<std::string, Texture*> p(texture->getName(), texture);
         textures.insert(p);
         return texture;
 
@@ -118,8 +114,8 @@ namespace Pancake {
         sprites.clear();
     }
 
-    json SpritePool::serialise() {
-        json j = json::array();
+    nlohmann::json SpritePool::serialise() {
+        nlohmann::json j = nlohmann::json::array();
         for (auto const& x : sprites) {
             Sprite* s = x.second;
             if (s->isSerialisable()) {j.push_back(s->serialise());}
@@ -127,7 +123,7 @@ namespace Pancake {
         return j;
     }
 
-    Sprite* SpritePool::get(string name) {
+    Sprite* SpritePool::get(std::string name) {
         
         // If the sprite already exists, return the sprite. 
         auto search = sprites.find(name);
@@ -149,14 +145,14 @@ namespace Pancake {
 
     }
 
-    bool SpritePool::has(string name) {
+    bool SpritePool::has(std::string name) {
         auto search = sprites.find(name);
         return search != sprites.end();
     }
 
     void SpritePool::put(Sprite* sprite) {
         if (sprite == nullptr) {return;}
-        pair<string, Sprite*> p(sprite->getName(), sprite);
+        std::pair<std::string, Sprite*> p(sprite->getName(), sprite);
         sprites.insert(p);
     }
 
@@ -165,10 +161,10 @@ namespace Pancake {
         // Add the default font to the pool.
         Font* d = new Font(DEFAULT_FONT_SIZE);
         Font* p = new Font(DEFAULT_FONT_SIZE);
-        tuple<string, float> dt("default", DEFAULT_FONT_SIZE);
-        tuple<string, float> pt("pixellari", DEFAULT_FONT_SIZE);
-        pair<tuple<string, float>, Font*> p1(dt, d);
-        pair<tuple<string, float>, Font*> p2(pt, p);
+        std::tuple<std::string, float> dt("default", DEFAULT_FONT_SIZE);
+        std::tuple<std::string, float> pt("pixellari", DEFAULT_FONT_SIZE);
+        std::pair<std::tuple<std::string, float>, Font*> p1(dt, d);
+        std::pair<std::tuple<std::string, float>, Font*> p2(pt, p);
         fonts.insert(p1);
         fonts.insert(p2);
 
@@ -188,8 +184,8 @@ namespace Pancake {
         fonts.clear();
     }
 
-    json FontPool::serialise() {
-        json j = json::array();
+    nlohmann::json FontPool::serialise() {
+        nlohmann::json j = nlohmann::json::array();
         for (auto const& x : fonts) {
             Font* f = x.second;
             if (f->getFilename() == "default") {continue;}
@@ -199,30 +195,30 @@ namespace Pancake {
         return j;
     }
 
-    Font* FontPool::get(string name) {
+    Font* FontPool::get(std::string name) {
         return FontPool::get(name, DEFAULT_FONT_SIZE);
     }
 
-    Font* FontPool::get(string name, float size) {
+    Font* FontPool::get(std::string name, float size) {
 
-        tuple<string, float> key(name, size);
+        std::tuple<std::string, float> key(name, size);
         auto search = fonts.find(key);
         if (search != fonts.end()) {return search->second;}
 
         // Attempt to initialise the font. If the loading fails, the font will be initialised with the default font.
         Font* font = new Font(name, size);
-        pair<tuple<string, float>, Font*> p(key, font);
+        std::pair<std::tuple<std::string, float>, Font*> p(key, font);
         fonts.insert(p);
         return font;
 
     }
 
-    bool FontPool::has(string name) {
+    bool FontPool::has(std::string name) {
         return FontPool::has(name, DEFAULT_FONT_SIZE);
     }
 
-    bool FontPool::has(string name, float size) {
-        tuple<string, float> key(name, size);
+    bool FontPool::has(std::string name, float size) {
+        std::tuple<std::string, float> key(name, size);
         auto search = fonts.find(key);
         return search != fonts.end();
     }
@@ -244,8 +240,8 @@ namespace Pancake {
         audio.clear();
     }
 
-    json AudioPool::serialise() {
-        json j = json::array();
+    nlohmann::json AudioPool::serialise() {
+        nlohmann::json j = nlohmann::json::array();
         for (auto const& x : audio) {
             AudioWave* a = x.second;
             j.push_back(a->serialise());
@@ -253,7 +249,7 @@ namespace Pancake {
         return j;
     }
 
-    AudioWave* AudioPool::get(string name) {
+    AudioWave* AudioPool::get(std::string name) {
         
         // If the audio already exists, return the audio. 
         auto search = audio.find(name);
@@ -261,7 +257,7 @@ namespace Pancake {
 
         // Attempt to initialise the audio.
         AudioWave* audioWave = new AudioWave(name);
-        pair<string, AudioWave*> p(audioWave->getFilename(), audioWave);
+        std::pair<std::string, AudioWave*> p(audioWave->getFilename(), audioWave);
         audio.insert(p);
         return audioWave;
 
