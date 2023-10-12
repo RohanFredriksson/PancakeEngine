@@ -167,7 +167,6 @@ namespace Pancake {
 
     Box::Box() : Collider("Box")  {
         this->size = glm::vec2(1.0f, 1.0f);
-        this->halfSize = this->size * 0.5f;
     }
 
     json Box::serialise() {
@@ -206,21 +205,8 @@ namespace Pancake {
         return this->size;
     }
 
-    glm::vec2 Box::getHalfSize() {
-        return this->halfSize;
-    }
-
-    glm::vec2 Box::getLocalMin() {
-        return this->getPosition() - this->halfSize;
-    }
-
-    glm::vec2 Box::getLocalMax() {
-        return this->getPosition() + this->halfSize;
-    }
-
     Box* Box::setSize(glm::vec2 size) {
         this->size = size;
-        this->halfSize = size * 0.5f;
         return this;
     }
 

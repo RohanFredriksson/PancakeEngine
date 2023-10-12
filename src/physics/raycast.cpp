@@ -54,8 +54,8 @@ namespace Pancake {
 
             // Perform the ray cast in local space.
             vec2 unitVector = glm::normalize(ray.direction);
-            vec2 min = box->getLocalMin();
-            vec2 max = box->getLocalMax();
+            vec2 min = box->getPosition() - box->getSize() * 0.5f;
+            vec2 max = box->getPosition() + box->getSize() * 0.5f;
 
             float tMin = std::max(std::min(min.x, max.x), std::min(min.y, max.y));
             float tMax = std::min(std::max(min.x, max.x), std::max(min.y, max.y));
