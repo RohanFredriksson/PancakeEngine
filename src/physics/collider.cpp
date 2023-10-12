@@ -1,8 +1,20 @@
+#include <cmath>
 #include <iostream>
 #include <stdexcept>
 #include "pancake/physics/collider.hpp"
 
 namespace Pancake {
+
+    namespace {
+
+        void rotateVector(vec2& vec, vec2 origin, float rCos, float rSin) {
+            float x = vec.x - origin.x;
+            float y = vec.y - origin.y;
+            vec.x = origin.x + ((x * rCos) - (y * rSin));
+            vec.y = origin.y + ((x * rSin) + (y * rCos));
+        }
+
+    }
 
     void Collider::init(std::string type, float mass, glm::vec2 positionOffset, float rotationOffset) {
         this->rigidbody = nullptr;
@@ -201,6 +213,37 @@ namespace Pancake {
         return this->getMass() * (this->size.x * this->size.x + this->size.y * this->size.y) / 12.0f;
     }
 
+    std::pair<glm::vec2, glm::vec2> Box::getBounds() {
+        
+        // Rotate two corners to determine the aabb.
+        glm::vec2 t = this->size * 0.5f; // Top Right Corner
+        glm::vec2 b = t; b.y *= -1.0f; // Bottom Right Corner
+
+        // Required variables to compute rotation.
+        float r = this->getRotation();
+        float c = cosf(r);
+        float s = sinf(r);
+
+        // Rotate the vectors.
+        rotateVector(t, glm::vec2(0.0f, 0.0f), c, s);
+        rotateVector(b, glm::vec2(0.0f, 0.0f), c, s);
+
+        // Find the absolute magnitude.
+        t.x = std::abs(t.x);
+        t.y = std::abs(t.y);
+        b.x = std::abs(b.x);
+        b.y = std::abs(b.y);
+
+        // Take the maximum of t and b.
+        t.x = std::max(t.x, b.x);
+        t.y = std::max(t.y, b.y);
+
+        // Compute the aabb in global space.
+        glm::vec2 p = this->getPosition();
+        return std::make_pair(p - t, p + t);
+
+    }
+
     glm::vec2 Box::getSize() {
         return this->size;
     }
@@ -234,6 +277,11 @@ namespace Pancake {
     float Circle::getMomentOfInertia() {
         if (this->getMass() <= 0.0f) {return FLT_MAX;}
         return 0.5f * this->getMass() * this->radius * this->radius;
+    }
+
+    std::pair<glm::vec2, glm::vec2> Circle::getBounds() {
+        glm::vec2 position = this->getPosition();
+        return std::make_pair(position - glm::vec2(this->radius, this->radius), position + glm::vec2(this->radius, this->radius));
     }
 
     float Circle::getRadius() {

@@ -63,7 +63,7 @@ namespace Pancake {
             bool load(json j) override;
 
             float getMomentOfInertia() override;
-            //std::pair<glm::vec2, glm::vec2> getBounds() override;
+            std::pair<glm::vec2, glm::vec2> getBounds() override;
             glm::vec2 getSize();
 
             Box* setSize(glm::vec2 size);
@@ -86,11 +86,11 @@ namespace Pancake {
             bool load(json j) override;
 
             float getMomentOfInertia() override;
-            //std::pair<glm::vec2, glm::vec2> getBounds() override;
+            std::pair<glm::vec2, glm::vec2> getBounds() override;
             float getRadius();
 
             Circle* setRadius(float radius);
-            
+
     };
 
     REGISTER(Collider, Circle);
