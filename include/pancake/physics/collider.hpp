@@ -1,13 +1,11 @@
 #pragma once
 
 #include <string>
+#include <utility>
 #include <glm/glm.hpp>
 
 #include "pancake/core/component.hpp"
 #include "pancake/core/factory.hpp"
-
-using glm::vec2;
-using std::string;
 
 namespace Pancake {
 
@@ -18,9 +16,9 @@ namespace Pancake {
         private:
 
             Rigidbody* rigidbody;
-            string type;
+            std::string type;
             float mass;
-            vec2 positionOffset;
+            glm::vec2 positionOffset;
             float rotationOffset;
 
             void init(string type, float mass, vec2 positionOffset, float rotationOffset);
@@ -32,12 +30,13 @@ namespace Pancake {
             virtual json serialise();
             virtual bool load(json j);
 
-            string getType();
+            std::string getType();
             Rigidbody* getRigidbody();
             float getMass();
             virtual float getMomentOfInertia();
-            vec2 getPosition();
-            vec2 getPositionOffset();
+            virtual std::pair<glm::vec2, glm::vec2> getBounds();
+            glm::vec2 getPosition();
+            glm::vec2 getPositionOffset();
             float getRotation();
             float getRotationOffset();
             bool hasInfiniteMass();
@@ -45,9 +44,9 @@ namespace Pancake {
             Collider* setRigidbody(Rigidbody* rigidbody);
             Collider* setMass(float mass);
             Collider* setPositionOffset(float x, float y);
-            Collider* setPositionOffset(vec2 offset);
+            Collider* setPositionOffset(glm::vec2 offset);
             Collider* setRotationOffset(float offset);
-            Collider* setPositionOffset(vec2 offset, bool update);
+            Collider* setPositionOffset(glm::vec2 offset, bool update);
             Collider* setRotationOffset(float offset, bool update);
 
     };
@@ -66,12 +65,12 @@ namespace Pancake {
             bool load(json j) override;
 
             float getMomentOfInertia() override;
-            vec2 getSize();
-            vec2 getHalfSize();
-            vec2 getLocalMin();
-            vec2 getLocalMax();
+            glm::vec2 getSize();
+            glm::vec2 getHalfSize();
+            glm::vec2 getLocalMin();
+            glm::vec2 getLocalMax();
 
-            Box* setSize(vec2 size);
+            Box* setSize(glm::vec2 size);
             Box* setSize(float w, float h);
 
     };
@@ -96,12 +95,6 @@ namespace Pancake {
     };
 
     REGISTER(Collider, Circle);
-
-    namespace ColliderFactory {
-        void add(string type, void* (*create)());
-        Collider* create(string type);
-        Collider* load(json);
-    }
 
 }
 

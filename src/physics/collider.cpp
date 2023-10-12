@@ -1,12 +1,10 @@
 #include <iostream>
-#include <unordered_map>
+#include <stdexcept>
 #include "pancake/physics/collider.hpp"
-
-using std::unordered_map;
 
 namespace Pancake {
 
-    void Collider::init(string type, float mass, vec2 positionOffset, float rotationOffset) {
+    void Collider::init(std::string type, float mass, glm::vec2 positionOffset, float rotationOffset) {
         this->rigidbody = nullptr;
         this->type = type;
         this->mass = mass;
@@ -14,8 +12,8 @@ namespace Pancake {
         this->rotationOffset = rotationOffset;
     }
 
-    Collider::Collider(string type) {
-        this->init(type, 0.0f, vec2(0.0f, 0.0f), 0.0f);
+    Collider::Collider(std::string type) {
+        this->init(type, 0.0f, glm::vec2(0.0f, 0.0f), 0.0f);
     }
 
     Collider::~Collider() {
@@ -51,7 +49,7 @@ namespace Pancake {
 
         if (!j.contains("rotationOffset") || !j["rotationOffset"].is_number()) {return false;}
 
-        this->init(j["type"], j["mass"], vec2(j["positionOffset"][0], j["positionOffset"][1]), j["rotationOffset"]);
+        this->init(j["type"], j["mass"], glm::vec2(j["positionOffset"][0], j["positionOffset"][1]), j["rotationOffset"]);
 
         return true;
 
@@ -70,14 +68,22 @@ namespace Pancake {
     }
 
     float Collider::getMomentOfInertia() {
+        std::cout << "ERROR::COLLIDER::GET_MOMENT_OF_INERTIA::UNDEFINED\n";
+        throw std::runtime_error("ERROR::COLLIDER::GET_MOMENT_OF_INERTIA::UNDEFINED");
         return FLT_MAX;
     }
 
-    vec2 Collider::getPosition() {
+    std::pair<glm::vec2, glm::vec2> Collider::getBounds() {
+        std::cout << "ERROR::COLLIDER::GET_MOMENT_OF_GETBOUNDS::UNDEFINED\n";
+        throw std::runtime_error("ERROR::COLLIDER::GET_MOMENT_OF_GETBOUNDS::UNDEFINED");
+        return std::make_pair(glm::vec2(0.0f, 0.0f), glm::vec2(0.0f, 0.0f));
+    }
+
+    glm::vec2 Collider::getPosition() {
         return this->rigidbody->getEntity()->getPosition() + this->positionOffset;
     }
 
-    vec2 Collider::getPositionOffset() {
+    glm::vec2 Collider::getPositionOffset() {
         return this->positionOffset;
     }
 
@@ -112,10 +118,10 @@ namespace Pancake {
     }
 
     Collider* Collider::setPositionOffset(float x, float y) {
-        return this->setPositionOffset(vec2(x, y));
+        return this->setPositionOffset(glm::vec2(x, y));
     }
 
-    Collider* Collider::setPositionOffset(vec2 offset){
+    Collider* Collider::setPositionOffset(glm::vec2 offset){
 
         if (this->rigidbody != nullptr) {
             this->rigidbody->setCentroidDirty();
@@ -137,7 +143,7 @@ namespace Pancake {
         return this;
     }
 
-    Collider* Collider::setPositionOffset(vec2 offset, bool update) {
+    Collider* Collider::setPositionOffset(glm::vec2 offset, bool update) {
 
         if (update && this->rigidbody != nullptr) {
             this->rigidbody->setCentroidDirty();
@@ -160,7 +166,7 @@ namespace Pancake {
     }
 
     Box::Box() : Collider("Box")  {
-        this->size = vec2(1.0f, 1.0f);
+        this->size = glm::vec2(1.0f, 1.0f);
         this->halfSize = this->size * 0.5f;
     }
 
@@ -185,7 +191,7 @@ namespace Pancake {
         if (!j["size"][0].is_number()) {return false;}
         if (!j["size"][1].is_number()) {return false;}
 
-        this->setSize(vec2(j["size"][0], j["size"][1]));
+        this->setSize(glm::vec2(j["size"][0], j["size"][1]));
         
         return true;
 
@@ -196,30 +202,30 @@ namespace Pancake {
         return this->getMass() * (this->size.x * this->size.x + this->size.y * this->size.y) / 12.0f;
     }
 
-    vec2 Box::getSize() {
+    glm::vec2 Box::getSize() {
         return this->size;
     }
 
-    vec2 Box::getHalfSize() {
+    glm::vec2 Box::getHalfSize() {
         return this->halfSize;
     }
 
-    vec2 Box::getLocalMin() {
+    glm::vec2 Box::getLocalMin() {
         return this->getPosition() - this->halfSize;
     }
 
-    vec2 Box::getLocalMax() {
+    glm::vec2 Box::getLocalMax() {
         return this->getPosition() + this->halfSize;
     }
 
-    Box* Box::setSize(vec2 size) {
+    Box* Box::setSize(glm::vec2 size) {
         this->size = size;
         this->halfSize = size * 0.5f;
         return this;
     }
 
     Box* Box::setSize(float w, float h) {
-        return this->setSize(vec2(w, h));
+        return this->setSize(glm::vec2(w, h));
     }
 
     Circle::Circle() : Collider("Circle") {
