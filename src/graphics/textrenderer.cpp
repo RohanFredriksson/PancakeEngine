@@ -4,7 +4,6 @@
 
 #include "pancake/graphics/textrenderer.hpp"
 #include "pancake/graphics/spriterenderer.hpp"
-#include "pancake/core/engine.hpp"
 #include "pancake/asset/assetpool.hpp"
 
 namespace Pancake {

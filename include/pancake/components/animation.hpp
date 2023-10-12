@@ -2,6 +2,7 @@
 
 #include "pancake/core/component.hpp"
 #include "pancake/graphics/sprite.hpp"
+#include "pancake/graphics/spriterenderer.hpp"
 #include <unordered_map>
 #include <string>
 #include <tuple>
@@ -83,7 +84,7 @@ namespace Pancake {
             unordered_map<tuple<string, string>, string, StringTupleHash, StringTupleEqual> transfers;
             AnimationState* currentState;
             string defaultState;
-            int spriterenderer;
+            SpriteRenderer* spriterenderer;
 
             vec4 colour;
             int zIndex;

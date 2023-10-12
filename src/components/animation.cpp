@@ -1,6 +1,5 @@
 #include "pancake/components/animation.hpp"
 #include "pancake/graphics/spriterenderer.hpp"
-#include "pancake/core/engine.hpp"
 #include "pancake/asset/assetpool.hpp"
 
 #include <utility>
@@ -156,7 +155,7 @@ namespace Pancake {
 
         this->currentState = nullptr;
         this->defaultState = "";
-        this->spriterenderer = -1;
+        this->spriterenderer = nullptr;
 
         this->colour = vec4(1.0f, 1.0f, 1.0f, 1.0f);
         this->zIndex = 0;
@@ -171,15 +170,14 @@ namespace Pancake {
 
     void Animation::start() {
 
-        SpriteRenderer* s = new SpriteRenderer(); 
-        s->setSerialisable(false);
-        s->setColour(this->colour);
-        s->setZIndex(this->zIndex);
-        s->setPositionOffset(this->getPositionOffset());
-        s->setSizeScale(this->getSizeScale());
-        s->setRotationOffset(this->getRotationOffset());
-        this->spriterenderer = s->getId();
-        this->getEntity()->addComponent(s);
+        this->spriterenderer = new SpriteRenderer(); 
+        this->spriterenderer->setSerialisable(false);
+        this->spriterenderer->setColour(this->colour);
+        this->spriterenderer->setZIndex(this->zIndex);
+        this->spriterenderer->setPositionOffset(this->getPositionOffset());
+        this->spriterenderer->setSizeScale(this->getSizeScale());
+        this->spriterenderer->setRotationOffset(this->getRotationOffset());
+        this->getEntity()->addComponent(this->spriterenderer);
 
         auto search = this->states.find(this->defaultState);
         if (search != this->states.end()) {this->currentState = search->second;}
@@ -188,38 +186,35 @@ namespace Pancake {
 
     void Animation::end()  {
         this->clearStates();
-        Component* component = Pancake::getComponent(this->spriterenderer);
-        if (component != nullptr) {component->kill();}
+        if (this->spriterenderer != nullptr) {this->spriterenderer->kill();}
     }
 
     void Animation::update(float dt)  {
 
         // Find the spriterenderer component, if not exists, make one.
-        SpriteRenderer* s = dynamic_cast<SpriteRenderer*>(Pancake::getComponent(this->spriterenderer));
-        if (s == nullptr) {
-            s = new SpriteRenderer(); 
-            s->setSerialisable(false);
-            s->setImguiable(false);
-            s->setColour(this->colour);
-            s->setZIndex(this->zIndex);
-            s->setPositionOffset(this->getPositionOffset());
-            s->setSizeScale(this->getSizeScale());
-            s->setRotationOffset(this->getRotationOffset());
-            this->spriterenderer = s->getId();
-            this->getEntity()->addComponent(s);
+        if (this->spriterenderer == nullptr) {
+            this->spriterenderer = new SpriteRenderer(); 
+            this->spriterenderer->setSerialisable(false);
+            this->spriterenderer->setImguiable(false);
+            this->spriterenderer->setColour(this->colour);
+            this->spriterenderer->setZIndex(this->zIndex);
+            this->spriterenderer->setPositionOffset(this->getPositionOffset());
+            this->spriterenderer->setSizeScale(this->getSizeScale());
+            this->spriterenderer->setRotationOffset(this->getRotationOffset());
+            this->getEntity()->addComponent(this->spriterenderer);
         }
 
         // Check if we need to update the spriterenderers attributes since it is linked to this object.
-        if (this->colour != this->lastColour) {this->lastColour = this->colour; s->setColour(this->colour);}
-        if (this->zIndex != this->lastZIndex) {this->lastZIndex = this->zIndex; s->setZIndex(this->zIndex);}
-        if (this->getPositionOffset() != this->lastPositionOffset) {this->lastPositionOffset = this->getPositionOffset(); s->setPositionOffset(this->getPositionOffset());}
-        if (this->getSizeScale() != this->lastSizeScale) {this->lastSizeScale = this->getSizeScale(); s->setSizeScale(this->getSizeScale());}
-        if (this->getRotationOffset() != this->lastRotationOffset) {this->lastRotationOffset = this->getRotationOffset(); s->setRotationOffset(this->getRotationOffset());}
+        if (this->colour != this->lastColour) {this->lastColour = this->colour; this->spriterenderer->setColour(this->colour);}
+        if (this->zIndex != this->lastZIndex) {this->lastZIndex = this->zIndex; this->spriterenderer->setZIndex(this->zIndex);}
+        if (this->getPositionOffset() != this->lastPositionOffset) {this->lastPositionOffset = this->getPositionOffset(); this->spriterenderer->setPositionOffset(this->getPositionOffset());}
+        if (this->getSizeScale() != this->lastSizeScale) {this->lastSizeScale = this->getSizeScale(); this->spriterenderer->setSizeScale(this->getSizeScale());}
+        if (this->getRotationOffset() != this->lastRotationOffset) {this->lastRotationOffset = this->getRotationOffset(); this->spriterenderer->setRotationOffset(this->getRotationOffset());}
 
         // Update the current state.
         if (this->currentState == nullptr) {return;}
         this->currentState->update(dt);
-        s->setSprite(this->currentState->getCurrentSprite());
+        this->spriterenderer->setSprite(this->currentState->getCurrentSprite());
 
     }
 
