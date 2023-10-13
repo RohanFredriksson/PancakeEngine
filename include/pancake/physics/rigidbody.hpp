@@ -1,11 +1,9 @@
 #pragma once
 
 #include <vector>
+#include <utility>
 #include <glm/glm.hpp>
 #include "pancake/core/component.hpp"
-
-using std::vector;
-using glm::vec2;
 
 namespace Pancake {
 
@@ -15,20 +13,22 @@ namespace Pancake {
 
         private:
 
-            vector<Collider*> colliders;
+            std::vector<Collider*> colliders;
 
-            vec2 force;
-            vec2 velocity;
+            glm::vec2 force;
+            glm::vec2 velocity;
             float torque;
             float angularVelocity;
 
             float restitution;
             float friction;
 
-            vec2 centroid;
+            glm::vec2 centroid;
+            std::pair<glm::vec2, glm::vec2> bounds;
             float mass;
             float moment;
             bool centroidDirty;
+            bool boundsDirty;
             bool massDirty;
             bool momentDirty;
             
@@ -44,9 +44,10 @@ namespace Pancake {
             json serialise() override;
             bool load(json j) override;
 
-            vector<Collider*> getColliders();
-            vec2 getVelocity();
-            vec2 getCentroid();
+            std::vector<Collider*> getColliders();
+            glm::vec2 getVelocity();
+            glm::vec2 getCentroid();
+            std::pair<glm::vec2, glm::vec2> getBounds();
             float getAngularVelocity();
             float getRestitution();
             float getFriction();
@@ -59,16 +60,16 @@ namespace Pancake {
             bool hasInfiniteMass();
 
             Rigidbody* addCollider(Collider* collider);
-            Rigidbody* addColliders(vector<Collider*> colliders);
+            Rigidbody* addColliders(std::vector<Collider*> colliders);
             Rigidbody* removeCollider(Collider* collider);
-            Rigidbody* removeColliders(vector<Collider*> colliders);
+            Rigidbody* removeColliders(std::vector<Collider*> colliders);
             Rigidbody* setCollider(Collider* collider);
-            Rigidbody* setColliders(vector<Collider*> colliders);
+            Rigidbody* setColliders(std::vector<Collider*> colliders);
             Rigidbody* clearColliders();
 
-            Rigidbody* setForce(vec2 force);
+            Rigidbody* setForce(glm::vec2 force);
             Rigidbody* setForce(float x, float y);
-            Rigidbody* setVelocity(vec2 velocity);
+            Rigidbody* setVelocity(glm::vec2 velocity);
             Rigidbody* setVelocity(float x, float y);
             Rigidbody* setTorque(float torque);
             Rigidbody* setAngularVelocity(float angularVelocity);
@@ -77,16 +78,17 @@ namespace Pancake {
             Rigidbody* setSensor(bool sensor);
             Rigidbody* setFixedOrientation(bool orientation);
             Rigidbody* setCentroidDirty();
+            Rigidbody* setBoundsDirty();
             Rigidbody* setMassDirty();
             Rigidbody* setMomentDirty();
 
             void physicsUpdate(float dt);
 
             void clearAccumulators();
-            void addVelocity(vec2 velocity);
+            void addVelocity(glm::vec2 velocity);
             void addVelocity(float x, float y);
             void addAngularVelocity(float angularVelocity);
-            void addForce(vec2 force);
+            void addForce(glm::vec2 force);
             void addForce(float x, float y);
             void addTorque(float torque);
             void zeroForces();

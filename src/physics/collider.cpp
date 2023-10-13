@@ -137,6 +137,7 @@ namespace Pancake {
 
         if (this->rigidbody != nullptr) {
             this->rigidbody->setCentroidDirty();
+            this->rigidbody->setBoundsDirty();
             this->rigidbody->setMomentDirty();
         }
 
@@ -148,6 +149,7 @@ namespace Pancake {
 
         if (this->rigidbody != nullptr) {
             this->rigidbody->setCentroidDirty();
+            this->rigidbody->setBoundsDirty();
             this->rigidbody->setMomentDirty();
         }
 
@@ -159,6 +161,7 @@ namespace Pancake {
 
         if (update && this->rigidbody != nullptr) {
             this->rigidbody->setCentroidDirty();
+            this->rigidbody->setBoundsDirty();
             this->rigidbody->setMomentDirty();
         }
 
@@ -170,6 +173,7 @@ namespace Pancake {
 
         if (update && this->rigidbody != nullptr) {
             this->rigidbody->setCentroidDirty();
+            this->rigidbody->setBoundsDirty();
             this->rigidbody->setMomentDirty();
         }
 
@@ -238,9 +242,9 @@ namespace Pancake {
         t.x = std::max(t.x, b.x);
         t.y = std::max(t.y, b.y);
 
-        // Compute the aabb in global space.
-        glm::vec2 p = this->getPosition();
-        return std::make_pair(p - t, p + t);
+        // Compute the aabb in the rigidbody's local space.
+        glm::vec2 offset = this->getPositionOffset();
+        return std::make_pair(offset - t, offset + t);
 
     }
 
@@ -249,8 +253,15 @@ namespace Pancake {
     }
 
     Box* Box::setSize(glm::vec2 size) {
+
+        if (this->getRigidbody() != nullptr) {
+            this->getRigidbody()->setBoundsDirty();
+            this->getRigidbody()->setMomentDirty();
+        }
+
         this->size = size;
         return this;
+
     }
 
     Box* Box::setSize(float w, float h) {
@@ -280,8 +291,8 @@ namespace Pancake {
     }
 
     std::pair<glm::vec2, glm::vec2> Circle::getBounds() {
-        glm::vec2 position = this->getPosition();
-        return std::make_pair(position - glm::vec2(this->radius, this->radius), position + glm::vec2(this->radius, this->radius));
+        glm::vec2 offset = this->getPositionOffset();
+        return std::make_pair(offset - glm::vec2(this->radius, this->radius), offset + glm::vec2(this->radius, this->radius));
     }
 
     float Circle::getRadius() {
@@ -289,8 +300,15 @@ namespace Pancake {
     }
 
     Circle* Circle::setRadius(float radius) {
+
+        if (this->getRigidbody() != nullptr) {
+            this->getRigidbody()->setBoundsDirty();
+            this->getRigidbody()->setMomentDirty();
+        }
+
         this->radius = radius;
         return this;
+
     }
 
 }

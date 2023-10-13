@@ -8,18 +8,20 @@ namespace Pancake {
 
     Rigidbody::Rigidbody() : Component("Rigidbody") {
 
-        this->force = vec2(0.0f, 0.0f);
-        this->velocity = vec2(0.0f, 0.0f);
+        this->force = glm::vec2(0.0f, 0.0f);
+        this->velocity = glm::vec2(0.0f, 0.0f);
         this->torque = 0.0f;
         this->angularVelocity = 0.0f;
 
         this->restitution = 1.0f;
         this->friction = 0.0f;
 
-        this->centroid = vec2(0.0f, 0.0f);
+        this->centroid = glm::vec2(0.0f, 0.0f);
+        this->bounds = std::make_pair(glm::vec2(0.0f, 0.0f), glm::vec2(0.0f, 0.0f));
         this->mass = 0.0f;
         this->moment = 0.0f;
         this->centroidDirty = true;
+        this->boundsDirty = true;
         this->massDirty = true;
         this->momentDirty = true;
 
@@ -85,8 +87,8 @@ namespace Pancake {
         if (!j.contains("sensor") || !j["sensor"].is_boolean()) {return false;}
         if (!j.contains("fixedOrientation") || !j["fixedOrientation"].is_boolean()) {return false;}
 
-        this->setForce(vec2(j["force"][0], j["force"][1]));
-        this->setVelocity(vec2(j["velocity"][0], j["velocity"][1]));
+        this->setForce(glm::vec2(j["force"][0], j["force"][1]));
+        this->setVelocity(glm::vec2(j["velocity"][0], j["velocity"][1]));
         this->setTorque(j["torque"]);
         this->setAngularVelocity(j["angularVelocity"]);
         this->setRestitution(j["restitution"]);
@@ -110,16 +112,16 @@ namespace Pancake {
 
     }
 
-    vector<Collider*> Rigidbody::getColliders() {
+    std::vector<Collider*> Rigidbody::getColliders() {
         return this->colliders;
     }
 
-    vec2 Rigidbody::getVelocity() {
-        if (this->hasInfiniteMass()) {return vec2(0.0f, 0.0f);}
+    glm::vec2 Rigidbody::getVelocity() {
+        if (this->hasInfiniteMass()) {return glm::vec2(0.0f, 0.0f);}
         return this->velocity;
     }
 
-    vec2 Rigidbody::getCentroid() {
+    glm::vec2 Rigidbody::getCentroid() {
 
         if (!this->centroidDirty) {return this->getEntity()->getPosition() + this->centroid;}
 
@@ -130,12 +132,12 @@ namespace Pancake {
                 std::cout << "ERROR::RIGIDBODY::GET_CENTROID::NO_COLLIDERS\n";
             }
 
-            vec2 points = vec2(0.0f, 0.0f);
+            glm::vec2 points = glm::vec2(0.0f, 0.0f);
             for (Collider* c : this->colliders) {
                 points += c->getPositionOffset();
             }
 
-            vec2 average = points * (1.0f / this->colliders.size());
+            glm::vec2 average = points * (1.0f / this->colliders.size());
             this->centroid = average;
             this->centroidDirty = false;
             return this->getEntity()->getPosition() + average;
@@ -145,7 +147,7 @@ namespace Pancake {
         else {
             
             float mass = 0.0f;
-            vec2 weighted = vec2(0.0f, 0.0f);
+            glm::vec2 weighted = glm::vec2(0.0f, 0.0f);
             
             for (Collider* c : this->colliders) {
                 mass += c->getMass();
@@ -156,6 +158,33 @@ namespace Pancake {
             this->centroidDirty = false;
             return this->getEntity()->getPosition() + this->centroid;
         }
+
+    }
+
+    std::pair<glm::vec2, glm::vec2> Rigidbody::getBounds() {
+
+        if (!this->boundsDirty) {return this->bounds;}
+
+        glm::vec2 first = glm::vec2(0.0f, 0.0f);
+        glm::vec2 second = glm::vec2(0.0f, 0.0f);
+
+        for (Collider* c : this->colliders) {
+
+            std::pair<glm::vec2, glm::vec2> bounds = c->getBounds();
+            glm::vec2 min = bounds.first;
+            glm::vec2 max = bounds.second;
+
+            first.x = std::min(first.x, min.x);
+            first.y = std::min(first.y, min.y);
+            second.x = std::max(second.x, max.x);
+            second.y = std::max(second.y, max.y);
+
+        }
+
+        glm::vec2 position = this->getEntity()->getPosition();
+        this->bounds = std::make_pair(position + first, position + second);
+        this->boundsDirty = false;
+        return this->bounds;
 
     }
 
@@ -211,9 +240,9 @@ namespace Pancake {
         
         float moment = 0.0f;
         float mass = this->getMass();
-        vec2 centroid = this->getCentroid();
+        glm::vec2 centroid = this->getCentroid();
         for (Collider* c : this->colliders) {
-            vec2 r = c->getPosition() - centroid;
+            glm::vec2 r = c->getPosition() - centroid;
             float rr = r.x * r.x + r.y * r.y;
             moment += c->getMomentOfInertia() + rr * mass;
         }
@@ -241,13 +270,14 @@ namespace Pancake {
             this->colliders.push_back(collider);
             collider->setRigidbody(this);
             this->centroidDirty = true;
+            this->boundsDirty = true;
             this->massDirty = true;
             this->momentDirty = true;
         }
         return this;
     }
 
-    Rigidbody* Rigidbody::addColliders(vector<Collider*> colliders) {
+    Rigidbody* Rigidbody::addColliders(std::vector<Collider*> colliders) {
         int n = colliders.size();
         for (int i = 0; i < n; i++) {
             this->addCollider(colliders[i]);
@@ -262,6 +292,7 @@ namespace Pancake {
                 this->colliders.erase(this->colliders.begin() + i);
                 delete collider;
                 this->centroidDirty = true;
+                this->boundsDirty = true;
                 this->massDirty = true;
                 this->momentDirty = true;
                 break;
@@ -270,7 +301,7 @@ namespace Pancake {
         return this;
     }
 
-    Rigidbody* Rigidbody::removeColliders(vector<Collider*> colliders) {
+    Rigidbody* Rigidbody::removeColliders(std::vector<Collider*> colliders) {
         int n = colliders.size();
         for (int i = 0; i < n; i++) {
             this->removeCollider(colliders[i]);
@@ -284,7 +315,7 @@ namespace Pancake {
         return this;
     }
 
-    Rigidbody* Rigidbody::setColliders(vector<Collider*> colliders) {
+    Rigidbody* Rigidbody::setColliders(std::vector<Collider*> colliders) {
         this->clearColliders();
         this->addColliders(colliders);
         return this;
@@ -297,29 +328,30 @@ namespace Pancake {
         }
         this->colliders.clear();
         this->centroidDirty = true;
+        this->boundsDirty = true;
         this->massDirty = true;
         this->momentDirty = true;
         return this;
     }
 
-    Rigidbody* Rigidbody::setForce(vec2 force) {
+    Rigidbody* Rigidbody::setForce(glm::vec2 force) {
         if (this->hasInfiniteMass()) {return this;}
         this->force = force;
         return this;
     }
 
     Rigidbody* Rigidbody::setForce(float x, float y) {
-        return this->setForce(vec2(x, y));
+        return this->setForce(glm::vec2(x, y));
     }
 
-    Rigidbody* Rigidbody::setVelocity(vec2 velocity) {
+    Rigidbody* Rigidbody::setVelocity(glm::vec2 velocity) {
         if (this->hasInfiniteMass()) {return this;}
         this->velocity = velocity;
         return this;
     }
 
     Rigidbody* Rigidbody::setVelocity(float x, float y) {
-        return this->setVelocity(vec2(x, y));
+        return this->setVelocity(glm::vec2(x, y));
     }
 
     Rigidbody* Rigidbody::setTorque(float torque) {
@@ -363,6 +395,11 @@ namespace Pancake {
         return this;
     }
 
+    Rigidbody* Rigidbody::setBoundsDirty() {
+        this->boundsDirty = true;
+        return this;
+    }
+
     Rigidbody* Rigidbody::setMassDirty() {
         this->massDirty = true;
         return this;
@@ -386,7 +423,7 @@ namespace Pancake {
 
         // Update linear
         this->velocity += this->force * (dt / this->getMass());
-        vec2 displacement = this->velocity * dt;
+        glm::vec2 displacement = this->velocity * dt;
         this->getEntity()->addPosition(displacement);
 
         // Update the rotation if allowed to.
@@ -401,10 +438,10 @@ namespace Pancake {
             float rSin = sinf(rotation);
 
             for (Collider* c : this->colliders) {
-                vec2 offset = c->getPositionOffset();
+                glm::vec2 offset = c->getPositionOffset();
                 float x = (offset.x * rCos) - (offset.y * rSin);
                 float y = (offset.x * rSin) + (offset.y * rCos);
-                c->setPositionOffset(vec2(x, y), false);
+                c->setPositionOffset(glm::vec2(x, y), false);
             }
 
             // Note: There is no need to update collider rotation offsets since they are updated in the entity.
@@ -415,13 +452,13 @@ namespace Pancake {
         
     }
 
-    void Rigidbody::addVelocity(vec2 velocity) {
+    void Rigidbody::addVelocity(glm::vec2 velocity) {
         if (this->hasInfiniteMass()) {return;}
         this->velocity += velocity;
     }
 
     void Rigidbody::addVelocity(float x, float y) {
-        this->addVelocity(vec2(x, y));
+        this->addVelocity(glm::vec2(x, y));
     }
 
     void Rigidbody::addAngularVelocity(float angularVelocity) {
@@ -429,13 +466,13 @@ namespace Pancake {
         this->angularVelocity += angularVelocity;
     }
 
-    void Rigidbody::addForce(vec2 force) {
+    void Rigidbody::addForce(glm::vec2 force) {
         if (this->hasInfiniteMass()) {return;}
         this->force += force;
     }
 
     void Rigidbody::addForce(float x, float y) {
-        this->addForce(vec2(x, y));
+        this->addForce(glm::vec2(x, y));
     }
 
     void Rigidbody::zeroForces() {
