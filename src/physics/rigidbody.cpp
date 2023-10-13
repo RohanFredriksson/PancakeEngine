@@ -458,15 +458,17 @@ namespace Pancake {
         this->clearAccumulators();
 
         // Check if there has been a changed in the bounding box.
-        bool changed = (this->lastPosition != this->getEntity()->getPosition()) || 
-                       (this->lastRotation != this->getEntity()->getRotation()) ||
-                       (displacement != glm::vec2(0.0f, 0.0f)) || 
-                       (rotation != 0.0f) || 
-                       (this->boundsDirty);
+        this->boundsDirty = (this->lastPosition != this->getEntity()->getPosition()) || 
+                            (this->lastRotation != this->getEntity()->getRotation()) ||
+                            (displacement != glm::vec2(0.0f, 0.0f)) || 
+                            (rotation != 0.0f) || 
+                            (this->boundsDirty);
 
         // If the bounding box has changed we need to update the spatial hash grid.
-        // TODO
-
+        if (this->boundsDirty) {
+            // TODO
+        }
+    
         // Update last position and rotation
         this->lastPosition = this->getEntity()->getPosition();
         this->lastRotation = this->getEntity()->getRotation();

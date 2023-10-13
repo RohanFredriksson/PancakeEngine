@@ -17,6 +17,8 @@ namespace Pancake {
         void drawLine(vec2 from, vec2 to, vec3 colour);
         void drawLine(vec2 from, vec2 to);
 
+        void drawAABB(vec2 min, vec2 max, vec3 colour, int lifetime);
+
         void drawBox(vec2 centre, vec2 dimensions, float rotation, vec3 colour, int lifetime);
         void drawBox(vec2 centre, vec2 dimensions, float rotation, vec3 colour);
         void drawBox(vec2 centre, vec2 dimensions, float rotation);

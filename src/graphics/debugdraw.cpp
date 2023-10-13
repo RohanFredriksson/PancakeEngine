@@ -12,7 +12,7 @@ namespace Pancake {
 
     namespace {
 
-        const int MAX_LINES = 5000;
+        const int MAX_LINES = 10000;
         const int VERTEX_ARRAY_LENGTH = MAX_LINES * 6 * 2;
         const int CIRCLE_POINTS = 20;
 
@@ -180,6 +180,13 @@ namespace Pancake {
             Line* line = new Line(from, to, colour, lifetime);
             lines.push_back(line);
 
+        }
+
+        void drawAABB(vec2 min, vec2 max, vec3 colour, int lifetime) {
+            drawLine(glm::vec2(min.x, min.y), glm::vec2(min.x, max.y), colour, lifetime);
+            drawLine(glm::vec2(min.x, min.y), glm::vec2(max.x, min.y), colour, lifetime);
+            drawLine(glm::vec2(max.x, max.y), glm::vec2(min.x, max.y), colour, lifetime);
+            drawLine(glm::vec2(max.x, max.y), glm::vec2(max.x, min.y), colour, lifetime);
         }
 
         void drawBox(vec2 centre, vec2 dimensions, float rotation, vec3 colour, int lifetime) {

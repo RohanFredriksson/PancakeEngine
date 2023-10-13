@@ -291,12 +291,15 @@ namespace Pancake {
         for (int i = 0; i < n; i++) {
 
             Rigidbody* rigidbody = this->rigidbodies[i];
+            std::pair<glm::vec2, glm::vec2> bounds = rigidbody->getBounds();
+            DebugDraw::drawAABB(bounds.first, bounds.second, vec3(0.5f, 0.0f, 1.0f), 1);
+
+            /*
             std::vector<Collider*> colliders = rigidbody->getColliders();
-        
             for (int j = 0; j < colliders.size(); j++) {
 
                 Collider* collider = colliders[j];
-
+                
                 glm::vec2 position = collider->getPosition();
                 if (dynamic_cast<Box*>(collider) != nullptr) {
                     Box* box = (Box*) collider;
@@ -309,6 +312,7 @@ namespace Pancake {
                 }
 
             }
+            */
 
         }
 
