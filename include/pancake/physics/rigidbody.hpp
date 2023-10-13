@@ -23,6 +23,9 @@ namespace Pancake {
             float restitution;
             float friction;
 
+            glm::vec2 lastPosition;
+            float lastRotation;
+
             glm::vec2 centroid;
             std::pair<glm::vec2, glm::vec2> bounds;
             float mass;

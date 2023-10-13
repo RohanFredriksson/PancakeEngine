@@ -16,6 +16,9 @@ namespace Pancake {
         this->restitution = 1.0f;
         this->friction = 0.0f;
 
+        this->lastPosition = glm::vec2(0.0f, 0.0f);
+        this->lastRotation = 0.0f;
+
         this->centroid = glm::vec2(0.0f, 0.0f);
         this->bounds = std::make_pair(glm::vec2(0.0f, 0.0f), glm::vec2(0.0f, 0.0f));
         this->mass = 0.0f;
@@ -421,16 +424,20 @@ namespace Pancake {
         // Do not do a physics update if static.
         if (this->hasInfiniteMass()) {return;}
 
+        // Required variables
+        glm::vec2 displacement = glm::vec2(0.0f, 0.0f);
+        float rotation = 0.0f;
+
         // Update linear
         this->velocity += this->force * (dt / this->getMass());
-        glm::vec2 displacement = this->velocity * dt;
+        displacement = this->velocity * dt;
         this->getEntity()->addPosition(displacement);
 
         // Update the rotation if allowed to.
         if (!this->fixedOrientation) {
 
             this->angularVelocity += this->torque * (dt / this->getMass());
-            float rotation = this->angularVelocity * dt;
+            rotation = this->angularVelocity * dt;
             this->getEntity()->addRotationAround(rotation, this->getCentroid());
 
             // Update all collider position offsets.
@@ -449,7 +456,21 @@ namespace Pancake {
 
         // Clear the force and torque accumulators.
         this->clearAccumulators();
-        
+
+        // Check if there has been a changed in the bounding box.
+        bool changed = (this->lastPosition != this->getEntity()->getPosition()) || 
+                       (this->lastRotation != this->getEntity()->getRotation()) ||
+                       (displacement != glm::vec2(0.0f, 0.0f)) || 
+                       (rotation != 0.0f) || 
+                       (this->boundsDirty);
+
+        // If the bounding box has changed we need to update the spatial hash grid.
+        // TODO
+
+        // Update last position and rotation
+        this->lastPosition = this->getEntity()->getPosition();
+        this->lastRotation = this->getEntity()->getRotation();
+
     }
 
     void Rigidbody::addVelocity(glm::vec2 velocity) {
