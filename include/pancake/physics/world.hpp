@@ -56,6 +56,8 @@ namespace Pancake {
             RaycastResult raycast(Ray ray);
 
             glm::vec2 getGravity();
+            SpatialHashGrid<Rigidbody*>* getGrid();
+
             void setGravity(glm::vec2 gravity);
 
     };

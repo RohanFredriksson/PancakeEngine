@@ -365,6 +365,10 @@ namespace Pancake {
         return this->gravity->getGravity();
     }
 
+    SpatialHashGrid<Rigidbody*>* World::getGrid() {
+        return this->grid;
+    }
+
     void World::setGravity(glm::vec2 gravity) {
         this->gravity->setGravity(gravity);
     }
