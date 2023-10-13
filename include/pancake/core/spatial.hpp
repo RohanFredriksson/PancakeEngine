@@ -5,6 +5,8 @@
 #include <unordered_map>
 #include <unordered_set>
 
+#include <glm/glm.hpp>
+
 namespace Pancake {
 
     struct IntTupleHash {
@@ -37,7 +39,9 @@ namespace Pancake {
             SpatialHashGrid<T>(float gridSize);            
             int getGridSize();
             void add(T element, float x, float y, float w, float h);
+            void add(T element, glm::vec2 min, glm::vec2 max);
             void update(T element, float x, float y, float w, float h);
+            void update(T element, glm::vec2 min, glm::vec2 max);
             std::unordered_set<T> get(float x, float y, float w, float h);
             std::unordered_set<T> get(int x, int y);
             void remove(T element);

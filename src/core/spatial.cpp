@@ -43,8 +43,22 @@ namespace Pancake {
     }
 
     template<class T>
+    void SpatialHashGrid<T>::add(T element, glm::vec2 min, glm::vec2 max) {
+        float x = 0.5f * (min.x + max.x);
+        float y = 0.5f * (min.y + max.y);
+        float w = max.x - min.x;
+        float h = max.y - min.y;
+        this->add(element, x, y, w, h);
+    }
+
+    template<class T>
     void SpatialHashGrid<T>::update(T element, float x, float y, float w, float h) {
         this->add(element, x, y, w, h);
+    }
+
+    template<class T>
+    void SpatialHashGrid<T>::update(T element, glm::vec2 min, glm::vec2 max) {
+        this->add(element, min, max);
     }
 
     template<class T>
