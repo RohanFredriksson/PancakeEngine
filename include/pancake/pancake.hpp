@@ -20,6 +20,7 @@
 #include "pancake/core/entity.hpp"
 #include "pancake/core/listener.hpp"
 #include "pancake/core/scene.hpp"
+#include "pancake/core/spatial.hpp"
 #include "pancake/core/window.hpp"
 
 #include "pancake/graphics/debugdraw.hpp"

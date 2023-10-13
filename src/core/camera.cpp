@@ -2,8 +2,6 @@
 #include "pancake/core/window.hpp"
 #include <glm/gtx/transform.hpp>
 
-using glm::vec3;
-
 namespace Pancake {
 
     Camera::Camera(vec2 position, vec2 projectionSize, float zoom) {
@@ -190,9 +188,9 @@ namespace Pancake {
 
     mat4 Camera::getView() {
 
-        vec3 cameraPosition(this->position.x - this->projectionSize.x / (2 * this->zoom), this->position.y - this->projectionSize.y / (2 * this->zoom), 20.0f);
-        vec3 cameraFront(this->position.x - this->projectionSize.x / (2 * this->zoom), this->position.y - this->projectionSize.y / (2 * this->zoom), -1.0f);
-        vec3 cameraUp(0.0f, 1.0f, 0.0f);
+        glm::vec3 cameraPosition(this->position.x - this->projectionSize.x / (2 * this->zoom), this->position.y - this->projectionSize.y / (2 * this->zoom), 20.0f);
+        glm::vec3 cameraFront(this->position.x - this->projectionSize.x / (2 * this->zoom), this->position.y - this->projectionSize.y / (2 * this->zoom), -1.0f);
+        glm::vec3 cameraUp(0.0f, 1.0f, 0.0f);
 
         this->view = glm::lookAt(cameraPosition, cameraFront, cameraUp);
         this->inverseView = glm::inverse(this->view);
