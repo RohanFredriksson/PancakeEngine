@@ -8,9 +8,6 @@
 #include "pancake/physics/collision.hpp"
 #include "pancake/physics/raycast.hpp"
 
-using std::vector;
-using json = nlohmann::json;
-
 namespace Pancake {
 
     class CollisionListener {
@@ -23,10 +20,10 @@ namespace Pancake {
 
             ForceRegistry registry;
             Gravity* gravity;
-            vector<Rigidbody*> rigidbodies;
-            vector<Rigidbody*> bodies1;
-            vector<Rigidbody*> bodies2;
-            vector<vector<CollisionManifold>> collisions;
+            std::vector<Rigidbody*> rigidbodies;
+            std::vector<Rigidbody*> bodies1;
+            std::vector<Rigidbody*> bodies2;
+            std::vector<std::vector<CollisionManifold>> collisions;
             float timeStep;
             float time;
 
@@ -35,19 +32,19 @@ namespace Pancake {
 
         public:
 
-            World(float timeStep, vec2 gravity);
+            World(float timeStep, glm::vec2 gravity);
             ~World();
 
             void update(float dt);
             void render();
-            json serialise();
-            void load(json j);
+            nlohmann::json serialise();
+            void load(nlohmann::json j);
             void add(Rigidbody* rigidbody);
             void remove(Rigidbody* rigidbody);
             RaycastResult raycast(Ray ray);
 
-            vec2 getGravity();
-            void setGravity(vec2 gravity);
+            glm::vec2 getGravity();
+            void setGravity(glm::vec2 gravity);
 
     };
 

@@ -1,5 +1,4 @@
 #include <cmath>
-#include <stdexcept>
 #include "pancake/core/spatial.hpp"
 
 namespace Pancake {

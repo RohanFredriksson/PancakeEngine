@@ -16,10 +16,10 @@ namespace Pancake {
             
             public:
 
-                vec2 aPosition;
-                vec2 bPosition;
-                vec2 aVelocity;
-                vec2 bVelocity;
+                glm::vec2 aPosition;
+                glm::vec2 bPosition;
+                glm::vec2 aVelocity;
+                glm::vec2 bVelocity;
                 float aAngularVelocity;
                 float bAngularVelocity;
                 float aAngularVelocityTotal;
@@ -28,10 +28,10 @@ namespace Pancake {
                 float bAngularOrbitalSpeed;
 
                 ImpulseResult() {
-                    this->aPosition = vec2(0.0f, 0.0f);
-                    this->bPosition = vec2(0.0f, 0.0f);
-                    this->aVelocity = vec2(0.0f, 0.0f);
-                    this->bVelocity = vec2(0.0f, 0.0f);
+                    this->aPosition = glm::vec2(0.0f, 0.0f);
+                    this->bPosition = glm::vec2(0.0f, 0.0f);
+                    this->aVelocity = glm::vec2(0.0f, 0.0f);
+                    this->bVelocity = glm::vec2(0.0f, 0.0f);
                     this->aAngularVelocity = 0.0f;
                     this->bAngularVelocity = 0.0f;
                     this->aAngularVelocityTotal = 0.0f;
@@ -73,11 +73,11 @@ namespace Pancake {
         
         const int IMPULSE_ITERATIONS = 6;
         
-        inline vec2 perp(vec2 v) {
+        inline glm::vec2 perp(glm::vec2 v) {
             return glm::rotate(v, glm::half_pi<float>());
         }
 
-        inline float proj(vec2 a, vec2 b) {
+        inline float proj(glm::vec2 a, glm::vec2 b) {
             return glm::dot(a, b) / glm::length(b);
         }
 
@@ -87,7 +87,7 @@ namespace Pancake {
             ImpulseResult result;
             if (a->hasInfiniteMass() && b->hasInfiniteMass()) {return result;}
 
-            DebugDraw::drawBox(m.point, vec2(0.1f, 0.1f), 0.0f, vec3(1.0f, 0.0f, 0.0f), 10);
+            DebugDraw::drawBox(m.point, glm::vec2(0.1f, 0.1f), 0.0f, vec3(1.0f, 0.0f, 0.0f), 10);
             DebugDraw::drawLine(m.point, m.point + m.normal * 0.3f, vec3(0.0f, 0.0f, 1.0f), 10);
 
             float invMassA = a->getInverseMass();
@@ -98,10 +98,10 @@ namespace Pancake {
             float angVelB = b->getAngularVelocity();
             float restitution = a->getRestitution() * b->getRestitution();
             float friction = std::max(a->getFriction(), b->getFriction());
-            vec2 tangent = perp(m.normal);
-            vec2 rA = m.point - a->getCentroid();
-            vec2 rB = m.point - b->getCentroid();
-            vec2 vAB = b->getVelocity() + perp(rB) * angVelB - a->getVelocity() - perp(rA) * angVelA;
+            glm::vec2 tangent = perp(m.normal);
+            glm::vec2 rA = m.point - a->getCentroid();
+            glm::vec2 rB = m.point - b->getCentroid();
+            glm::vec2 vAB = b->getVelocity() + perp(rB) * angVelB - a->getVelocity() - perp(rA) * angVelA;
             float rAproj = proj(rA, m.normal);
             float rAreg = proj(rA, tangent);
             float rBproj = proj(rB, m.normal);
@@ -147,7 +147,7 @@ namespace Pancake {
             if (!a->hasInfiniteMass() && !b->hasInfiniteMass()) {
                 const float slop = 0.01f;
                 const float percent = 0.4f;
-                vec2 correction = std::max(m.depth - slop, 0.0f) / (invMassA + invMassB) * percent * m.normal;
+                glm::vec2 correction = std::max(m.depth - slop, 0.0f) / (invMassA + invMassB) * percent * m.normal;
                 result.aPosition -= correction * invMassA;
                 result.bPosition += correction * invMassB;
             }
@@ -160,7 +160,7 @@ namespace Pancake {
 
     }
 
-    World::World(float timeStep, vec2 gravity) {
+    World::World(float timeStep, glm::vec2 gravity) {
         this->gravity = new Gravity(gravity);
         this->timeStep = timeStep;
         this->time = 0.0f;
@@ -200,12 +200,12 @@ namespace Pancake {
 
                 if (rigidbody1->hasInfiniteMass() && rigidbody2->hasInfiniteMass()) {continue;}
 
-                vector<Collider*> colliders1 = rigidbody1->getColliders();
-                vector<Collider*> colliders2 = rigidbody2->getColliders();
+                std::vector<Collider*> colliders1 = rigidbody1->getColliders();
+                std::vector<Collider*> colliders2 = rigidbody2->getColliders();
 
                 if (colliders1.size() == 0 || colliders2.size() == 0) {continue;}
 
-                vector<CollisionManifold> results;
+                std::vector<CollisionManifold> results;
                 for (int k = 0; k < colliders1.size(); k++) {
                     for (int l = 0; l < colliders2.size(); l++) {
                         
@@ -291,13 +291,13 @@ namespace Pancake {
         for (int i = 0; i < n; i++) {
 
             Rigidbody* rigidbody = this->rigidbodies[i];
-            vector<Collider*> colliders = rigidbody->getColliders();
+            std::vector<Collider*> colliders = rigidbody->getColliders();
         
             for (int j = 0; j < colliders.size(); j++) {
 
                 Collider* collider = colliders[j];
 
-                vec2 position = collider->getPosition();
+                glm::vec2 position = collider->getPosition();
                 if (dynamic_cast<Box*>(collider) != nullptr) {
                     Box* box = (Box*) collider;
                     DebugDraw::drawBox(position, box->getSize(), box->getRotation(), vec3(0.0f, 1.0f, 0.0f), 1);
@@ -314,17 +314,17 @@ namespace Pancake {
 
     }
 
-    json World::serialise() {
-        json j;
-        j.emplace("gravity", json::array());
+    nlohmann::json World::serialise() {
+        nlohmann::json j;
+        j.emplace("gravity", nlohmann::json::array());
         j["gravity"].push_back(this->getGravity().x);
         j["gravity"].push_back(this->getGravity().y);
         return j;
     }
 
-    void World::load(json j) {
+    void World::load(nlohmann::json j) {
         if (j.contains("gravity") && j["gravity"].is_array() && j["gravity"].size() == 2 && j["gravity"][0].is_number() && j["gravity"][1].is_number()) {
-            this->setGravity(vec2(j["gravity"][0], j["gravity"][1]));
+            this->setGravity(glm::vec2(j["gravity"][0], j["gravity"][1]));
         }
     }
 
@@ -355,11 +355,11 @@ namespace Pancake {
         return best;
     }
 
-    vec2 World::getGravity() {
+    glm::vec2 World::getGravity() {
         return this->gravity->getGravity();
     }
 
-    void World::setGravity(vec2 gravity) {
+    void World::setGravity(glm::vec2 gravity) {
         this->gravity->setGravity(gravity);
     }
 
