@@ -1,7 +1,7 @@
 #pragma once
 
-#include <tuple>
 #include <vector>
+#include <utility>
 #include <unordered_map>
 #include <unordered_set>
 
@@ -9,8 +9,8 @@
 
 namespace Pancake {
 
-    struct IntTupleHash {
-        size_t operator()(const std::tuple<int, int>& t) const {
+    struct IntPairHash {
+        size_t operator()(const std::pair<int, int>& t) const {
             const std::hash<int> hasher;
             std::size_t seed = 0;
             seed ^= hasher(std::get<0>(t)) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
@@ -19,8 +19,8 @@ namespace Pancake {
         }
     };
 
-    struct IntTupleEqual {
-        bool operator()(const std::tuple<int, int>& lhs, const std::tuple<int, int>& rhs) const {
+    struct IntPairEqual {
+        bool operator()(const std::pair<int, int>& lhs, const std::pair<int, int>& rhs) const {
             return (std::get<0>(lhs) == std::get<0>(rhs)) && (std::get<1>(lhs) == std::get<1>(rhs));
         }
     };
@@ -31,8 +31,8 @@ namespace Pancake {
         private: 
 
             int gridSize;
-            std::unordered_map< std::tuple<int, int>, std::unordered_set<T>, IntTupleHash, IntTupleEqual > grid;
-            std::unordered_map< T, std::vector<std::tuple<int, int>> > registrations;
+            std::unordered_map<std::pair<int, int>, std::unordered_set<T>, IntPairHash, IntPairEqual> grid;
+            std::unordered_map<T, std::vector<std::pair<int, int>>> registrations;
 
         public:
 
@@ -49,8 +49,8 @@ namespace Pancake {
                 auto it = this->registrations.find(element);
                 if (it != this->registrations.end()) {this->remove(element);}
 
-                std::vector<std::tuple<int, int>> coordinates;
-                std::tuple<int, int> coordinate;
+                std::vector<std::pair<int, int>> coordinates;
+                std::pair<int, int> coordinate;
 
                 w = std::abs(w);
                 h = std::abs(h);
@@ -62,11 +62,11 @@ namespace Pancake {
                 for (int i = x_min; i <= x_max; i++) {
                     for (int j = y_min; j <= y_max; j++) {
 
-                        coordinate = {i, j};
+                        coordinate = std::make_pair(i, j);
                         coordinates.push_back(coordinate);
                         
                         auto it = this->grid.find(coordinate);
-                        if (it == this->grid.end()) {std::unordered_set<T> set; this->grid.insert({coordinate, set});}
+                        if (it == this->grid.end()) {std::unordered_set<T> set; this->grid.insert(std::make_pair(coordinate, set));}
 
                         auto search = this->grid.find(coordinate);
                         search->second.insert(element);
@@ -97,7 +97,7 @@ namespace Pancake {
             std::unordered_set<T> get(float x, float y, float w, float h) {
                 
                 std::unordered_set<T> result;
-                std::tuple<int, int> coordinate;
+                std::pair<int, int> coordinate;
 
                 w = std::abs(w);
                 h = std::abs(h);
@@ -108,7 +108,7 @@ namespace Pancake {
                 
                 for (int i = x_min; i <= x_max; i++) {
                     for (int j = y_min; j <= y_max; j++) {
-                        coordinate = {i, j};
+                        coordinate = std::make_pair(i, j);
                         auto search = this->grid.find(coordinate);
                         if (search == this->grid.end()) {continue;}
                         for (const auto& element : search->second) {result.insert(element);}
@@ -122,7 +122,7 @@ namespace Pancake {
             std::unordered_set<T> get(int x, int y) {
 
                 std::unordered_set<T> result;
-                std::tuple<int, int> coordinate = {x, y};
+                std::pair<int, int> coordinate = std::make_pair(x, y);
 
                 auto search = this->grid.find(coordinate);
                 if (search == this->grid.end()) {return result;}
@@ -135,7 +135,7 @@ namespace Pancake {
                 auto s0 = this->registrations.find(element);
                 if (s0 == this->registrations.end()) {return;}
                 
-                for (std::tuple<int, int> location : s0->second) {
+                for (std::pair<int, int> location : s0->second) {
                     auto s1 = this->grid.find(location);
                     if (s1 == this->grid.end()) {continue;}
                     s1->second.erase(element);
@@ -151,12 +151,62 @@ namespace Pancake {
                 this->registrations.clear();
             }
 
-            auto begin() {
-                return this->grid.begin();
+            class iterator {
+
+                public:
+                    using iterator_category = std::forward_iterator_tag;
+                    using value_type = std::vector<T>;
+                    using difference_type = std::ptrdiff_t;
+                    using pointer = std::vector<T>*;
+                    using reference = std::vector<T>&;
+
+                private:
+                    typename std::unordered_map<std::pair<int, int>, std::unordered_set<T>, IntPairHash, IntPairEqual>::iterator gridIterator;
+                    SpatialHashGrid<T>& grid;
+                    std::vector<T> currentVector;
+
+                public:
+
+                    iterator(typename std::unordered_map<std::pair<int, int>, std::unordered_set<T>, IntPairHash, IntPairEqual>::iterator gridIter, SpatialHashGrid<T>& grid)
+                        : gridIterator(gridIter), grid(grid) {
+                        if (gridIterator != grid.grid.end()) {
+                            currentVector = std::vector<T>(gridIterator->second.begin(), gridIterator->second.end());
+                        }
+                    }
+
+                    iterator& operator++() {
+                        ++gridIterator;
+                        if (gridIterator != grid.grid.end()) {
+                            currentVector = std::vector<T>(gridIterator->second.begin(), gridIterator->second.end());
+                        }
+                        return *this;
+                    }
+
+                    iterator operator++(int) {
+                        iterator tmp = *this;
+                        ++(*this);
+                        return tmp;
+                    }
+
+                    bool operator==(const iterator& other) const {
+                        return gridIterator == other.gridIterator;
+                    }
+
+                    bool operator!=(const iterator& other) const {
+                        return !(*this == other);
+                    }
+
+                    std::vector<T>& operator*() {
+                        return currentVector;
+                    }
+                };
+
+            iterator begin() {
+                return iterator(grid.begin(), *this);
             }
 
-            auto end() {
-                return this->grid.end();
+            iterator end() {
+                return iterator(grid.end(), *this);
             }
 
     };

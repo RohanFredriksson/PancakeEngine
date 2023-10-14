@@ -466,7 +466,8 @@ namespace Pancake {
 
         // If the bounding box has changed we need to update the spatial hash grid.
         if (this->boundsDirty) {
-            // TODO
+            std::pair<glm::vec2, glm::vec2> bounds = this->getBounds();
+            Window::getScene()->getPhysics()->getGrid()->update(this, bounds.first, bounds.second);
         }
     
         // Update last position and rotation

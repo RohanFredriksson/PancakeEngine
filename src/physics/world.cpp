@@ -170,7 +170,6 @@ namespace Pancake {
     World::~World() {
         delete this->gravity;
         delete this->grid;
-        this->clearCollisionLists();
     }
 
     void World::update(float dt) {
@@ -189,58 +188,80 @@ namespace Pancake {
             this->rigidbodies[i]->physicsUpdate(this->timeStep);
         }
 
-        // Clear the collision lists.
-        this->clearCollisionLists();
+        // Required data structures to store collision data.
+        std::unordered_set<std::pair<int, int>, IntPairHash> colliding;
+        std::vector<std::pair<Rigidbody*, Rigidbody*>> collisions;
+        std::vector<std::vector<CollisionManifold>> manifolds;
 
-        // Find all collisions.
-        for (int i = 0; i < n; i++) {
-            for (int j = i; j < n; j++) {
-                if (i == j) {continue;}
+        for (const std::vector<Rigidbody*>& bodies : *this->grid) {
+            
+            for (int i = 0; i < bodies.size(); i++) {
 
-                Rigidbody* rigidbody1 = this->rigidbodies[i];
-                Rigidbody* rigidbody2 = this->rigidbodies[j];
+                for (int j = i + 1; j < bodies.size(); j++) {
 
-                if (rigidbody1->hasInfiniteMass() && rigidbody2->hasInfiniteMass()) {continue;}
+                    // Get the next pairing
+                    Rigidbody* rigidbody1 = bodies[i];
+                    Rigidbody* rigidbody2 = bodies[j];
 
-                std::vector<Collider*> colliders1 = rigidbody1->getColliders();
-                std::vector<Collider*> colliders2 = rigidbody2->getColliders();
+                    // Check if this pairing has already been collided.
+                    int smaller = std::min(rigidbody1->getId(), rigidbody2->getId());
+                    int larger = std::max(rigidbody1->getId(), rigidbody2->getId());
+                    std::pair<int, int> ids = std::make_pair(smaller, larger);
+                    auto it = colliding.find(ids);
+                    if (it != colliding.end()) {continue;}
 
-                if (colliders1.size() == 0 || colliders2.size() == 0) {continue;}
+                    // Check if they have infinite mass.
+                    if (rigidbody1->hasInfiniteMass() && rigidbody2->hasInfiniteMass()) {continue;}
 
-                std::vector<CollisionManifold> results;
-                for (int k = 0; k < colliders1.size(); k++) {
-                    for (int l = 0; l < colliders2.size(); l++) {
+                    // Get the colliders of each body.
+                    std::vector<Collider*> colliders1 = rigidbody1->getColliders();
+                    std::vector<Collider*> colliders2 = rigidbody2->getColliders();
+
+                    // If either has no colliders then we cant collide.
+                    if (colliders1.size() == 0 || colliders2.size() == 0) {continue;}
+
+                    // Test collision of each pairing of colliders.
+                    std::vector<CollisionManifold> results;
+                    for (int k = 0; k < colliders1.size(); k++) {
+                        for (int l = 0; l < colliders2.size(); l++) {
+                            
+                            Collider* collider1 = colliders1[k];
+                            Collider* collider2 = colliders2[l];
+
+                            std::vector<CollisionManifold> features = Collision::findCollisionFeatures(collider1, collider2);
+                            for (CollisionManifold feature : features) {results.push_back(feature);}
+
+                        }
+                    }
+
+                    // If there is a new collision that we havent found yet.
+                    if (results.size() > 0) {
                         
-                        Collider* collider1 = colliders1[k];
-                        Collider* collider2 = colliders2[l];
+                        // Add the ID pair so we dont collide them again.
+                        colliding.insert(ids);
 
-                        std::vector<CollisionManifold> features = Collision::findCollisionFeatures(collider1, collider2);
-                        for (CollisionManifold feature : features) {results.push_back(feature);}
+                        // Update the listeners
+                        for (CollisionManifold manifold : results) {
 
-                    }
-                }
+                            for (Component* component : rigidbody1->getEntity()->getComponents()) {
+                                CollisionListener* listener = dynamic_cast<CollisionListener*>(component);
+                                if (listener != nullptr) {listener->collision(rigidbody2->getEntity(), manifold);}
+                            }
 
-                if (results.size() > 0) {
+                            CollisionManifold flipped = manifold.flip();
+                            for (Component* component : rigidbody2->getEntity()->getComponents()) {
+                                CollisionListener* listener = dynamic_cast<CollisionListener*>(component);
+                                if (listener != nullptr) {listener->collision(rigidbody1->getEntity(), flipped);}
+                            }
 
-                    for (CollisionManifold manifold : results) {
-
-                        for (Component* component : rigidbody1->getEntity()->getComponents()) {
-                            CollisionListener* listener = dynamic_cast<CollisionListener*>(component);
-                            if (listener != nullptr) {listener->collision(rigidbody2->getEntity(), manifold);}
                         }
 
-                        CollisionManifold flipped = manifold.flip();
-                        for (Component* component : rigidbody2->getEntity()->getComponents()) {
-                            CollisionListener* listener = dynamic_cast<CollisionListener*>(component);
-                            if (listener != nullptr) {listener->collision(rigidbody1->getEntity(), flipped);}
+                        // Add the bodies to the impulse list if they are not sensors.
+                        if (!rigidbody1->isSensor() && !rigidbody2->isSensor()) {
+                            collisions.push_back(std::make_pair(rigidbody1, rigidbody2));
+                            manifolds.push_back(results);
                         }
 
-                    }
-
-                    if (!rigidbody1->isSensor() && !rigidbody2->isSensor()) {
-                        this->bodies1.push_back(rigidbody1);
-                        this->bodies2.push_back(rigidbody2);
-                        this->collisions.push_back(results);
                     }
 
                 }
@@ -248,22 +269,22 @@ namespace Pancake {
             }
 
         }
-
+        
         // Update the forces
         this->registry.updateForces(this->timeStep);
 
         // Resolve collision via iterative impulse resolution.
         for (int k = 0; k < IMPULSE_ITERATIONS; k++) {
-            int m = this->collisions.size();
+            int m = collisions.size();
             for (int i = 0; i < m; i++) {
 
-                Rigidbody* r1 = this->bodies1[i];
-                Rigidbody* r2 = this->bodies2[i];
+                Rigidbody* r1 = collisions[i].first;
+                Rigidbody* r2 = collisions[i].second;
                 ImpulseResult sum;
 
                 float depthTotal = 0.0f;
-                for (int j = 0; j < this->collisions[i].size(); j++) {depthTotal += this->collisions[i][j].depth;}
-                for (int j = 0; j < this->collisions[i].size(); j++) {sum += applyImpulse(r1, r2, this->collisions[i][j]) * (this->collisions[i][j].depth / depthTotal);}
+                for (int j = 0; j < manifolds[i].size(); j++) {depthTotal += manifolds[i][j].depth;}
+                for (int j = 0; j < manifolds[i].size(); j++) {sum += applyImpulse(r1, r2, manifolds[i][j]) * (manifolds[i][j].depth / depthTotal);}
 
                 r1->getEntity()->addPosition(sum.aPosition);
                 r2->getEntity()->addPosition(sum.bPosition);
@@ -279,12 +300,6 @@ namespace Pancake {
             
         }
 
-    }
-
-    void World::clearCollisionLists() {
-        this->collisions.clear();
-        this->bodies1.clear();
-        this->bodies2.clear();
     }
 
     void World::render() {
@@ -336,6 +351,8 @@ namespace Pancake {
 
     void World::add(Rigidbody* rigidbody) {
         this->rigidbodies.push_back(rigidbody);
+        std::pair<glm::vec2, glm::vec2> bounds = rigidbody->getBounds();
+        this->grid->add(rigidbody, bounds.first, bounds.second);
         this->registry.add(this->gravity, rigidbody);
     }
 
