@@ -16,7 +16,7 @@ namespace Pancake {
 
     }
 
-    Scene::Scene(string name) {
+    Scene::Scene(std::string name) {
         this->name = name;
         this->started = false;
         this->camera = new Camera(glm::vec2(0.0f, 0.0f), glm::vec2(12.0f, 12.0f), 1.0f);
@@ -82,9 +82,9 @@ namespace Pancake {
         this->physics->render();
     }
 
-    json Scene::serialise() {
+    nlohmann::json Scene::serialise() {
 
-        json j;
+        nlohmann::json j;
         j.emplace("name", this->name);
         j.emplace("camera", this->camera->serialise());
         j.emplace("physics", this->physics->serialise());
@@ -93,7 +93,7 @@ namespace Pancake {
         j.emplace("sprites", SpritePool::serialise());
         j.emplace("audio", AudioPool::serialise());
 
-        j.emplace("entities", json::array());
+        j.emplace("entities", nlohmann::json::array());
         for (Entity* e : this->entities) {
             if (e->isSerialisable() && !e->isDead()) {j["entities"].push_back(e->serialise());}
         }
@@ -102,23 +102,23 @@ namespace Pancake {
 
     }
 
-    void Scene::save(string filename) {
+    void Scene::save(std::string filename) {
 
-        string contents = this->serialise().dump(4);
+        std::string contents = this->serialise().dump(4);
         std::ofstream file(filename);
         file << contents;
         file.close();
 
     }
 
-    void Scene::load(string filename) {
+    void Scene::load(std::string filename) {
 
         std::ifstream f(filename);
-        json j;
+        nlohmann::json j;
 
         try {
             std::ifstream f(filename);
-            j = json::parse(f);
+            j = nlohmann::json::parse(f);
         } 
         
         catch (const std::ifstream::failure& e) {
@@ -126,7 +126,7 @@ namespace Pancake {
             return;
         }
 
-        catch (const json::exception& e) {
+        catch (const nlohmann::json::exception& e) {
             std::cout << "ERROR::SCENE::LOAD::JSON_PARSE_ERROR\n";
             return;
         }
@@ -205,7 +205,7 @@ namespace Pancake {
         return this->physics;
     }
 
-    void Scene::setName(string name) {
+    void Scene::setName(std::string name) {
         this->name = name;
     }
 
