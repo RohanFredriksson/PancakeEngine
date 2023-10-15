@@ -9,15 +9,13 @@
 #include "pancake/core/factory.hpp"
 #include <pancake/core/window.hpp>
 
-using std::deque;
-
 namespace Pancake {
 
     namespace {
         int nextId = 0;
     }
 
-    void Entity::init(int id, vec2 position, vec2 size, float radians, bool load) {
+    void Entity::init(int id, glm::vec2 position, glm::vec2 size, float radians, bool load) {
 
         this->id = id;
         this->started = false;
@@ -33,31 +31,31 @@ namespace Pancake {
     }
 
     Entity::Entity(float x, float y, float w, float h, float r) {
-        this->init(nextId, vec2(x, y), vec2(w, h), r, false);
+        this->init(nextId, glm::vec2(x, y), glm::vec2(w, h), r, false);
     }
 
     Entity::Entity(float x, float y, float w, float h) {
-        this->init(nextId, vec2(x, y), vec2(w, h), 0.0f, false);
+        this->init(nextId, glm::vec2(x, y), glm::vec2(w, h), 0.0f, false);
     }
 
     Entity::Entity(float x, float y) {
-        this->init(nextId, vec2(x, y), vec2(1.0f, 1.0f), 0.0f, false);
+        this->init(nextId, glm::vec2(x, y), glm::vec2(1.0f, 1.0f), 0.0f, false);
     }
 
-    Entity::Entity(vec2 position, vec2 size, float radians) {
+    Entity::Entity(glm::vec2 position, glm::vec2 size, float radians) {
         this->init(nextId, position, size, radians, false);
     }
 
-    Entity::Entity(vec2 position, vec2 size) {
+    Entity::Entity(glm::vec2 position, glm::vec2 size) {
         this->init(nextId, position, size, 0.0f, false);
     }
 
-    Entity::Entity(vec2 position) {
-        this->init(nextId, position, vec2(1.0f, 1.0f), 0.0f, false);
+    Entity::Entity(glm::vec2 position) {
+        this->init(nextId, position, glm::vec2(1.0f, 1.0f), 0.0f, false);
     }
 
     Entity::Entity() {
-        this->init(nextId, vec2(0.0f, 0.0f), vec2(1.0f, 1.0f), 0.0f, false);
+        this->init(nextId, glm::vec2(0.0f, 0.0f), glm::vec2(1.0f, 1.0f), 0.0f, false);
     }
 
     Entity::~Entity() {
@@ -80,7 +78,7 @@ namespace Pancake {
     void Entity::update(float dt) {
 
         // Update all the components.
-        deque<int> dead;
+        std::deque<int> dead;
         for (int i = 0; i < this->components.size(); i++) {
             if (!this->components[i]->isDead()) {this->components[i]->update(dt);} 
             else {dead.push_front(i);}
@@ -96,22 +94,22 @@ namespace Pancake {
 
     }
 
-    json Entity::serialise() {
+    nlohmann::json Entity::serialise() {
         
-        json j;
+        nlohmann::json j;
         j.emplace("id", this->id);
 
-        j.emplace("position", json::array());
+        j.emplace("position", nlohmann::json::array());
         j["position"].push_back(this->position.x);
         j["position"].push_back(this->position.y);
         
-        j.emplace("size", json::array());
+        j.emplace("size", nlohmann::json::array());
         j["size"].push_back(this->size.x);
         j["size"].push_back(this->size.y);
         
         j.emplace("rotation", this->rotation);
         
-        j.emplace("components", json::array());
+        j.emplace("components", nlohmann::json::array());
         for (Component* c : this->components) {
             if (c->isSerialisable() && !c->isDead()) {j["components"].push_back(c->serialise());}
         }
@@ -119,7 +117,7 @@ namespace Pancake {
         return j;
     }
 
-    Entity* Entity::load(json j) {
+    Entity* Entity::load(nlohmann::json j) {
 
         if (!j.contains("id") || !j["id"].is_number_integer()) {return nullptr;}
 
@@ -136,7 +134,7 @@ namespace Pancake {
         if (!j.contains("rotation") || !j["rotation"].is_number()) {return nullptr;}
 
         Entity* e = new Entity();
-        e->init(j["id"], vec2(j["position"][0], j["position"][1]), vec2(j["size"][0], j["size"][1]), j["rotation"], true);
+        e->init(j["id"], glm::vec2(j["position"][0], j["position"][1]), glm::vec2(j["size"][0], j["size"][1]), j["rotation"], true);
 
         if (j.contains("components") && j["components"].is_array()) {
             for (auto element : j["components"]) {
@@ -156,13 +154,13 @@ namespace Pancake {
     void Entity::imgui() {
 
         // Position 
-        vec2 position = vec2(this->position.x, this->position.y);
+        glm::vec2 position = glm::vec2(this->position.x, this->position.y);
         ImGui::Text("Position:       ");
         ImGui::SameLine();
         if (ImGui::DragFloat2("##Position", &position[0])) {this->setPosition(position);}
 
         // Size
-        vec2 size = vec2(this->size.x, this->size.y);
+        glm::vec2 size = glm::vec2(this->size.x, this->size.y);
         ImGui::Text("Size:           ");
         ImGui::SameLine();
         if (ImGui::DragFloat2("##Size", &size[0])) {this->setSize(size);}
@@ -180,7 +178,7 @@ namespace Pancake {
 
             // Create a widget for each component that is supposed to have it.
             ImGui::Spacing();
-            string id = c->getType() + " " + std::to_string(c->getId());
+            std::string id = c->getType() + " " + std::to_string(c->getId());
             ImGui::PushID(id.c_str());
             if (ImGui::CollapsingHeader(id.c_str(), ImGuiTreeNodeFlags_DefaultOpen)) {
                 c->imgui();
@@ -201,15 +199,15 @@ namespace Pancake {
         return this->id;
     }
 
-    vector<Component*> Entity::getComponents() {
+    std::vector<Component*> Entity::getComponents() {
         return this->components;
     }
 
-    vec2 Entity::getPosition() {
+    glm::vec2 Entity::getPosition() {
         return this->position;
     }
 
-    vec2 Entity::getSize() {
+    glm::vec2 Entity::getSize() {
         return this->size;
     }
 
@@ -225,11 +223,11 @@ namespace Pancake {
         return this->dead;
     }
 
-    void Entity::setPosition(vec2 position) {
+    void Entity::setPosition(glm::vec2 position) {
         this->position = position;
     }
 
-    void Entity::setSize(vec2 size) {
+    void Entity::setSize(glm::vec2 size) {
         this->size = size;
     }
 
@@ -241,11 +239,11 @@ namespace Pancake {
         this->serialisable = serialisable;
     }
 
-    void Entity::addPosition(vec2 position) {
+    void Entity::addPosition(glm::vec2 position) {
         this->position += position;
     }
 
-    void Entity::addSize(vec2 size) {
+    void Entity::addSize(glm::vec2 size) {
         this->size += size;
     }
 
@@ -266,17 +264,17 @@ namespace Pancake {
 
             TransformableComponent* t = dynamic_cast<TransformableComponent*>(c);
             if (t != nullptr) {
-                vec2 offset = t->getPositionOffset();
+                glm::vec2 offset = t->getPositionOffset();
                 float x = (offset.x * rCos) - (offset.y * rSin);
                 float y = (offset.x * rSin) + (offset.y * rCos);
-                t->setPositionOffset(vec2(x, y));
+                t->setPositionOffset(glm::vec2(x, y));
             }
 
         }
 
     }
 
-    void Entity::addRotationAround(float radians, vec2 around) {
+    void Entity::addRotationAround(float radians, glm::vec2 around) {
 
         // If we don't need to perform expensive computations, don't.
         if (radians == 0.0f) {return;}
@@ -301,17 +299,17 @@ namespace Pancake {
 
             TransformableComponent* t = dynamic_cast<TransformableComponent*>(c);
             if (t != nullptr) {
-                vec2 offset = t->getPositionOffset();
+                glm::vec2 offset = t->getPositionOffset();
                 float x = (offset.x * rCos) - (offset.y * rSin);
                 float y = (offset.x * rSin) + (offset.y * rCos);
-                t->setPositionOffset(vec2(x, y));
+                t->setPositionOffset(glm::vec2(x, y));
             }
 
         }
 
     }
 
-    Component* Entity::getComponent(string type) {
+    Component* Entity::getComponent(std::string type) {
         for (Component* c : this->components) {
             if (c->getType() == type) {
                 return c;
