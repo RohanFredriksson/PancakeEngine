@@ -22,6 +22,7 @@ namespace Pancake {
         this->camera = new Camera(glm::vec2(0.0f, 0.0f), glm::vec2(12.0f, 12.0f), 1.0f);
         this->renderer = new Renderer();
         this->physics = new World(1.0f / 60.0f, glm::vec2(0.0f, -10.0f));
+        this->grid = new SpatialHashGrid<Entity*>(4);
     }
 
     Scene::~Scene() {
@@ -35,6 +36,7 @@ namespace Pancake {
         delete this->camera;
         delete this->renderer;
         delete this->physics;
+        delete this->grid;
 
         // Delete all entities and their components.
         for (Entity* e : this->entities) {

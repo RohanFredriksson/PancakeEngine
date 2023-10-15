@@ -8,6 +8,7 @@
 #include "pancake/core/camera.hpp"
 #include "pancake/core/entity.hpp"
 #include "pancake/core/component.hpp"
+#include "pancake/core/spatial.hpp"
 #include "pancake/graphics/renderer.hpp"
 #include "pancake/physics/world.hpp"
 
@@ -29,6 +30,7 @@ namespace Pancake {
             Camera* camera;
             Renderer* renderer;
             World* physics;
+            SpatialHashGrid<Entity*>* grid;
 
         public:
 
