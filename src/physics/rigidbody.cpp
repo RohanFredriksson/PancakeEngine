@@ -173,9 +173,11 @@ namespace Pancake {
 
         for (Collider* c : this->colliders) {
 
-            std::pair<glm::vec2, glm::vec2> bounds = c->getBounds();
-            glm::vec2 min = bounds.first;
-            glm::vec2 max = bounds.second;
+            std::pair<glm::vec2, glm::vec2> bounds = c->getLocalBounds();
+            glm::vec2 offset = c->getPositionOffset();
+
+            glm::vec2 min = offset + bounds.first;
+            glm::vec2 max = offset + bounds.second;
 
             first.x = std::min(first.x, min.x);
             first.y = std::min(first.y, min.y);

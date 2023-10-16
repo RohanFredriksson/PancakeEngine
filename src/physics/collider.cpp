@@ -85,7 +85,7 @@ namespace Pancake {
         return FLT_MAX;
     }
 
-    std::pair<glm::vec2, glm::vec2> Collider::getBounds() {
+    std::pair<glm::vec2, glm::vec2> Collider::getLocalBounds() {
         std::cout << "ERROR::COLLIDER::GET_MOMENT_OF_GETBOUNDS::UNDEFINED\n";
         throw std::runtime_error("ERROR::COLLIDER::GET_MOMENT_OF_GETBOUNDS::UNDEFINED");
         return std::make_pair(glm::vec2(0.0f, 0.0f), glm::vec2(0.0f, 0.0f));
@@ -217,7 +217,7 @@ namespace Pancake {
         return this->getMass() * (this->size.x * this->size.x + this->size.y * this->size.y) / 12.0f;
     }
 
-    std::pair<glm::vec2, glm::vec2> Box::getBounds() {
+    std::pair<glm::vec2, glm::vec2> Box::getLocalBounds() {
         
         // Rotate two corners to determine the aabb.
         glm::vec2 t = this->size * 0.5f; // Top Right Corner
@@ -243,8 +243,7 @@ namespace Pancake {
         t.y = std::max(t.y, b.y);
 
         // Compute the aabb in the rigidbody's local space.
-        glm::vec2 offset = this->getPositionOffset();
-        return std::make_pair(offset - t, offset + t);
+        return std::make_pair(-t, t);
 
     }
 
@@ -290,9 +289,8 @@ namespace Pancake {
         return 0.5f * this->getMass() * this->radius * this->radius;
     }
 
-    std::pair<glm::vec2, glm::vec2> Circle::getBounds() {
-        glm::vec2 offset = this->getPositionOffset();
-        return std::make_pair(offset - glm::vec2(this->radius, this->radius), offset + glm::vec2(this->radius, this->radius));
+    std::pair<glm::vec2, glm::vec2> Circle::getLocalBounds() {
+        return std::make_pair(glm::vec2(-this->radius, -this->radius), glm::vec2(this->radius, this->radius));
     }
 
     float Circle::getRadius() {

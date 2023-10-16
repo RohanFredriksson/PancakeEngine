@@ -34,7 +34,7 @@ namespace Pancake {
             Rigidbody* getRigidbody();
             float getMass();
             virtual float getMomentOfInertia();
-            virtual std::pair<glm::vec2, glm::vec2> getBounds();
+            virtual std::pair<glm::vec2, glm::vec2> getLocalBounds();
             glm::vec2 getPosition();
             glm::vec2 getPositionOffset();
             float getRotation();
@@ -63,7 +63,7 @@ namespace Pancake {
             bool load(json j) override;
 
             float getMomentOfInertia() override;
-            std::pair<glm::vec2, glm::vec2> getBounds() override;
+            std::pair<glm::vec2, glm::vec2> getLocalBounds() override;
             glm::vec2 getSize();
 
             Box* setSize(glm::vec2 size);
@@ -86,7 +86,7 @@ namespace Pancake {
             bool load(json j) override;
 
             float getMomentOfInertia() override;
-            std::pair<glm::vec2, glm::vec2> getBounds() override;
+            std::pair<glm::vec2, glm::vec2> getLocalBounds() override;
             float getRadius();
 
             Circle* setRadius(float radius);
