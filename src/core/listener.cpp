@@ -71,7 +71,7 @@ namespace Pancake {
 
         float currentX = ((float) x / Window::getWidth()) * 2.0f - 1.0f;
         Camera* camera = Window::getScene()->getCamera();
-        worldX = camera->getPosition().x + (currentX / 2.0f) * (camera->getProjectionSize().x / camera->getZoom());
+        worldX = camera->getPosition().x + (currentX * 0.5f) * (camera->getProjectionSize().x / camera->getZoom());
 
     }
 
@@ -79,7 +79,7 @@ namespace Pancake {
 
         float currentY = ((float) y / Window::getHeight()) * 2.0f - 1.0f;
         Camera* camera = Window::getScene()->getCamera();
-        worldY = camera->getPosition().y + (currentY / 2.0f) * (camera->getProjectionSize().y / camera->getZoom());
+        worldY = camera->getPosition().y + (currentY * -0.5f) * (camera->getProjectionSize().y / camera->getZoom());
 
     }
 

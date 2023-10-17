@@ -238,6 +238,8 @@ namespace Pancake {
 
                 glfwPollEvents();
 
+                std::cout << MouseListener::getWorldY() << "\n";
+
                 if (saveFlag) {
                     scene->save(saveFilename);
                     saveFlag = false;

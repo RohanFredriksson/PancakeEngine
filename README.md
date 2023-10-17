@@ -47,7 +47,7 @@ class MousePanHandler : public Component {
             
             if (MouseListener::isMouseDragging()) {
                 if (MouseListener::getDx() != 0) {Window::getScene()->getCamera()->addPosition(vec2(-MouseListener::getWorldDx(), 0.0f));}
-                if (MouseListener::getDy() != 0) {Window::getScene()->getCamera()->addPosition(vec2(0.0f, MouseListener::getWorldDy()));}
+                if (MouseListener::getDy() != 0) {Window::getScene()->getCamera()->addPosition(vec2(0.0f, -MouseListener::getWorldDy()));}
             }
 
         } 
