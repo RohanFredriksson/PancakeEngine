@@ -4,9 +4,6 @@
 #include <glm/glm.hpp>
 #include <vector>
 
-using std::vector;
-using glm::vec2;
-
 namespace Pancake {
 
     class ForceGenerator {
@@ -32,7 +29,7 @@ namespace Pancake {
     class ForceRegistry {
 
         private:
-            vector<ForceRegistration> registry;
+            std::vector<ForceRegistration> registry;
 
         public:
 
@@ -48,15 +45,15 @@ namespace Pancake {
 
         private:
 
-            vec2 gravity;
+            glm::vec2 gravity;
 
         public:
 
-            Gravity(vec2 gravity);
+            Gravity(glm::vec2 gravity);
             void updateForce(Rigidbody* rigidbody, float dt) override;
 
-            vec2 getGravity();
-            void setGravity(vec2 gravity);
+            glm::vec2 getGravity();
+            void setGravity(glm::vec2 gravity);
 
     };
 
