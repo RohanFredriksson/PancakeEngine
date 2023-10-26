@@ -1,7 +1,10 @@
 #pragma once
 
+#include <string>
 #include <vector>
 #include <utility>
+#include <unordered_set>
+
 #include <glm/glm.hpp>
 #include "pancake/core/component.hpp"
 
@@ -13,7 +16,8 @@ namespace Pancake {
 
         private:
 
-            std::vector<Collider*> colliders;
+            std::vector<Collider*> colliders;                // Gives a rigidbody shape.
+            std::unordered_set<std::string> forceGenerators; // Allows specific force generators to act on the rigidbody.
 
             glm::vec2 force;
             glm::vec2 velocity;
@@ -48,6 +52,7 @@ namespace Pancake {
             bool load(json j) override;
 
             std::vector<Collider*> getColliders();
+            std::unordered_set<std::string> getForceGenerators();
             glm::vec2 getVelocity();
             glm::vec2 getCentroid();
             std::pair<glm::vec2, glm::vec2> getBounds();
@@ -59,6 +64,7 @@ namespace Pancake {
             float getMomentOfInertia();
             float getInverseMomentOfInertia();
             bool isSensor();
+            bool hasForceGenerator(std::string type);
             bool hasFixedOrientation();
             bool hasInfiniteMass();
 
@@ -69,6 +75,14 @@ namespace Pancake {
             Rigidbody* setCollider(Collider* collider);
             Rigidbody* setColliders(std::vector<Collider*> colliders);
             Rigidbody* clearColliders();
+
+            Rigidbody* addForceGenerator(std::string type);
+            Rigidbody* addForceGenerators(std::vector<std::string> types);
+            Rigidbody* removeForceGenerator(std::string type);
+            Rigidbody* removeForceGenerators(std::vector<std::string> types);
+            Rigidbody* setForceGenerator(std::string type);
+            Rigidbody* setForceGenerators(std::vector<std::string> types);
+            Rigidbody* clearForceGenerators();
 
             Rigidbody* setForce(glm::vec2 force);
             Rigidbody* setForce(float x, float y);

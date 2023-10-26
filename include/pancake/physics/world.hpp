@@ -1,6 +1,7 @@
 #pragma once
 
 #include <vector>
+#include <string>
 #include <utility>
 #include <unordered_set>
 #include <nlohmann/json.hpp>
@@ -21,7 +22,9 @@ namespace Pancake {
         private:
 
             ForceRegistry registry;
-            Gravity* gravity;
+            std::vector<ForceGenerator*> forces;
+            std::unordered_map<std::string, ForceGenerator*> forcesIndex;
+
             std::vector<Rigidbody*> rigidbodies;
             SpatialHashGrid<Rigidbody*>* grid;
 
@@ -43,10 +46,15 @@ namespace Pancake {
             void remove(Rigidbody* rigidbody);
             RaycastResult raycast(Ray ray);
 
-            glm::vec2 getGravity();
-            SpatialHashGrid<Rigidbody*>* getGrid();
+            ForceGenerator* getForceGenerator(std::string type);
+            void addForceGenerator(ForceGenerator* force);
+            void removeForceGenerator(ForceGenerator* force);
+            void removeForceGenerator(std::string type);
 
-            void setGravity(glm::vec2 gravity);
+            void addForceRegistration(std::string force, Rigidbody* rigidbody);
+            void removeForceRegistration(std::string force, Rigidbody* rigidbody);
+
+            SpatialHashGrid<Rigidbody*>* getGrid();
 
     };
 

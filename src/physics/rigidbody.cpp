@@ -65,8 +65,14 @@ namespace Pancake {
         for (Collider* c : this->colliders) {
             j["colliders"].push_back(c->serialise());    
         }
+
+        j.emplace("forceGenerators", json::array());
+        for (const std::string& type : this->forceGenerators) {
+            j["forceGenerators"].push_back(type);
+        }
         
         return j;
+
     }
 
     bool Rigidbody::load(json j) {
@@ -111,12 +117,24 @@ namespace Pancake {
             }
         }
 
+        if (j.contains("forceGenerators") && j["forceGenerators"].is_array()) {
+            for (auto element : j["forceGenerators"]) {
+                if (element.is_string()) {
+                    this->addForceGenerator(element);
+                }
+            }
+        }
+
         return true;
 
     }
 
     std::vector<Collider*> Rigidbody::getColliders() {
         return this->colliders;
+    }
+
+    std::unordered_set<std::string> Rigidbody::getForceGenerators() {
+        return this->forceGenerators;
     }
 
     glm::vec2 Rigidbody::getVelocity() {
@@ -266,6 +284,11 @@ namespace Pancake {
         return this->sensor;
     }
 
+    bool Rigidbody::hasForceGenerator(std::string type) {
+        auto it = this->forceGenerators.find(type);
+        return it != this->forceGenerators.end();
+    }
+
     bool Rigidbody::hasFixedOrientation() {
         return this->fixedOrientation;
     }
@@ -336,6 +359,47 @@ namespace Pancake {
         this->boundsDirty = true;
         this->massDirty = true;
         this->momentDirty = true;
+        return this;
+    }
+
+    Rigidbody* Rigidbody::addForceGenerator(std::string type) {
+        this->forceGenerators.insert(type);
+        Scene* scene = Window::getScene();
+        if (scene != nullptr) {scene->getPhysics()->addForceRegistration(type, this);}
+        return this;
+    }
+
+    Rigidbody* Rigidbody::addForceGenerators(std::vector<std::string> types) {
+        for (std::string type : types) {this->addForceGenerator(type);}
+        return this;
+    }
+    
+    Rigidbody* Rigidbody::removeForceGenerator(std::string type) {
+        this->forceGenerators.erase(type);
+        Scene* scene = Window::getScene();
+        if (scene != nullptr) {scene->getPhysics()->removeForceRegistration(type, this);}
+        return this;
+    }
+    
+    Rigidbody* Rigidbody::removeForceGenerators(std::vector<std::string> types) {
+        for (std::string type : types) {this->removeForceGenerator(type);}
+        return this;
+    }
+    
+    Rigidbody* Rigidbody::setForceGenerator(std::string type) {
+        this->clearForceGenerators();
+        this->addForceGenerator(type);
+        return this;
+    }
+    
+    Rigidbody* Rigidbody::setForceGenerators(std::vector<std::string> types) {
+        this->clearForceGenerators();
+        this->addForceGenerators(types);
+        return this;
+    }
+    
+    Rigidbody* Rigidbody::clearForceGenerators() {
+        this->forceGenerators.clear();
         return this;
     }
 

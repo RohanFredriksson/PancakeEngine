@@ -47,6 +47,7 @@ namespace Pancake {
             Camera* getCamera();
             Renderer* getRenderer();
             World* getPhysics();
+            bool hasStarted();
 
             void setName(std::string name);
             

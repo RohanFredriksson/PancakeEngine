@@ -5,6 +5,7 @@
 #include <glm/geometric.hpp>
 #include <glm/gtx/rotate_vector.hpp>
 
+#include "pancake/core/factory.hpp"
 #include "pancake/physics/world.hpp"
 #include "pancake/graphics/debugdraw.hpp"
 
@@ -161,14 +162,13 @@ namespace Pancake {
     }
 
     World::World(float timeStep, glm::vec2 gravity) {
-        this->gravity = new Gravity(gravity);
         this->grid = new SpatialHashGrid<Rigidbody*>(4);
         this->timeStep = timeStep;
         this->time = 0.0f;
     }
 
     World::~World() {
-        delete this->gravity;
+        for (ForceGenerator* force : this->forces) {delete force;}
         delete this->grid;
     }
 
@@ -311,60 +311,71 @@ namespace Pancake {
             std::pair<glm::vec2, glm::vec2> bounds = rigidbody->getBounds();
             DebugDraw::drawAABB(bounds.first, bounds.second, vec3(0.5f, 0.0f, 1.0f), 1);
 
-            /*
-            std::vector<Collider*> colliders = rigidbody->getColliders();
-            for (int j = 0; j < colliders.size(); j++) {
-
-                Collider* collider = colliders[j];
-                
-                glm::vec2 position = collider->getPosition();
-                if (dynamic_cast<Box*>(collider) != nullptr) {
-                    Box* box = (Box*) collider;
-                    DebugDraw::drawBox(position, box->getSize(), box->getRotation(), vec3(0.0f, 1.0f, 0.0f), 1);
-                }
-
-                else if (dynamic_cast<Circle*>(collider) != nullptr) {
-                    Circle* circle = (Circle*) collider;
-                    DebugDraw::drawCircle(position, circle->getRadius(), vec3(0.0f, 1.0f, 0.0f), 1);
-                }
-
-            }
-            */
-
         }
 
     }
 
     nlohmann::json World::serialise() {
+
         nlohmann::json j;
-        j.emplace("gravity", nlohmann::json::array());
-        j["gravity"].push_back(this->getGravity().x);
-        j["gravity"].push_back(this->getGravity().y);
+
+        j.emplace("forces", nlohmann::json::array());
+        for (ForceGenerator* force : this->forces) {
+            j["forces"].push_back(force->serialise());
+        }
+
         return j;
+
     }
 
     void World::load(nlohmann::json j) {
-        if (j.contains("gravity") && j["gravity"].is_array() && j["gravity"].size() == 2 && j["gravity"][0].is_number() && j["gravity"][1].is_number()) {
-            this->setGravity(glm::vec2(j["gravity"][0], j["gravity"][1]));
+
+        if (j.contains("forces") && j["forces"].is_array()) {
+            for (auto element : j["forces"]) {
+                if (element.is_object()) {
+                    if (!element.contains("type") || !element["type"].is_string()) {continue;}
+                    ForceGenerator* f = FACTORY(ForceGenerator).create(element["type"]);
+                    if (f == nullptr) {continue;}
+                    if (!f->load(element)) {delete f; continue;}
+                    else {this->addForceGenerator(f);}
+                }
+            }
         }
+
     }
 
     void World::add(Rigidbody* rigidbody) {
+        
         this->rigidbodies.push_back(rigidbody);
         std::pair<glm::vec2, glm::vec2> bounds = rigidbody->getBounds();
         this->grid->add(rigidbody, bounds.first, bounds.second);
-        this->registry.add(this->gravity, rigidbody);
+
+        std::unordered_set<std::string> generators = rigidbody->getForceGenerators();
+        for (const std::string& type : generators) {
+            this->addForceRegistration(type, rigidbody);
+        }
+
     }
 
     void World::remove(Rigidbody* rigidbody) {
+
         int n = this->rigidbodies.size();
         for (int i = 0; i < n; i++) {
+            
             if (this->rigidbodies[i] == rigidbody) {
-                this->registry.remove(this->gravity, rigidbody);
+
+                std::unordered_set<std::string> generators = rigidbody->getForceGenerators();
+                for (const std::string& type : generators) {
+                    this->removeForceRegistration(type, rigidbody);
+                }
+
                 this->rigidbodies.erase(this->rigidbodies.begin() + i);
                 return;
+
             }
+        
         }
+
     }
 
     RaycastResult World::raycast(Ray ray) {
@@ -378,16 +389,74 @@ namespace Pancake {
         return best;
     }
 
-    glm::vec2 World::getGravity() {
-        return this->gravity->getGravity();
-    }
 
     SpatialHashGrid<Rigidbody*>* World::getGrid() {
         return this->grid;
     }
 
-    void World::setGravity(glm::vec2 gravity) {
-        this->gravity->setGravity(gravity);
+    ForceGenerator* World::getForceGenerator(std::string type) {
+        auto it = this->forcesIndex.find(type);
+        if (it != this->forcesIndex.end()) {return it->second;}
+        return nullptr;
+    }
+
+    void World::addForceGenerator(ForceGenerator* force) {
+
+        // Remove the current force if they share the same name.
+        std::string type = force->getType();
+        auto it = this->forcesIndex.find(type);
+        if (it != this->forcesIndex.end()) {this->removeForceGenerator(type);}
+
+        // Add the force to the index.
+        this->forcesIndex.insert({type, force});
+        this->forces.push_back(force);
+
+        // See if any rigidbodies require this force generator.
+        for (Rigidbody* rigidbody : this->rigidbodies) {
+            if (rigidbody->hasForceGenerator(type)) {this->addForceRegistration(type, rigidbody);}
+        }
+
+    }
+
+    void World::removeForceGenerator(ForceGenerator* force) {
+        std::string type = force->getType();
+        this->removeForceGenerator(type);
+    }
+
+    void World::removeForceGenerator(std::string type) {
+        
+        // See if the force exists in the index.
+        auto it = this->forcesIndex.find(type);
+        if (it == this->forcesIndex.end()) {return;}
+
+        // Remove all registrations that use this force.
+        this->registry.remove(this->getForceGenerator(type));
+
+        // Remove the force from the index.
+        this->forcesIndex.erase(type);
+
+        // Remove the force from the vector.
+        for (int i = 0; i < this->forces.size(); i++) {
+            if (this->forces[i]->getType() == type) {
+                delete this->forces[i];
+                this->forces.erase(this->forces.begin() + i);
+                return;
+            }
+        }
+
+    }
+
+    void World::addForceRegistration(std::string force, Rigidbody* rigidbody) {
+        this->removeForceRegistration(force, rigidbody);
+        ForceGenerator* generator = this->getForceGenerator(force);
+        if (generator == nullptr) {return;}
+        this->registry.add(generator, rigidbody);
+    }
+
+    void World::removeForceRegistration(std::string force, Rigidbody* rigidbody) {
+        ForceGenerator* generator = this->getForceGenerator(force);
+        if (generator == nullptr) {return;}
+        this->registry.remove(generator, rigidbody);
     }
 
 }

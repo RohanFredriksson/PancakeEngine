@@ -205,6 +205,10 @@ namespace Pancake {
         return this->physics;
     }
 
+    bool Scene::hasStarted() {
+        return this->started;
+    }
+
     void Scene::setName(std::string name) {
         this->name = name;
     }
