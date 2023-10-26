@@ -54,6 +54,7 @@ class MousePanHandler : public Component {
         
 };
 
+// This line allows the MousePanHandler component to be loaded from a save file if necessary.
 REGISTER(Component, MousePanHandler);
 
 void TestInit(Scene* scene) {
