@@ -3,6 +3,7 @@
 #include <vector>
 #include <string>
 #include <utility>
+#include <unordered_map>
 #include <unordered_set>
 #include <nlohmann/json.hpp>
 
@@ -22,10 +23,13 @@ namespace Pancake {
         private:
 
             ForceRegistry registry;
+            
             std::vector<ForceGenerator*> forces;
             std::unordered_map<std::string, ForceGenerator*> forcesIndex;
 
             std::vector<Rigidbody*> rigidbodies;
+            std::unordered_set<Rigidbody*> rigidbodiesIndex;
+
             SpatialHashGrid<Rigidbody*>* grid;
 
             float timeStep;
@@ -43,6 +47,7 @@ namespace Pancake {
             nlohmann::json serialise();
             void load(nlohmann::json j);
             void add(Rigidbody* rigidbody);
+            bool has(Rigidbody* rigidbody);
             void remove(Rigidbody* rigidbody);
             RaycastResult raycast(Ray ray);
 

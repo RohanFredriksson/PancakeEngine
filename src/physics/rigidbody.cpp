@@ -363,10 +363,24 @@ namespace Pancake {
     }
 
     Rigidbody* Rigidbody::addForceGenerator(std::string type) {
+        
+        // Add the force generator to the local collection.
         this->forceGenerators.insert(type);
+
+        // If the scene exists.
         Scene* scene = Window::getScene();
-        if (scene != nullptr) {scene->getPhysics()->addForceRegistration(type, this);}
+        if (scene == nullptr) {return this;}
+
+        // If the physics engine exists.
+        World* world = scene->getPhysics();
+        if (world == nullptr) {return this;}
+
+        // If the rigidbody has already been added, we need to update the registrations.
+        // If it hasn't been added, it will be updated when the rigidbody is added to the engine.
+        if (!world->has(this)) {return this;}
+        world->addForceRegistration(type, this);
         return this;
+
     }
 
     Rigidbody* Rigidbody::addForceGenerators(std::vector<std::string> types) {
@@ -375,10 +389,24 @@ namespace Pancake {
     }
     
     Rigidbody* Rigidbody::removeForceGenerator(std::string type) {
+
+        // Remove the force generator name from the local collection.
         this->forceGenerators.erase(type);
+
+        // If the scene exists.
         Scene* scene = Window::getScene();
-        if (scene != nullptr) {scene->getPhysics()->removeForceRegistration(type, this);}
+        if (scene == nullptr) {return this;}
+
+        // If the physics engine exists.
+        World* world = scene->getPhysics();
+        if (world == nullptr) {return this;}
+
+        // If the rigidbody has already been added, we need to update the registrations.
+        // If it hasn't been added, it will be updated when the rigidbody is added to the engine.
+        if (!world->has(this)) {return this;}
+        world->removeForceRegistration(type, this);
         return this;
+
     }
     
     Rigidbody* Rigidbody::removeForceGenerators(std::vector<std::string> types) {

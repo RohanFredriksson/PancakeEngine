@@ -346,10 +346,15 @@ namespace Pancake {
 
     void World::add(Rigidbody* rigidbody) {
         
+        // Insert the rigidbody in the index and the vector.
         this->rigidbodies.push_back(rigidbody);
+        this->rigidbodiesIndex.insert(rigidbody);
+
+        // Add the rigidbody to the spatial hash grid.
         std::pair<glm::vec2, glm::vec2> bounds = rigidbody->getBounds();
         this->grid->add(rigidbody, bounds.first, bounds.second);
 
+        // Apply all required force generators to the rigidbody.
         std::unordered_set<std::string> generators = rigidbody->getForceGenerators();
         for (const std::string& type : generators) {
             this->addForceRegistration(type, rigidbody);
@@ -357,8 +362,17 @@ namespace Pancake {
 
     }
 
+    bool World::has(Rigidbody* rigidbody) {
+        auto search = this->rigidbodiesIndex.find(rigidbody);
+        return search != this->rigidbodiesIndex.end();
+    }
+
     void World::remove(Rigidbody* rigidbody) {
 
+        // Remove the rigidbody from the index if it is in it.
+        this->rigidbodiesIndex.erase(rigidbody);
+
+        // Remove the rigidbody from the rigidbody vector.
         int n = this->rigidbodies.size();
         for (int i = 0; i < n; i++) {
             
