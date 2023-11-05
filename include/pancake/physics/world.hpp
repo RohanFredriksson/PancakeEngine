@@ -49,8 +49,7 @@ namespace Pancake {
             void add(Rigidbody* rigidbody);
             bool has(Rigidbody* rigidbody);
             void remove(Rigidbody* rigidbody);
-            RaycastResult raycast(Ray ray);
-
+            
             ForceGenerator* getForceGenerator(std::string type);
             void addForceGenerator(ForceGenerator* force);
             void removeForceGenerator(ForceGenerator* force);
@@ -60,6 +59,7 @@ namespace Pancake {
             void removeForceRegistration(std::string force, Rigidbody* rigidbody);
 
             SpatialHashGrid<Rigidbody*>* getGrid();
+            RaycastResult raycast(Ray ray);
 
     };
 

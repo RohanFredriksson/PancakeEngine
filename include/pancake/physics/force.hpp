@@ -1,6 +1,7 @@
 #pragma once
 
 #include "pancake/physics/rigidbody.hpp"
+#include "pancake/core/component.hpp"
 #include "pancake/core/factory.hpp"
 #include <nlohmann/json.hpp>
 #include <glm/glm.hpp>
@@ -10,22 +11,15 @@
 
 namespace Pancake {
 
-    class ForceGenerator {
-
-        private:
-
-            std::string type;
-
-            void init(std::string type);
+    class ForceGenerator : public Component {
 
         public:
 
             ForceGenerator(std::string type);
-            virtual nlohmann::json serialise();
-            virtual bool load(nlohmann::json j);
-            virtual void updateForce(Rigidbody* rigidbody, float dt);
+            void start() override;
+            void end() override;
 
-            std::string getType();
+            virtual void updateForce(Rigidbody* rigidbody, float dt);
 
     };
 
@@ -62,7 +56,7 @@ namespace Pancake {
 
         private:
 
-            glm::vec2 gravity;
+            glm::vec2 acceleration;
 
         public:
 
@@ -71,11 +65,12 @@ namespace Pancake {
             bool load(nlohmann::json j) override;
             void updateForce(Rigidbody* rigidbody, float dt) override;
 
-            glm::vec2 getGravity();
-            void setGravity(glm::vec2 gravity);
+            glm::vec2 getAcceleration();
+            void setAcceleration(glm::vec2 acceleration);
+            void setAcceleration(float x, float y);
 
     };
 
-    REGISTER(ForceGenerator, Gravity);
+    REGISTER(Component, Gravity);
 
 }

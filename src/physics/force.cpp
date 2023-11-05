@@ -1,35 +1,24 @@
 #include "pancake/physics/force.hpp"
+#include "pancake/core/window.hpp"
 #include <deque>
 
 namespace Pancake {
 
-    ForceGenerator::ForceGenerator(std::string type) {
-        this->init(type);
-    }
+    ForceGenerator::ForceGenerator(std::string type) : Component(type) {
 
-    void ForceGenerator::init(std::string type) {
-        this->type = type;
     }
 
     void ForceGenerator::updateForce(Rigidbody* rigidbody, float dt) {
 
     }
 
-    nlohmann::json ForceGenerator::serialise() {
-        nlohmann::json j;
-        j.emplace("type", this->type);
-        return j;
+    void ForceGenerator::start() {
+         Window::getScene()->getPhysics()->addForceGenerator(this);
     }
 
-    bool ForceGenerator::load(nlohmann::json j) {
-        if (!j.contains("type") || !j["type"].is_string()) {return false;}
-        this->init(j["type"]);
-        return true;
-    }
-
-    std::string ForceGenerator::getType() {
-        return this->type;
-    }
+    void ForceGenerator::end() {
+        Window::getScene()->getPhysics()->removeForceGenerator(this);
+    }   
 
     ForceRegistration::ForceRegistration(ForceGenerator* generator, Rigidbody* rigidbody) {
         this->generator = generator;
@@ -86,43 +75,51 @@ namespace Pancake {
     }
 
     Gravity::Gravity() : ForceGenerator("Gravity") {
-        this->gravity = glm::vec2(0.0f, 0.0f);
+        this->acceleration = glm::vec2(0.0f, 0.0f);
     }
 
     nlohmann::json Gravity::serialise() {
-        nlohmann::json j = this->ForceGenerator::serialise();
-        j.emplace("gravity", nlohmann::json::array());
-        j["gravity"].push_back(this->gravity.x);
-        j["gravity"].push_back(this->gravity.y);
+
+        nlohmann::json j = this->Component::serialise();
+
+        j.emplace("acceleration", nlohmann::json::array());
+        j["acceleration"].push_back(this->acceleration.x);
+        j["acceleration"].push_back(this->acceleration.y);
+
         return j;
+
     }
 
     bool Gravity::load(nlohmann::json j) {
         
-        if (!this->ForceGenerator::load(j)) {return false;}
+        if (!this->Component::load(j)) {return false;}
 
-        if (!j.contains("gravity") || !j["gravity"].is_array()) {return false;}
-        if (j["gravity"].size() != 2) {return false;}
-        if (!j["gravity"][0].is_number()) {return false;}
-        if (!j["gravity"][1].is_number()) {return false;}
+        if (!j.contains("acceleration") || !j["acceleration"].is_array()) {return false;}
+        if (j["acceleration"].size() != 2) {return false;}
+        if (!j["acceleration"][0].is_number()) {return false;}
+        if (!j["acceleration"][1].is_number()) {return false;}
 
-        this->setGravity(glm::vec2(j["gravity"][0], j["gravity"][1]));
+        this->setAcceleration(glm::vec2(j["acceleration"][0], j["acceleration"][1]));
         
         return true;
 
     }
 
     void Gravity::updateForce(Rigidbody* rigidbody, float dt)  {
-        glm::vec2 acceleration = this->gravity * rigidbody->getMass();
-        rigidbody->addForce(acceleration);
+        glm::vec2 force = this->acceleration * rigidbody->getMass();
+        rigidbody->addForce(force);
     }
 
-    glm::vec2 Gravity::getGravity() {
-        return this->gravity;
+    glm::vec2 Gravity::getAcceleration() {
+        return this->acceleration;
     }
 
-    void Gravity::setGravity(glm::vec2 gravity)  {
-        this->gravity = gravity;
+    void Gravity::setAcceleration(glm::vec2 acceleration)  {
+        this->acceleration = acceleration;
+    }
+
+    void Gravity::setAcceleration(float x, float y) {
+        this->setAcceleration(glm::vec2(x, y));
     }
 
 }
