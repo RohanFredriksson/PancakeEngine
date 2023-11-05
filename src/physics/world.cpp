@@ -315,35 +315,6 @@ namespace Pancake {
 
     }
 
-    nlohmann::json World::serialise() {
-
-        nlohmann::json j;
-
-        j.emplace("forces", nlohmann::json::array());
-        for (ForceGenerator* force : this->forces) {
-            j["forces"].push_back(force->serialise());
-        }
-
-        return j;
-
-    }
-
-    void World::load(nlohmann::json j) {
-
-        if (j.contains("forces") && j["forces"].is_array()) {
-            for (auto element : j["forces"]) {
-                if (element.is_object()) {
-                    if (!element.contains("type") || !element["type"].is_string()) {continue;}
-                    ForceGenerator* f = FACTORY(ForceGenerator).create(element["type"]);
-                    if (f == nullptr) {continue;}
-                    if (!f->load(element)) {delete f; continue;}
-                    else {this->addForceGenerator(f);}
-                }
-            }
-        }
-
-    }
-
     void World::add(Rigidbody* rigidbody) {
         
         // Insert the rigidbody in the index and the vector.

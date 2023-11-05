@@ -87,7 +87,6 @@ namespace Pancake {
         nlohmann::json j;
         j.emplace("name", this->name);
         j.emplace("camera", this->camera->serialise());
-        j.emplace("physics", this->physics->serialise());
         j.emplace("fonts", FontPool::serialise());
         j.emplace("spritesheets", Spritesheet::serialise());
         j.emplace("sprites", SpritePool::serialise());
@@ -134,11 +133,6 @@ namespace Pancake {
         // Load camera settings into the camera.
         if (j.contains("camera") && j["camera"].is_object()) {
             this->camera->load(j["camera"]);
-        }
-
-        // Load physics configuration into the engine.
-        if (j.contains("physics") && j["physics"].is_object()) {
-            this->physics->load(j["physics"]);
         }
 
         // Load fonts into the font pool

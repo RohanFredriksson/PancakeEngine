@@ -44,8 +44,6 @@ namespace Pancake {
 
             void update(float dt);
             void render();
-            nlohmann::json serialise();
-            void load(nlohmann::json j);
             void add(Rigidbody* rigidbody);
             bool has(Rigidbody* rigidbody);
             void remove(Rigidbody* rigidbody);
