@@ -278,8 +278,6 @@ namespace Pancake {
 
             }
 
-            scene->save("test.scene");
-
             // Destroy
             DebugDraw::destroy();
             AssetPool::destroy();

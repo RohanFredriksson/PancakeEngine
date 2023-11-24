@@ -181,11 +181,11 @@ namespace Pancake {
         return this;
     }
 
-    Box::Box() : Collider("Box")  {
+    BoxCollider::BoxCollider() : Collider("BoxCollider")  {
         this->size = glm::vec2(1.0f, 1.0f);
     }
 
-    json Box::serialise() {
+    json BoxCollider::serialise() {
 
         json j = this->Collider::serialise();
 
@@ -197,7 +197,7 @@ namespace Pancake {
         
     }
 
-    bool Box::load(json j) {
+    bool BoxCollider::load(json j) {
         
         if (!this->Collider::load(j)) {return false;}
 
@@ -212,12 +212,12 @@ namespace Pancake {
 
     }
 
-    float Box::getMomentOfInertia() {
+    float BoxCollider::getMomentOfInertia() {
         if (this->getMass() <= 0.0f) {return FLT_MAX;}
         return this->getMass() * (this->size.x * this->size.x + this->size.y * this->size.y) / 12.0f;
     }
 
-    std::pair<glm::vec2, glm::vec2> Box::getLocalBounds() {
+    std::pair<glm::vec2, glm::vec2> BoxCollider::getLocalBounds() {
         
         // Rotate two corners to determine the aabb.
         glm::vec2 t = this->size * 0.5f; // Top Right Corner
@@ -247,11 +247,11 @@ namespace Pancake {
 
     }
 
-    glm::vec2 Box::getSize() {
+    glm::vec2 BoxCollider::getSize() {
         return this->size;
     }
 
-    Box* Box::setSize(glm::vec2 size) {
+    BoxCollider* BoxCollider::setSize(glm::vec2 size) {
 
         if (this->getRigidbody() != nullptr) {
             this->getRigidbody()->setBoundsDirty();
@@ -263,41 +263,41 @@ namespace Pancake {
 
     }
 
-    Box* Box::setSize(float w, float h) {
+    BoxCollider* BoxCollider::setSize(float w, float h) {
         return this->setSize(glm::vec2(w, h));
     }
 
-    Circle::Circle() : Collider("Circle") {
+    CircleCollider::CircleCollider() : Collider("CircleCollider") {
         this->radius = 0.5f;
     }
 
-    json Circle::serialise() {
+    json CircleCollider::serialise() {
         json j = this->Collider::serialise();
         j.emplace("radius", this->radius);
         return j;
     }
 
-    bool Circle::load(json j) {
+    bool CircleCollider::load(json j) {
         if (!this->Collider::load(j)) {return false;}
         if (!j.contains("radius") || !j["radius"].is_number()) {return false;}
         this->setRadius(j["radius"]);
         return true;
     }
 
-    float Circle::getMomentOfInertia() {
+    float CircleCollider::getMomentOfInertia() {
         if (this->getMass() <= 0.0f) {return FLT_MAX;}
         return 0.5f * this->getMass() * this->radius * this->radius;
     }
 
-    std::pair<glm::vec2, glm::vec2> Circle::getLocalBounds() {
+    std::pair<glm::vec2, glm::vec2> CircleCollider::getLocalBounds() {
         return std::make_pair(glm::vec2(-this->radius, -this->radius), glm::vec2(this->radius, this->radius));
     }
 
-    float Circle::getRadius() {
+    float CircleCollider::getRadius() {
         return this->radius;
     }
 
-    Circle* Circle::setRadius(float radius) {
+    CircleCollider* CircleCollider::setRadius(float radius) {
 
         if (this->getRigidbody() != nullptr) {
             this->getRigidbody()->setBoundsDirty();

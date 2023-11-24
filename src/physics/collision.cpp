@@ -115,7 +115,7 @@ namespace Pancake {
 
         }
 
-        std::vector<CollisionManifold> findCollisionFeaturesCircleAndCircle(Circle* a, Circle* b) {
+        std::vector<CollisionManifold> findCollisionFeaturesCircleColliderAndCircleCollider(CircleCollider* a, CircleCollider* b) {
 
             std::vector<CollisionManifold> result;
 
@@ -140,7 +140,7 @@ namespace Pancake {
 
         }
 
-        std::vector<CollisionManifold> findCollisionFeaturesBoxAndBox(Box* a, Box* b) {
+        std::vector<CollisionManifold> findCollisionFeaturesBoxColliderAndBoxCollider(BoxCollider* a, BoxCollider* b) {
 
             std::vector<CollisionManifold> result;
 
@@ -318,7 +318,7 @@ namespace Pancake {
             return result;
         }
 
-        std::vector<CollisionManifold> findCollisionFeaturesCircleAndBox(Circle* c, Box* b, bool flip) {
+        std::vector<CollisionManifold> findCollisionFeaturesCircleColliderAndBoxCollider(CircleCollider* c, BoxCollider* b, bool flip) {
 
             std::vector<CollisionManifold> result;
 
@@ -478,10 +478,10 @@ namespace Pancake {
         
         std::vector<CollisionManifold> findCollisionFeatures(Collider* c1, Collider* c2) {
 
-            if (dynamic_cast<Box*>(c1) != nullptr && dynamic_cast<Box*>(c2) != nullptr) {return findCollisionFeaturesBoxAndBox((Box*) c1, (Box*) c2);}
-            if (dynamic_cast<Circle*>(c1) != nullptr && dynamic_cast<Circle*>(c2) != nullptr) {return findCollisionFeaturesCircleAndCircle((Circle*) c1, (Circle*) c2);}
-            if (dynamic_cast<Circle*>(c1) != nullptr && dynamic_cast<Box*>(c2) != nullptr) {return findCollisionFeaturesCircleAndBox((Circle*) c1, (Box*) c2, false);}
-            if (dynamic_cast<Box*>(c1) != nullptr && dynamic_cast<Circle*>(c2) != nullptr) {return findCollisionFeaturesCircleAndBox((Circle*) c2, (Box*) c1, true);}
+            if (dynamic_cast<BoxCollider*>(c1) != nullptr && dynamic_cast<BoxCollider*>(c2) != nullptr) {return findCollisionFeaturesBoxColliderAndBoxCollider((BoxCollider*) c1, (BoxCollider*) c2);}
+            if (dynamic_cast<CircleCollider*>(c1) != nullptr && dynamic_cast<CircleCollider*>(c2) != nullptr) {return findCollisionFeaturesCircleColliderAndCircleCollider((CircleCollider*) c1, (CircleCollider*) c2);}
+            if (dynamic_cast<CircleCollider*>(c1) != nullptr && dynamic_cast<BoxCollider*>(c2) != nullptr) {return findCollisionFeaturesCircleColliderAndBoxCollider((CircleCollider*) c1, (BoxCollider*) c2, false);}
+            if (dynamic_cast<BoxCollider*>(c1) != nullptr && dynamic_cast<CircleCollider*>(c2) != nullptr) {return findCollisionFeaturesCircleColliderAndBoxCollider((CircleCollider*) c2, (BoxCollider*) c1, true);}
 
             std::vector<CollisionManifold> empty;
             return empty;

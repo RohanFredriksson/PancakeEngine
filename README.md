@@ -65,8 +65,8 @@ void TestInit(Scene* scene) {
     Entity* entity;
     MousePanHandler* mousepanhandler;
     Rigidbody* rigidbody;
-    Circle* circle;
-    Box* box;
+    CircleCollider* circle;
+    BoxCollider* box;
 
     // Set the scene name
     scene->setName("Test Scene");
@@ -80,16 +80,16 @@ void TestInit(Scene* scene) {
     // Ground
     entity = new Entity(vec2(0.0f, -5.0f), vec2(1.0f, 1.0f), 0.0f);
     rigidbody = new Rigidbody();
-    box = new Box();
+    box = new BoxCollider();
     box->setSize(vec2(10.0f, 1.0f));
     rigidbody->addCollider(box);
     entity->addComponent(rigidbody);
     scene->addEntity(entity);
 
-    // Falling Box
+    // Falling BoxCollider
     entity = new Entity(vec2(-1.0f, 2.0f), vec2(1.0f, 1.0f), 0.0f);
     rigidbody = new Rigidbody();
-    box = new Box();
+    box = new BoxCollider();
     box->setMass(1.0f);
     box->setSize(vec2(0.5f, 1.0f));
     box->setRotationOffset(0.5f);

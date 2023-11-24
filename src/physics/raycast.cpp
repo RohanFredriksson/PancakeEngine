@@ -43,7 +43,7 @@ namespace Pancake {
 
     namespace {
 
-        RaycastResult raycastBox(Box* box, Ray ray) {
+        RaycastResult raycastBoxCollider(BoxCollider* box, Ray ray) {
 
             // Rotate the ray into the box's local space.
             vec2 centre = box->getPosition();
@@ -78,21 +78,21 @@ namespace Pancake {
 
         }
 
-        RaycastResult raycastCircle(Circle* circle, Ray ray) {
+        RaycastResult raycastCircleCollider(CircleCollider* circle, Ray ray) {
 
             vec2 position = circle->getPosition();
-            vec2 originToCircle = position - ray.origin;
+            vec2 originToCircleCollider = position - ray.origin;
             float radiusSquared = circle->getRadius() * circle->getRadius();
-            float originToCircleLengthSquared = glm::dot(originToCircle, originToCircle);
+            float originToCircleColliderLengthSquared = glm::dot(originToCircleCollider, originToCircleCollider);
 
             // Project the vector from the ray origin onto the direction of the ray.
-            float a = glm::dot(originToCircle, ray.direction);
-            float b2 = originToCircleLengthSquared - (a * a);
+            float a = glm::dot(originToCircleCollider, ray.direction);
+            float b2 = originToCircleColliderLengthSquared - (a * a);
             if (radiusSquared - b2 < 0.0f) {return RaycastResult();}
 
             float f = sqrtf(radiusSquared - b2);
             float t = 0;
-            if (originToCircleLengthSquared < radiusSquared) {t = a + f;}
+            if (originToCircleColliderLengthSquared < radiusSquared) {t = a + f;}
             else {t = a - f;}
 
             vec2 point = ray.direction * t + ray.origin;
@@ -110,8 +110,8 @@ namespace Pancake {
             RaycastResult best;
             for (Collider* collider : rigidbody->getColliders()) {
                 RaycastResult current;
-                if (dynamic_cast<Box*>(collider) != nullptr) {current = raycastBox((Box*) collider, ray);}
-                if (dynamic_cast<Circle*>(collider) != nullptr) {current = raycastCircle((Circle*) collider, ray);}
+                if (dynamic_cast<BoxCollider*>(collider) != nullptr) {current = raycastBoxCollider((BoxCollider*) collider, ray);}
+                if (dynamic_cast<CircleCollider*>(collider) != nullptr) {current = raycastCircleCollider((CircleCollider*) collider, ray);}
                 if (current.hit != nullptr && current.distance < best.distance) {best = current;}
             }
 

@@ -213,7 +213,7 @@ namespace Pancake {
 
         }
 
-        void drawCircle(vec2 centre, float radius, vec3 colour, int lifetime) {
+        void drawCircleCollider(vec2 centre, float radius, vec3 colour, int lifetime) {
 
             vector<vec2> points;
             int increment = 360 / CIRCLE_POINTS;

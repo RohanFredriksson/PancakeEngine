@@ -25,9 +25,9 @@ namespace Pancake {
         void drawBox(vec2 centre, vec2 dimensions, vec3 colour);
         void drawBox(vec2 centre, vec2 dimensions);
 
-        void drawCircle(vec2 centre, float radius, vec3 colour, int lifetime);
-        void drawCircle(vec2 centre, float radius, vec3 colour);
-        void drawCircle(vec2 centre, float radius);
+        void drawCircleCollider(vec2 centre, float radius, vec3 colour, int lifetime);
+        void drawCircleCollider(vec2 centre, float radius, vec3 colour);
+        void drawCircleCollider(vec2 centre, float radius);
 
     }
 

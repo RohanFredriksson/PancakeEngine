@@ -51,14 +51,14 @@ namespace Pancake {
 
     };
 
-    class Box : public Collider {
+    class BoxCollider : public Collider {
 
         private:
             vec2 size;
 
         public:
 
-            Box();
+            BoxCollider();
             json serialise() override;
             bool load(json j) override;
 
@@ -66,14 +66,14 @@ namespace Pancake {
             std::pair<glm::vec2, glm::vec2> getLocalBounds() override;
             glm::vec2 getSize();
 
-            Box* setSize(glm::vec2 size);
-            Box* setSize(float w, float h);
+            BoxCollider* setSize(glm::vec2 size);
+            BoxCollider* setSize(float w, float h);
 
     };
 
-    REGISTER(Collider, Box);
+    REGISTER(Collider, BoxCollider);
 
-    class Circle : public Collider {
+    class CircleCollider : public Collider {
 
         private:
 
@@ -81,7 +81,7 @@ namespace Pancake {
 
         public:
 
-            Circle();
+            CircleCollider();
             json serialise() override;
             bool load(json j) override;
 
@@ -89,11 +89,11 @@ namespace Pancake {
             std::pair<glm::vec2, glm::vec2> getLocalBounds() override;
             float getRadius();
 
-            Circle* setRadius(float radius);
+            CircleCollider* setRadius(float radius);
 
     };
 
-    REGISTER(Collider, Circle);
+    REGISTER(Collider, CircleCollider);
 
 }
 
