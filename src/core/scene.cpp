@@ -27,9 +27,14 @@ namespace Pancake {
 
     Scene::~Scene() {
         
-        // Kill all entities.
+        // Kill all entities, so components unregister while the scene systems still exist.
         for (Entity* e : this->entities) {
             e->kill();
+        }
+
+        // Delete all entities and their components.
+        for (Entity* e : this->entities) {
+            delete e;
         }
 
         // Delete all scene elements.
@@ -37,11 +42,6 @@ namespace Pancake {
         delete this->renderer;
         delete this->physics;
         delete this->grid;
-
-        // Delete all entities and their components.
-        for (Entity* e : this->entities) {
-            delete e;
-        }
 
     }
 

@@ -9,6 +9,7 @@ namespace Pancake {
         bool isKeyDown(int key);
         bool isKeyDown();
         bool isKeyBeginDown(int key);
+        void endFrame();
     }
 
     namespace MouseListener {

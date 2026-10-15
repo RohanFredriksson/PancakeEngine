@@ -186,8 +186,15 @@ namespace Pancake {
 
         if (!this->boundsDirty) {return this->bounds;}
 
-        glm::vec2 first = glm::vec2(0.0f, 0.0f);
-        glm::vec2 second = glm::vec2(0.0f, 0.0f);
+        glm::vec2 position = this->getEntity()->getPosition();
+        if (this->colliders.empty()) {
+            this->bounds = std::make_pair(position, position);
+            this->boundsDirty = false;
+            return this->bounds;
+        }
+
+        glm::vec2 first = glm::vec2(FLT_MAX, FLT_MAX);
+        glm::vec2 second = glm::vec2(-FLT_MAX, -FLT_MAX);
 
         for (Collider* c : this->colliders) {
 
@@ -204,7 +211,6 @@ namespace Pancake {
 
         }
 
-        glm::vec2 position = this->getEntity()->getPosition();
         this->bounds = std::make_pair(position + first, position + second);
         this->boundsDirty = false;
         return this->bounds;
@@ -262,12 +268,11 @@ namespace Pancake {
         }
         
         float moment = 0.0f;
-        float mass = this->getMass();
         glm::vec2 centroid = this->getCentroid();
         for (Collider* c : this->colliders) {
             glm::vec2 r = c->getPosition() - centroid;
             float rr = r.x * r.x + r.y * r.y;
-            moment += c->getMomentOfInertia() + rr * mass;
+            moment += c->getMomentOfInertia() + rr * c->getMass();
         }
 
         this->moment = moment;
@@ -427,7 +432,8 @@ namespace Pancake {
     }
     
     Rigidbody* Rigidbody::clearForceGenerators() {
-        this->forceGenerators.clear();
+        std::vector<std::string> types(this->forceGenerators.begin(), this->forceGenerators.end());
+        this->removeForceGenerators(types);
         return this;
     }
 
@@ -515,8 +521,12 @@ namespace Pancake {
 
     void Rigidbody::physicsUpdate(float dt) {
         
-        // Do not do a physics update if static.
-        if (this->hasInfiniteMass()) {return;}
+        // Static bodies are not integrated, but may still be moved by game code.
+        if (this->hasInfiniteMass()) {
+            this->clearAccumulators();
+            this->updateGridRegistration(false);
+            return;
+        }
 
         // Required variables
         glm::vec2 displacement = glm::vec2(0.0f, 0.0f);
@@ -530,7 +540,7 @@ namespace Pancake {
         // Update the rotation if allowed to.
         if (!this->fixedOrientation) {
 
-            this->angularVelocity += this->torque * (dt / this->getMass());
+            this->angularVelocity += this->torque * dt * this->getInverseMomentOfInertia();
             rotation = this->angularVelocity * dt;
             this->getEntity()->addRotationAround(rotation, this->getCentroid());
 
@@ -551,11 +561,17 @@ namespace Pancake {
         // Clear the force and torque accumulators.
         this->clearAccumulators();
 
-        // Check if there has been a changed in the bounding box.
-        this->boundsDirty = (this->lastPosition != this->getEntity()->getPosition()) || 
+        // Update the spatial hash grid if the bounding box has changed.
+        this->updateGridRegistration(displacement != glm::vec2(0.0f, 0.0f) || rotation != 0.0f);
+
+    }
+
+    void Rigidbody::updateGridRegistration(bool moved) {
+
+        // Check if there has been a change in the bounding box.
+        this->boundsDirty = moved ||
+                            (this->lastPosition != this->getEntity()->getPosition()) || 
                             (this->lastRotation != this->getEntity()->getRotation()) ||
-                            (displacement != glm::vec2(0.0f, 0.0f)) || 
-                            (rotation != 0.0f) || 
                             (this->boundsDirty);
 
         // If the bounding box has changed we need to update the spatial hash grid.

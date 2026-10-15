@@ -33,13 +33,13 @@ namespace Pancake {
         if (key < 0 || key > 349) {return;}
 
         if (action == GLFW_PRESS) {
-            keyPressCount++;
+            if (!keyDown[key]) {keyPressCount++;}
             keyDown[key] = true;
             keyBeginDown[key] = true;
         }
 
         else if (action == GLFW_RELEASE) {
-            keyPressCount--;
+            if (keyDown[key]) {keyPressCount--;}
             keyDown[key] = false;
             keyBeginDown[key] = false;
         }
@@ -56,15 +56,13 @@ namespace Pancake {
     }
 
     bool KeyListener::isKeyBeginDown(int key) {
-
         if (key < 0 || key > 349) {return false;}
+        return keyBeginDown[key];
+    }
 
-        if (keyBeginDown[key]) {
-            keyBeginDown[key] = false;
-            return true;
-        }
-
-        return false;
+    void KeyListener::endFrame() {
+        // A key is only "beginning down" for the frame it was pressed in.
+        for (int i = 0; i < 350; i++) {keyBeginDown[i] = false;}
     }
 
     void MouseListener::calcOrthoX() {
@@ -105,13 +103,13 @@ namespace Pancake {
         if (button > 8 || button < 0) {return;}
 
         if (action == GLFW_PRESS) {
-            mouseDownCount++;
+            if (!mouseDown[button]) {mouseDownCount++;}
             mouseDown[button] = true;
             mouseBeginDown[button] = true;
         }
 
         else if (action == GLFW_RELEASE) {
-            mouseDownCount--;
+            if (mouseDown[button]) {mouseDownCount--;}
             mouseDown[button] = false;
             mouseBeginDown[button] = false;
             mouseDragging = false;
@@ -125,7 +123,7 @@ namespace Pancake {
     }
 
     bool MouseListener::isMouseDown(int button) {
-        if (button < 0 || button > 9) {return false;}
+        if (button < 0 || button > 8) {return false;}
         return mouseDown[button];
     }
 
@@ -136,13 +134,7 @@ namespace Pancake {
     bool MouseListener::isMouseBeginDown(int button) {
 
         if (button < 0 || button > 8) {return false;}
-
-        if (mouseBeginDown[button]) {
-            mouseBeginDown[button] = false;
-            return true;
-        }
-
-        return false;
+        return mouseBeginDown[button];
     }
 
     bool MouseListener::hasMouseMoved() {
@@ -195,6 +187,7 @@ namespace Pancake {
 
     void MouseListener::endFrame() {
 
+        for (int i = 0; i < 9; i++) {mouseBeginDown[i] = false;}
         scrollX = 0.0;
         scrollY = 0.0;
         lastX = x;

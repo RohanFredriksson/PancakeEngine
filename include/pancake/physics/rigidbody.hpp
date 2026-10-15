@@ -100,6 +100,7 @@ namespace Pancake {
             Rigidbody* setMomentDirty();
 
             void physicsUpdate(float dt);
+            void updateGridRegistration(bool moved);
 
             void clearAccumulators();
             void addVelocity(glm::vec2 velocity);

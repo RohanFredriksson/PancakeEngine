@@ -168,7 +168,7 @@ namespace Pancake {
     }
 
     World::~World() {
-        for (ForceGenerator* force : this->forces) {delete force;}
+        // Force generators are components, so they are owned and deleted by their entities.
         delete this->grid;
     }
 
@@ -340,8 +340,9 @@ namespace Pancake {
 
     void World::remove(Rigidbody* rigidbody) {
 
-        // Remove the rigidbody from the index if it is in it.
+        // Remove the rigidbody from the index and the spatial hash grid.
         this->rigidbodiesIndex.erase(rigidbody);
+        this->grid->remove(rigidbody);
 
         // Remove the rigidbody from the rigidbody vector.
         int n = this->rigidbodies.size();
@@ -404,8 +405,9 @@ namespace Pancake {
     }
 
     void World::removeForceGenerator(ForceGenerator* force) {
-        std::string type = force->getType();
-        this->removeForceGenerator(type);
+        // Only remove the generator if it is the one currently registered under its type.
+        if (this->getForceGenerator(force->getType()) != force) {return;}
+        this->removeForceGenerator(force->getType());
     }
 
     void World::removeForceGenerator(std::string type) {
@@ -423,7 +425,6 @@ namespace Pancake {
         // Remove the force from the vector.
         for (int i = 0; i < this->forces.size(); i++) {
             if (this->forces[i]->getType() == type) {
-                delete this->forces[i];
                 this->forces.erase(this->forces.begin() + i);
                 return;
             }

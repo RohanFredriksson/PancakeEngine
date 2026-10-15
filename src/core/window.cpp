@@ -130,6 +130,9 @@ namespace Pancake {
 
         void start() {
 
+            // Allow the engine to be started again after a previous stop.
+            stopFlag = false;
+
             // Initialise GLFW
             if (!glfwInit()) {
                 std::cout << "ERROR::WINDOW::GLFW_INITIALIZATION_FAILED\n";
@@ -269,8 +272,8 @@ namespace Pancake {
                     render();
                 }
 
+                KeyListener::endFrame();
                 MouseListener::endFrame();
-                Window::readPixel(0, 0);
 
                 endTime = (float)glfwGetTime();
                 dt = endTime - beginTime;
@@ -278,10 +281,26 @@ namespace Pancake {
 
             }
 
+            // Destroy the scene first, as its components release resources held by other systems.
+            delete scene;
+            scene = nullptr;
+
             // Destroy
+            delete entityTexture;
+            delete entityShader;
+            delete defaultShader;
+            entityTexture = nullptr;
+            entityShader = nullptr;
+            defaultShader = nullptr;
             DebugDraw::destroy();
             AssetPool::destroy();
+
+            ImGui_ImplOpenGL3_Shutdown();
+            ImGui_ImplGlfw_Shutdown();
+            ImGui::DestroyContext();
+
             glfwDestroyWindow(window);
+            window = nullptr;
             glfwTerminate();
 
         }

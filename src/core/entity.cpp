@@ -59,9 +59,10 @@ namespace Pancake {
     }
 
     Entity::~Entity() {
+        Scene* scene = Window::getScene();
         for (Component* c: this->components) {c->kill();} // Delete all the components.
         for (Component* c: this->components) {
-            Window::getScene()->getComponents()->erase(c->getId());
+            if (scene != nullptr) {scene->getComponents()->erase(c->getId());}
             delete c;
         }
     }
@@ -88,7 +89,7 @@ namespace Pancake {
         for (int i : dead) {
             Component* c = this->components[i];
             this->components.erase(this->components.begin() + i);
-            Window::getScene()->getComponents()->erase(c->getId());
+            if (Window::getScene() != nullptr) {Window::getScene()->getComponents()->erase(c->getId());}
             delete c;
         }
 
@@ -193,6 +194,10 @@ namespace Pancake {
         if (this->dead) {return;}
         for (Component* c: this->components) {c->kill();}
         this->dead = true;
+    }
+
+    void Entity::setId(int id) {
+        this->id = id;
     }
 
     int Entity::getId() {
