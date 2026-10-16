@@ -1,4 +1,5 @@
 #include <cmath>
+#include <cstdio>
 #include <deque>
 #include <algorithm>
 #include <unordered_set>
@@ -18,6 +19,7 @@ namespace Pancake {
     void Entity::init(int id, glm::vec2 position, glm::vec2 size, float radians, bool load) {
 
         this->id = id;
+        this->name = "";
         this->started = false;
         this->position = position;
         this->size = size;
@@ -99,6 +101,7 @@ namespace Pancake {
         
         nlohmann::json j;
         j.emplace("id", this->id);
+        if (!this->name.empty()) {j.emplace("name", this->name);}
 
         j.emplace("position", nlohmann::json::array());
         j["position"].push_back(this->position.x);
@@ -133,9 +136,11 @@ namespace Pancake {
         if (!j["size"][1].is_number()) {return nullptr;}
 
         if (!j.contains("rotation") || !j["rotation"].is_number()) {return nullptr;}
+        if (j.contains("name") && !j["name"].is_string()) {return nullptr;}
 
         Entity* e = new Entity();
         e->init(j["id"], glm::vec2(j["position"][0], j["position"][1]), glm::vec2(j["size"][0], j["size"][1]), j["rotation"], true);
+        if (j.contains("name")) {e->name = j["name"];}
 
         if (j.contains("components") && j["components"].is_array()) {
             for (auto element : j["components"]) {
@@ -153,6 +158,13 @@ namespace Pancake {
     }
 
     void Entity::imgui() {
+
+        // Name
+        char name[64];
+        std::snprintf(name, sizeof(name), "%s", this->name.c_str());
+        ImGui::Text("Name:           ");
+        ImGui::SameLine();
+        if (ImGui::InputText("##Name", name, sizeof(name))) {this->setName(name);}
 
         // Position 
         glm::vec2 position = glm::vec2(this->position.x, this->position.y);
@@ -202,6 +214,14 @@ namespace Pancake {
 
     int Entity::getId() {
         return this->id;
+    }
+
+    std::string Entity::getName() {
+        return this->name;
+    }
+
+    void Entity::setName(std::string name) {
+        this->name = name;
     }
 
     std::vector<Component*> Entity::getComponents() {

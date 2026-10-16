@@ -37,7 +37,7 @@ There is no external test framework. `tests/test.hpp` provides `TEST("name") {..
 - Each frame does `scene->update(dt)`, then renders twice: once into an RGB32F framebuffer with the entity shader (sprite entity IDs for `Window::readPixel`) and once to the screen. Then `DebugDraw::render()` runs, followed by ImGui (`Console::render`, `Inspector::render`).
 - Shutdown deletes the scene, then the GL resources, then ImGui.
 
-**Scene → Entity → Component** (`core/`). `Scene` owns `Entity*`s plus a `Camera`, a `Renderer` (sprite batches), a physics `World`, and a `SpatialHashGrid<Entity*>`. That grid is refreshed every frame for entities whose bounds (transform plus rigidbody) changed, and it backs `getEntitiesIn/Near/At`. Entities own `Component*`s. IDs come from static counters, and loading from JSON bumps the counter past loaded IDs. Lifecycle:
+**Scene → Entity → Component** (`core/`). `Scene` owns `Entity*`s plus a `Camera`, a `Renderer` (sprite batches), a physics `World`, and a `SpatialHashGrid<Entity*>`. That grid is refreshed every frame for entities whose bounds (transform plus rigidbody) changed, and it backs `getEntitiesIn/Near/At`. Entities own `Component*`s, looked up by type name (`getComponent("Rigidbody")`) or by class (`getComponent<Rigidbody>()`, which skips dead components and matches subclasses). Entities have an optional `name`, found with `Scene::findEntity`. IDs come from static counters, and loading from JSON bumps the counter past loaded IDs. Lifecycle:
 - `start()` runs when the entity is added to a started scene. Most components self-register with scene systems in `start()` through the global `Window::getScene()` (e.g. `SpriteRenderer` → `getRenderer()->add`, `Rigidbody` → `getPhysics()->add`) and unregister in `end()`.
 - `kill()` marks a component dead and calls `end()`. The owning update loop deletes dead entities and components afterwards.
 - `Scene::~Scene` kills every entity before deleting any systems, so components can unregister while the systems still exist.
@@ -74,4 +74,5 @@ There is no external test framework. `tests/test.hpp` provides `TEST("name") {..
 - Include `<glad/glad.h>` before anything that pulls in GLFW (including `pancake/core/listener.hpp`), or glad's header guard errors.
 - Prefer fully qualified `std::`/`glm::` names in new code. Some headers still export `using std::string; using glm::vec2;` etc., and other code relies on that.
 - Single-line `if (...) {...}` braces; British spelling (`serialise`, `colour`).
+- `ROADMAP.md` is the queue of planned work, in batches. Tick items off in the branch that implements them.
 - Errors are printed as `ERROR::AREA::DETAIL` to stdout. Load functions return `false`/`nullptr` on malformed JSON instead of throwing.

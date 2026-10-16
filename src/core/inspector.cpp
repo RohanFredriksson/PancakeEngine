@@ -111,6 +111,7 @@ namespace Pancake {
             if (ImGui::CollapsingHeader("Entities")) {
                 for (Entity* e : scene->getEntities()) {
                     std::string label = std::to_string(e->getId());
+                    if (!e->getName().empty()) {label += " \"" + e->getName() + "\"";}
                     for (Component* c : e->getComponents()) {label += " " + c->getType();}
                     if (ImGui::Selectable(label.c_str(), e->getId() == selected)) {selected = e->getId();}
                 }

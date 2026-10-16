@@ -9,6 +9,7 @@ namespace Pancake {
         bool isKeyDown(int key);
         bool isKeyDown();
         bool isKeyBeginDown(int key);
+        bool isKeyEndDown(int key);
         void endFrame();
     }
 
@@ -21,6 +22,7 @@ namespace Pancake {
         bool isMouseDown(int button);
         bool isMouseDown();
         bool isMouseBeginDown(int button);
+        bool isMouseEndDown(int button);
         bool hasMouseMoved();
         bool isMouseDragging();
         double getX();

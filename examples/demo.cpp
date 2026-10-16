@@ -49,12 +49,12 @@ class ImpactFlash : public Component, public CollisionListener {
         }
 
         void collision(Entity* with, CollisionManifold manifold) override {
-            Rigidbody* r = dynamic_cast<Rigidbody*>(this->getEntity()->getComponent("Rigidbody"));
+            Rigidbody* r = this->getEntity()->getComponent<Rigidbody>();
             if (r != nullptr && glm::length(r->getVelocity()) > 6.0f) {this->flash = 0.15f;}
         }
 
         void update(float dt) override {
-            SpriteRenderer* sprite = dynamic_cast<SpriteRenderer*>(this->getEntity()->getComponent("SpriteRenderer"));
+            SpriteRenderer* sprite = this->getEntity()->getComponent<SpriteRenderer>();
             if (sprite == nullptr) {return;}
             if (this->flash > 0.0f) {
                 this->flash -= dt;
@@ -79,7 +79,7 @@ class BallOutline : public Component {
         }
 
         void update(float dt) override {
-            Rigidbody* r = dynamic_cast<Rigidbody*>(this->getEntity()->getComponent("Rigidbody"));
+            Rigidbody* r = this->getEntity()->getComponent<Rigidbody>();
             if (r == nullptr) {return;}
             for (Collider* c : r->getColliders()) {
                 CircleCollider* circle = dynamic_cast<CircleCollider*>(c);

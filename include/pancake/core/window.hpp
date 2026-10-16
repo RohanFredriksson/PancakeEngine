@@ -1,5 +1,7 @@
 #pragma once
 
+#include <functional>
+
 #include "pancake/core/console.hpp"
 #include "pancake/core/scene.hpp"
 
@@ -7,7 +9,7 @@ namespace Pancake {
 
     namespace Window {
 
-        void load(void(*method)(Scene* scene));
+        void load(std::function<void(Scene*)> method);
         void load(string filename);
         void save(string filename);
         void reset();

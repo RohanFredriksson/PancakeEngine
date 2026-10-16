@@ -140,13 +140,32 @@ The engine provides the following features:
 - Collision listeners, sensors and raycasts.
 - Spatial queries to find entities in an area, near a point or under the mouse.
 - Audio playback and management using SoLoud.
-- Input management for keyboard and mouse.
-- Entity-component system for managing game objects.
+- Input management for keyboard and mouse, with pressed, held and released events.
+- Entity-component system for managing game objects, with typed component access and named entities.
 - Resource loading from file system.
 - JSON serialization and deserialization for game data, including custom components.
 - An in-game console with built-in commands (`help`, `save`, `load`, `reset`, `debug`, `gravity`, `entities`, `inspector`) and support for your own.
 - An entity inspector: click an entity to view and edit its components.
 - Debug drawing for collision shapes and other debugging purposes.
+
+## Working with Entities
+```c++
+Entity* player = new Entity(vec2(0.0f, 0.0f));
+player->setName("Player");                        // Saved with the scene.
+Rigidbody* body = player->addComponent<Rigidbody>();
+scene->addEntity(player);
+
+Entity* found = scene->findEntity("Player");      // Or findEntities for every match.
+Rigidbody* r = found->getComponent<Rigidbody>();  // nullptr if it has none. Subclasses match too.
+for (Entity* e : scene->getEntitiesWith<Rigidbody>()) {}
+
+if (KeyListener::isKeyBeginDown(GLFW_KEY_SPACE)) {} // Pressed this frame.
+if (KeyListener::isKeyEndDown(GLFW_KEY_SPACE)) {}   // Released this frame.
+
+// load accepts any callable, including capturing lambdas.
+int level = 2;
+Pancake::load([level](Scene* scene) { /* build the level */ });
+```
 
 ## Debugging Tools
 ```c++
@@ -164,6 +183,8 @@ Console::registerCommand("spawn", "spawn <x> <y>: Spawn a crate.", [](std::vecto
 - Physics scenes now have world gravity, defaulting to `(0, -10)`. If you previously added a `Gravity` force generator to every body to get gravity, remove it or set the world gravity to zero with `scene->getPhysics()->setGravity(vec2(0.0f, 0.0f))`.
 - The collision solver was rewritten, so restitution and friction may feel slightly different. Bounces below 1 unit per second are no longer applied, so resting bodies don't jitter.
 - `KeyListener::isKeyBeginDown` and `MouseListener::isMouseBeginDown` are now true for the whole frame a key or button was pressed in, rather than only for the first caller.
+- A key or mouse button pressed and released within one frame now still reports `isKeyBeginDown`/`isMouseBeginDown` for that frame, along with the new `isKeyEndDown`/`isMouseEndDown`.
+- `Pancake::load` and `Window::load` take a `std::function<void(Scene*)>` instead of a function pointer. Existing calls still compile.
 
 ## Contributions
 Contributions are welcome! If you find any bugs or have suggestions for improvements, feel free to open an issue or submit a pull request on GitHub.

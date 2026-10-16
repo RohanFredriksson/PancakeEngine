@@ -93,7 +93,9 @@ namespace Pancake {
                 Scene* scene = Window::getScene();
                 if (scene == nullptr) {return;}
                 for (Entity* e : scene->getEntities()) {
-                    std::string line = std::to_string(e->getId()) + ":";
+                    std::string line = std::to_string(e->getId());
+                    if (!e->getName().empty()) {line += " " + e->getName();}
+                    line += ":";
                     for (Component* c : e->getComponents()) {line += " " + c->getType();}
                     Console::print(line);
                 }
