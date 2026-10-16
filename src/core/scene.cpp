@@ -238,6 +238,21 @@ namespace Pancake {
         return this->entities;
     }
 
+    Entity* Scene::findEntity(std::string name) {
+        for (Entity* e : this->entities) {
+            if (!e->isDead() && e->getName() == name) {return e;}
+        }
+        return nullptr;
+    }
+
+    std::vector<Entity*> Scene::findEntities(std::string name) {
+        std::vector<Entity*> result;
+        for (Entity* e : this->entities) {
+            if (!e->isDead() && e->getName() == name) {result.push_back(e);}
+        }
+        return result;
+    }
+
     std::pair<glm::vec2, glm::vec2> Scene::computeBounds(Entity* entity) {
 
         // The entity's transform, as an axis aligned box around its rotated size.

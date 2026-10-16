@@ -10,7 +10,7 @@
 
 namespace Pancake {
 
-    void load(void (*method)(Scene* scene)) {
+    void load(std::function<void(Scene*)> method) {
         Window::load(method);
     }
 

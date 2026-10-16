@@ -61,6 +61,11 @@ namespace Pancake {
             std::unordered_map<int, Component*>* getComponents();
             std::vector<Entity*> getEntities();
 
+            // Lookups by name or component. Dead entities are skipped.
+            Entity* findEntity(std::string name);
+            std::vector<Entity*> findEntities(std::string name);
+            template<class T> std::vector<Entity*> getEntitiesWith();
+
             // Spatial queries. An entity's bounds cover its transform and its rigidbody, if it has one.
             std::pair<glm::vec2, glm::vec2> getBounds(Entity* entity);
             std::vector<Entity*> getEntitiesIn(glm::vec2 min, glm::vec2 max);
@@ -68,5 +73,18 @@ namespace Pancake {
             std::vector<Entity*> getEntitiesAt(glm::vec2 position);
 
     };
+
+}
+
+namespace Pancake {
+
+    template<class T>
+    std::vector<Entity*> Scene::getEntitiesWith() {
+        std::vector<Entity*> result;
+        for (Entity* e : this->entities) {
+            if (!e->isDead() && e->hasComponent<T>()) {result.push_back(e);}
+        }
+        return result;
+    }
 
 }

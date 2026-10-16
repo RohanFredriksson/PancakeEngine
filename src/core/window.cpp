@@ -34,7 +34,7 @@ namespace Pancake {
 
         bool loadFlag = false;
         vector<string> loadFilenames;
-        vector<void (*)(Scene*)> loadMethods;
+        vector<std::function<void(Scene*)>> loadMethods;
 
         bool saveFlag = false;
         string saveFilename;
@@ -119,7 +119,7 @@ namespace Pancake {
 
     namespace Window {
 
-        void load(void(*method)(Scene* scene)) {
+        void load(std::function<void(Scene*)> method) {
             loadFlag = true;
             loadMethods.push_back(method);
         }
@@ -265,10 +265,16 @@ namespace Pancake {
                 }
 
                 if (loadFlag) {
-                    for (int i = 0; i < loadMethods.size(); i++) {loadMethods[i](scene);}
-                    for (int i = 0; i < loadFilenames.size(); i++) {scene->load(loadFilenames[i]);}
-                    loadMethods.clear();
-                    loadFilenames.clear();
+                    // Move the queues out before running them, so a load method that queues another load
+                    // can't reallocate the vector holding the function that is running. Queued loads still run this frame.
+                    while (!loadMethods.empty() || !loadFilenames.empty()) {
+                        vector<std::function<void(Scene*)>> methods;
+                        vector<string> filenames;
+                        methods.swap(loadMethods);
+                        filenames.swap(loadFilenames);
+                        for (auto& method : methods) {method(scene);}
+                        for (string& filename : filenames) {scene->load(filename);}
+                    }
                     loadFlag = false;
                 }
 

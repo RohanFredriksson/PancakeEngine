@@ -1,12 +1,14 @@
 #pragma once
 
+#include <functional>
+
 #include "pancake/core/scene.hpp"
 #include "pancake/core/entity.hpp"
 #include "pancake/core/component.hpp"
 
 namespace Pancake {
     
-    void load(void (*method)(Scene* scene));
+    void load(std::function<void(Scene*)> method);
     void load(string filename);
     void save(string filename);
     void reset();

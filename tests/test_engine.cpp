@@ -16,6 +16,7 @@ namespace {
     int settled = -1; // The frame the box came to rest on, which later steps are timed from.
     int boxId = -1;
     int groundId = -1;
+    int captured = 0; // Set by capturing load lambdas, including one queued from inside another load.
 
     void log(const char* message) {
         std::printf("frame %d: %s\n", frame, message);
@@ -25,11 +26,12 @@ namespace {
     Rigidbody* rigidbodyOf(int entityId) {
         Entity* e = Pancake::getEntity(entityId);
         if (e == nullptr) {return nullptr;}
-        return dynamic_cast<Rigidbody*>(e->getComponent("Rigidbody"));
+        return e->getComponent<Rigidbody>();
     }
 
-    void addBody(Scene* scene, vec2 position, vec2 size, float mass, int* id) {
+    void addBody(Scene* scene, std::string name, vec2 position, vec2 size, float mass, int* id) {
         Entity* e = new Entity(position);
+        e->setName(name);
         Rigidbody* r = new Rigidbody();
         BoxCollider* b = new BoxCollider();
         b->setSize(size);
@@ -79,6 +81,11 @@ class Driver : public Component {
                 for (Entity* e : near) {found = found || e->getId() == boxId;}
                 CHECK(found);
 
+                Entity* named = Pancake::getScene()->findEntity("Box");
+                CHECK(named != nullptr && named->getId() == boxId);
+                CHECK(Pancake::getScene()->findEntity("Nobody") == nullptr);
+                CHECK(Pancake::getScene()->getEntitiesWith<Rigidbody>().size() == 2);
+
                 Pancake::save(SAVE_FILE);
             }
 
@@ -96,6 +103,8 @@ class Driver : public Component {
                 CHECK(box != nullptr);
                 if (box != nullptr) {CHECK_NEAR(box->getEntity()->getPosition().y, -4.0, 0.1);}
                 CHECK(rigidbodyOf(groundId) != nullptr);
+                Entity* named = Pancake::getScene()->findEntity("Ground");
+                CHECK(named != nullptr && named->getId() == groundId);
             }
 
             if (t == 50) {
@@ -131,13 +140,28 @@ class Driver : public Component {
             }
 
             if (t == 80) {
-                log("reset again, then stop");
+                log("reset again with capturing load lambdas, then stop");
                 Pancake::reset();
-                Pancake::load([](Scene* scene) {
+                int value = 3;
+                Pancake::load([value](Scene* scene) {
+                    captured += value;
                     Entity* d = new Entity();
                     d->addComponent(new Driver());
                     scene->addEntity(d);
+                    // A load queued from inside a load still runs in the same frame.
+                    std::string name = "Queued";
+                    Pancake::load([name](Scene* scene) {
+                        Entity* e = new Entity();
+                        e->setName(name);
+                        scene->addEntity(e);
+                        captured += 4;
+                    });
                 });
+            }
+
+            if (t == 81) {
+                CHECK(captured == 7);
+                CHECK(Pancake::getScene()->findEntity("Queued") != nullptr);
             }
 
             if (t == 85) {Pancake::stop();}
@@ -151,8 +175,8 @@ REGISTER(Component, Driver);
 void init(Scene* scene) {
     scene->setName("Engine Test");
     scene->getPhysics()->setGravity(vec2(0.0f, -9.0f));
-    addBody(scene, vec2(0.0f, -5.0f), vec2(10.0f, 1.0f), 0.0f, &groundId);
-    addBody(scene, vec2(0.0f, 0.0f), vec2(1.0f, 1.0f), 1.0f, &boxId);
+    addBody(scene, "Ground", vec2(0.0f, -5.0f), vec2(10.0f, 1.0f), 0.0f, &groundId);
+    addBody(scene, "Box", vec2(0.0f, 0.0f), vec2(1.0f, 1.0f), 1.0f, &boxId);
     Entity* d = new Entity();
     d->addComponent(new Driver());
     scene->addEntity(d);

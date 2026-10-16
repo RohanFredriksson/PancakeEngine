@@ -7,6 +7,7 @@ namespace {
 
     bool keyDown[350] = {0};
     bool keyBeginDown[350] = {0};
+    bool keyEndDown[350] = {0};
     int keyPressCount = 0;
 
     double scrollX = 0.0;
@@ -21,6 +22,7 @@ namespace {
     double lastWorldY = 0.0;
     bool mouseDown[9] = {0};
     bool mouseBeginDown[9] = {0};
+    bool mouseEndDown[9] = {0};
     int mouseDownCount = 0;
     bool mouseDragging = 0;
     
@@ -41,7 +43,7 @@ namespace Pancake {
         else if (action == GLFW_RELEASE) {
             if (keyDown[key]) {keyPressCount--;}
             keyDown[key] = false;
-            keyBeginDown[key] = false;
+            keyEndDown[key] = true;
         }
 
     }
@@ -60,13 +62,23 @@ namespace Pancake {
         return keyBeginDown[key];
     }
 
+    bool KeyListener::isKeyEndDown(int key) {
+        if (key < 0 || key > 349) {return false;}
+        return keyEndDown[key];
+    }
+
     void KeyListener::endFrame() {
-        // A key is only "beginning down" for the frame it was pressed in.
-        for (int i = 0; i < 350; i++) {keyBeginDown[i] = false;}
+        // A key is only "beginning down" or "ending down" for the frame it was pressed or released in.
+        // Both are kept until here, so a tap that presses and releases within one frame is still seen.
+        for (int i = 0; i < 350; i++) {
+            keyBeginDown[i] = false;
+            keyEndDown[i] = false;
+        }
     }
 
     void MouseListener::calcOrthoX() {
 
+        if (Window::getScene() == nullptr || Window::getWidth() <= 0) {return;}
         float currentX = ((float) x / Window::getWidth()) * 2.0f - 1.0f;
         Camera* camera = Window::getScene()->getCamera();
         worldX = camera->getPosition().x + (currentX * 0.5f) * (camera->getProjectionSize().x / camera->getZoom());
@@ -75,6 +87,7 @@ namespace Pancake {
 
     void MouseListener::calcOrthoY() {
 
+        if (Window::getScene() == nullptr || Window::getHeight() <= 0) {return;}
         float currentY = ((float) y / Window::getHeight()) * 2.0f - 1.0f;
         Camera* camera = Window::getScene()->getCamera();
         worldY = camera->getPosition().y + (currentY * -0.5f) * (camera->getProjectionSize().y / camera->getZoom());
@@ -111,7 +124,7 @@ namespace Pancake {
         else if (action == GLFW_RELEASE) {
             if (mouseDown[button]) {mouseDownCount--;}
             mouseDown[button] = false;
-            mouseBeginDown[button] = false;
+            mouseEndDown[button] = true;
             mouseDragging = false;
         }
 
@@ -135,6 +148,11 @@ namespace Pancake {
 
         if (button < 0 || button > 8) {return false;}
         return mouseBeginDown[button];
+    }
+
+    bool MouseListener::isMouseEndDown(int button) {
+        if (button < 0 || button > 8) {return false;}
+        return mouseEndDown[button];
     }
 
     bool MouseListener::hasMouseMoved() {
@@ -187,7 +205,10 @@ namespace Pancake {
 
     void MouseListener::endFrame() {
 
-        for (int i = 0; i < 9; i++) {mouseBeginDown[i] = false;}
+        for (int i = 0; i < 9; i++) {
+            mouseBeginDown[i] = false;
+            mouseEndDown[i] = false;
+        }
         scrollX = 0.0;
         scrollY = 0.0;
         lastX = x;
