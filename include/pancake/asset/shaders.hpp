@@ -2,7 +2,7 @@
 
 namespace {
 
-const char* DEBUG_FRAGMENT = 
+constexpr const char* DEBUG_FRAGMENT = 
 "#version 330 core                                                    \n"
 "                                                                     \n"
 "in vec3 fColour;                                                     \n"
@@ -13,7 +13,7 @@ const char* DEBUG_FRAGMENT =
 "    colour = vec4(fColour, 1);                                       \n"
 "}                                                                    \n";
 
-const char* DEBUG_VERTEX = 
+constexpr const char* DEBUG_VERTEX = 
 "#version 330 core                                                    \n"
 "                                                                     \n"
 "layout (location = 0) in vec3 aPos;                                  \n"
@@ -30,7 +30,7 @@ const char* DEBUG_VERTEX =
 "    gl_Position = uProjection * uView * vec4(aPos, 1.0);             \n"
 "}                                                                    \n";
 
-const char* DEFAULT_FRAGMENT = 
+constexpr const char* DEFAULT_FRAGMENT = 
 "#version 330 core                                                    \n"
 "                                                                     \n"
 "in vec4 fColour;                                                     \n"
@@ -72,7 +72,7 @@ const char* DEFAULT_FRAGMENT =
 "    }                                                                \n"
 "}                                                                    \n";
 
-const char* DEFAULT_VERTEX = 
+constexpr const char* DEFAULT_VERTEX = 
 "#version 330 core                                                    \n"
 "layout (location=0) in vec3 aPos;                                    \n"
 "layout (location=1) in vec4 aColour;                                 \n"
@@ -97,7 +97,7 @@ const char* DEFAULT_VERTEX =
 "    gl_Position = uProjection * uView * vec4(aPos, 1.0);             \n"
 "}                                                                    \n";
 
-const char* ENTITY_FRAGMENT = 
+constexpr const char* ENTITY_FRAGMENT = 
 "#version 330 core                                                    \n"
 "                                                                     \n"
 "in vec4 fColour;                                                     \n"

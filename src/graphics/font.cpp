@@ -170,8 +170,16 @@ namespace Pancake {
         fileSize = ftell(fontFile);
         fseek(fontFile, 0, SEEK_SET);
         fontBuffer = (unsigned char*) malloc(fileSize);
-        fread(fontBuffer, fileSize, 1, fontFile);
+        bool read = fileSize > 0 && fread(fontBuffer, fileSize, 1, fontFile) == 1;
         fclose(fontFile);
+
+        // If the file could not be read, load the default font in it's place.
+        if (!read) {
+            std::cout << "ERROR::FONT::INIT::FILE_NOT_READ: '" << filename << "'\n";
+            free(fontBuffer);
+            this->load(reinterpret_cast<const unsigned char*>(PIXELLARI), this->size);
+            return;
+        }
 
         // Load the font.
         this->load((const unsigned char*) fontBuffer, this->size);    

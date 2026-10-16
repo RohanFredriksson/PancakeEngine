@@ -87,7 +87,10 @@ namespace Pancake {
                 selected = pick();
             }
 
-            ImGui::SetNextWindowSize(ImVec2(360, 480), ImGuiCond_FirstUseEver);
+            // Open on the right hand side, clear of the console.
+            ImGuiIO& io = ImGui::GetIO();
+            ImGui::SetNextWindowPos(ImVec2(io.DisplaySize.x - 370.0f, 10.0f), ImGuiCond_FirstUseEver);
+            ImGui::SetNextWindowSize(ImVec2(360, io.DisplaySize.y - 20.0f), ImGuiCond_FirstUseEver);
             if (!ImGui::Begin("Inspector", &active)) {ImGui::End(); return;}
 
             // Scene settings.

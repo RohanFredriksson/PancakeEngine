@@ -129,6 +129,8 @@ namespace Pancake {
             
             // If not active, don't render the terminal.
             if (!active) {return;}
+            // Open in the bottom left corner, clear of the inspector.
+            ImGui::SetNextWindowPos(ImVec2(10.0f, ImGui::GetIO().DisplaySize.y - 310.0f), ImGuiCond_FirstUseEver);
             ImGui::SetNextWindowSize(ImVec2(480, 300), ImGuiCond_FirstUseEver);
             if (!ImGui::Begin("Console", &active)) {ImGui::End(); return;}
 
