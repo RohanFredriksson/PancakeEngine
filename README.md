@@ -33,6 +33,29 @@ cmake ..
 make
 ```
 
+On Linux, GLFW and SoLoud need the X11, OpenGL and ALSA development packages:
+```
+sudo apt-get install libxrandr-dev libxinerama-dev libxcursor-dev libxi-dev libgl1-mesa-dev libasound2-dev
+```
+
+## Building the Engine on its Own
+The engine can also be built directly, which builds its tests and a demo sandbox.
+```
+git submodule update --init --recursive
+cmake -S . -B build
+cmake --build build -j
+ctest --test-dir build --output-on-failure
+./build/examples/pancake_demo
+```
+
+| Option | Default | Description |
+| --- | --- | --- |
+| `PANCAKE_BUILD_TESTS` | On when top level | Build the unit and engine tests. |
+| `PANCAKE_BUILD_EXAMPLES` | On when top level | Build the demo sandbox in `examples/`. |
+| `PANCAKE_ASAN` | Off | Build the engine, and everything linking it, with AddressSanitizer. |
+
+The engine tests open a real window. On a machine without a display, they run inside `xvfb-run` when it is installed.
+
 ## Example
 ```c++
 #include "pancake/pancake.hpp"
@@ -65,7 +88,6 @@ void TestInit(Scene* scene) {
     Entity* entity;
     MousePanHandler* mousepanhandler;
     Rigidbody* rigidbody;
-    CircleCollider* circle;
     BoxCollider* box;
 
     // Set the scene name
@@ -77,7 +99,10 @@ void TestInit(Scene* scene) {
     entity->addComponent(mousepanhandler);
     scene->addEntity(entity);
 
-    // Ground
+    // Gravity applies to every body by default. It can be changed per scene, or per body with setGravityScale.
+    scene->getPhysics()->setGravity(vec2(0.0f, -10.0f));
+
+    // Ground. A body with no mass is static.
     entity = new Entity(vec2(0.0f, -5.0f), vec2(1.0f, 1.0f), 0.0f);
     rigidbody = new Rigidbody();
     box = new BoxCollider();
@@ -110,13 +135,35 @@ int main(int argc, char* argv[]) {
 ## Features
 The engine provides the following features:
 - 2D graphics rendering using OpenGL.
-- 2D rigidbody physics engine supporting arbitrary collider shapes.
+- 2D rigidbody physics with box and circle colliders, combinable into compound bodies, solved with warm started sequential impulses so stacks stay stable.
+- World gravity, and force generator components for custom forces that act only on the bodies that opt in.
+- Collision listeners, sensors and raycasts.
+- Spatial queries to find entities in an area, near a point or under the mouse.
 - Audio playback and management using SoLoud.
-- Input management for keyboard, mouse and gamepad.
+- Input management for keyboard and mouse.
 - Entity-component system for managing game objects.
 - Resource loading from file system.
-- JSON serialization and deserialization for game data.
+- JSON serialization and deserialization for game data, including custom components.
+- An in-game console with built-in commands (`help`, `save`, `load`, `reset`, `debug`, `gravity`, `entities`, `inspector`) and support for your own.
+- An entity inspector: click an entity to view and edit its components.
 - Debug drawing for collision shapes and other debugging purposes.
+
+## Debugging Tools
+```c++
+Pancake::console(true);    // Open the console. Pancake::console() toggles it.
+Pancake::inspector(true);  // Open the inspector. Pancake::inspector() toggles it.
+Pancake::debug(true);      // Draw physics colliders, bounds and contacts.
+
+// Add a console command.
+Console::registerCommand("spawn", "spawn <x> <y>: Spawn a crate.", [](std::vector<std::string> args) {
+    // ...
+});
+```
+
+## Upgrading
+- Physics scenes now have world gravity, defaulting to `(0, -10)`. If you previously added a `Gravity` force generator to every body to get gravity, remove it or set the world gravity to zero with `scene->getPhysics()->setGravity(vec2(0.0f, 0.0f))`.
+- The collision solver was rewritten, so restitution and friction may feel slightly different. Bounces below 1 unit per second are no longer applied, so resting bodies don't jitter.
+- `KeyListener::isKeyBeginDown` and `MouseListener::isMouseBeginDown` are now true for the whole frame a key or button was pressed in, rather than only for the first caller.
 
 ## Contributions
 Contributions are welcome! If you find any bugs or have suggestions for improvements, feel free to open an issue or submit a pull request on GitHub.
