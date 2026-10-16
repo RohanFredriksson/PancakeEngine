@@ -140,12 +140,13 @@ The engine provides the following features:
 - Collision listeners with enter and exit events, sensors, collision layers and masks, and raycasts.
 - Spatial queries to find entities in an area, near a point or under the mouse.
 - Audio playback and management using SoLoud.
-- Input management for keyboard and mouse, with pressed, held and released events.
+- Input management for keyboard, mouse and gamepads, with pressed, held and released events.
+- A camera that can follow an entity, with smoothing, a dead zone and bounds, and shake.
 - Entity-component system for managing game objects, with typed component access and named entities.
 - Resource loading from file system.
 - JSON serialization and deserialization for game data, including custom components.
 - Time scale, pause and single stepping, with timers (`scene->after`, `scene->every`) and tweens with easing that follow them.
-- An in-game console with built-in commands (`help`, `save`, `load`, `reset`, `debug`, `gravity`, `entities`, `inspector`, `pause`, `step`, `timescale`, `spawn`, `kill`, `tp`, `fps`, `vsync`, `fullscreen`) and support for your own.
+- An in-game console with built-in commands (`help`, `save`, `load`, `reset`, `debug`, `gravity`, `entities`, `inspector`, `pause`, `step`, `timescale`, `spawn`, `kill`, `tp`, `fps`, `vsync`, `fullscreen`, `shake`, `gamepads`) and support for your own.
 - An entity inspector: click an entity to view and edit its components.
 - Debug drawing for collision shapes and other debugging purposes.
 
@@ -187,6 +188,22 @@ coin->setCollisionLayer(PICKUP)->setCollisionMask(PLAYER)->setSensor(true);
 
 // Raycasts can skip layers too.
 RaycastResult hit = scene->getPhysics()->raycast(Ray(origin, direction), 10.0f, ALL_LAYERS & ~PICKUP);
+```
+
+## Camera and Gamepads
+```c++
+// Follow the player. Smoothing is in seconds, the dead zone and bounds in world units. It is saved with the scene.
+player->addComponent<CameraFollow>()
+    ->setSmoothing(0.2f)
+    ->setDeadZone(vec2(1.0f, 0.5f))
+    ->setBounds(vec2(-50.0f, -10.0f), vec2(50.0f, 30.0f));
+
+scene->getCamera()->shake(0.3f, 0.4f); // Up to 0.3 units, fading over 0.4 seconds. Only the view moves.
+
+// Gamepad 0 by default. Sticks have the dead zone removed and up is positive y. Triggers go from 0 to 1.
+vec2 move = GamepadListener::getLeftStick();
+if (GamepadListener::isButtonBeginDown(GLFW_GAMEPAD_BUTTON_A)) {}
+float throttle = GamepadListener::getAxis(GLFW_GAMEPAD_AXIS_RIGHT_TRIGGER);
 ```
 
 ## Time, Timers and Tweens
