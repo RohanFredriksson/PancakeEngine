@@ -137,7 +137,7 @@ The engine provides the following features:
 - 2D graphics rendering using OpenGL.
 - 2D rigidbody physics with box and circle colliders, combinable into compound bodies, solved with warm started sequential impulses so stacks stay stable.
 - World gravity, and force generator components for custom forces that act only on the bodies that opt in.
-- Collision listeners, sensors and raycasts.
+- Collision listeners with enter and exit events, sensors, collision layers and masks, and raycasts.
 - Spatial queries to find entities in an area, near a point or under the mouse.
 - Audio playback and management using SoLoud.
 - Input management for keyboard and mouse, with pressed, held and released events.
@@ -166,6 +166,27 @@ if (KeyListener::isKeyEndDown(GLFW_KEY_SPACE)) {}   // Released this frame.
 // load accepts any callable, including capturing lambdas.
 int level = 2;
 Pancake::load([level](Scene* scene) { /* build the level */ });
+```
+
+## Collisions
+```c++
+class Coin : public Component, public CollisionListener {
+    public:
+        Coin() : Component("Coin") {}
+        void collisionEnter(Entity* with, CollisionManifold manifold) override {
+            if (with->getName() == "Player") {this->getEntity()->kill();} // Safe: listeners run after the step.
+        }
+        void collisionExit(Entity* with) override {}                    // Also sent when the other body is removed.
+        void collision(Entity* with, CollisionManifold manifold) override {} // Every contact, every step.
+};
+
+// Layers are bits. Two bodies collide only if each one's layer is in the other's mask.
+const uint32_t PLAYER = 1 << 1, ENEMY = 1 << 2, PICKUP = 1 << 3;
+player->setCollisionLayer(PLAYER)->setCollisionMask(ALL_LAYERS & ~PLAYER);
+coin->setCollisionLayer(PICKUP)->setCollisionMask(PLAYER)->setSensor(true);
+
+// Raycasts can skip layers too.
+RaycastResult hit = scene->getPhysics()->raycast(Ray(origin, direction), 10.0f, ALL_LAYERS & ~PICKUP);
 ```
 
 ## Time, Timers and Tweens
@@ -208,6 +229,9 @@ Console::registerCommand("spawn", "spawn <x> <y>: Spawn a crate.", [](std::vecto
 - The collision solver was rewritten, so restitution and friction may feel slightly different. Bounces below 1 unit per second are no longer applied, so resting bodies don't jitter.
 - `KeyListener::isKeyBeginDown` and `MouseListener::isMouseBeginDown` are now true for the whole frame a key or button was pressed in, rather than only for the first caller.
 - A key or mouse button pressed and released within one frame now still reports `isKeyBeginDown`/`isMouseBeginDown` for that frame, along with the new `isKeyEndDown`/`isMouseEndDown`.
+- Collision listeners are now called at the end of each physics step, after the solver, rather than during it. A body's velocity read in `collision` is the resolved one. Listeners can now kill entities safely.
+- An entity is marked dead before its components end, so its own listeners don't receive collision exits while it is being killed.
+- Bodies moved by game code, such as with `setPosition`, now collide from their new position in the next step rather than one step later.
 - Components added to an entity during its update now first update on the next frame, instead of the same frame.
 - `Pancake::load` and `Window::load` take a `std::function<void(Scene*)>` instead of a function pointer. Existing calls still compile.
 

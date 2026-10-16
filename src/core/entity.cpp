@@ -61,6 +61,7 @@ namespace Pancake {
     }
 
     Entity::~Entity() {
+        this->dead = true; // Components ending now see the entity is going, as with kill().
         Scene* scene = Window::getScene();
         for (Component* c: this->components) {c->kill();} // Delete all the components.
         for (Component* c: this->components) {
@@ -206,8 +207,8 @@ namespace Pancake {
 
     void Entity::kill() {
         if (this->dead) {return;}
+        this->dead = true; // Set first, so components ending now see the entity is dying, e.g. collision exits skip it.
         for (Component* c: this->components) {c->kill();}
-        this->dead = true;
     }
 
     void Entity::setId(int id) {

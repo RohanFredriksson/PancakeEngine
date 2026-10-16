@@ -18,6 +18,35 @@ namespace Pancake {
         const int MAX_STEPS_PER_UPDATE = 5;
         const float RESTITUTION_THRESHOLD = 1.0f; // Contacts slower than this do not bounce, which stops resting bodies jittering.
 
+        enum class EventKind {Enter, Contact, Exit};
+
+        // A listener call, collected during a step and made at its end.
+        struct CollisionEvent {
+            EventKind kind;
+            Rigidbody* a;
+            Rigidbody* b;
+            CollisionManifold manifold; // From a to b. Unused for exits.
+        };
+
+        // Calls f on each live listener of the body's entity, unless the entity is dying.
+        template<class F>
+        void notify(Rigidbody* body, F f) {
+            Entity* entity = body->getEntity();
+            if (entity == nullptr || entity->isDead()) {return;}
+            for (Component* component : entity->getComponents()) {
+                if (component->isDead()) {continue;}
+                CollisionListener* listener = dynamic_cast<CollisionListener*>(component);
+                if (listener != nullptr) {f(listener);}
+            }
+        }
+
+        void notifyExit(Rigidbody* a, Rigidbody* b) {
+            Entity* ea = a->getEntity();
+            Entity* eb = b->getEntity();
+            notify(a, [eb](CollisionListener* l) {l->collisionExit(eb);});
+            notify(b, [ea](CollisionListener* l) {l->collisionExit(ea);});
+        }
+
         inline float cross(glm::vec2 a, glm::vec2 b) {
             return a.x * b.y - a.y * b.x;
         }
@@ -194,10 +223,16 @@ namespace Pancake {
         this->registry.updateForces(this->timeStep);
         for (Rigidbody* rigidbody : this->rigidbodies) {rigidbody->integrateVelocity(this->timeStep);}
 
+        // Bodies moved by game code since the last step, e.g. teleported, take their new place in the grid now,
+        // rather than after this step's broad phase.
+        for (Rigidbody* rigidbody : this->rigidbodies) {rigidbody->updateGridRegistration(false);}
+
         // Required data structures to store collision data.
         std::unordered_set<std::pair<int, int>, IntPairHash> colliding;
         std::vector<std::pair<Rigidbody*, Rigidbody*>> collisions;
         std::vector<std::vector<CollisionManifold>> manifolds;
+        std::vector<CollisionEvent> events;
+        std::unordered_map<std::pair<int, int>, std::pair<Rigidbody*, Rigidbody*>, IntPairHash, IntPairEqual> current;
 
         for (const std::vector<Rigidbody*>& bodies : *this->grid) {
             
@@ -217,8 +252,9 @@ namespace Pancake {
                     auto it = colliding.find(ids);
                     if (it != colliding.end()) {continue;}
 
-                    // Check if they have infinite mass.
+                    // Check if they have infinite mass, or don't collide with each other's layers.
                     if (rigidbody1->hasInfiniteMass() && rigidbody2->hasInfiniteMass()) {continue;}
+                    if (!rigidbody1->canCollideWith(rigidbody2)) {continue;}
 
                     // Get the colliders of each body.
                     std::vector<Collider*> colliders1 = rigidbody1->getColliders();
@@ -247,21 +283,10 @@ namespace Pancake {
                         // Add the ID pair so we dont collide them again.
                         colliding.insert(ids);
 
-                        // Update the listeners
-                        for (CollisionManifold manifold : results) {
-
-                            for (Component* component : rigidbody1->getEntity()->getComponents()) {
-                                CollisionListener* listener = dynamic_cast<CollisionListener*>(component);
-                                if (listener != nullptr) {listener->collision(rigidbody2->getEntity(), manifold);}
-                            }
-
-                            CollisionManifold flipped = manifold.flip();
-                            for (Component* component : rigidbody2->getEntity()->getComponents()) {
-                                CollisionListener* listener = dynamic_cast<CollisionListener*>(component);
-                                if (listener != nullptr) {listener->collision(rigidbody1->getEntity(), flipped);}
-                            }
-
-                        }
+                        // Queue the listener calls for the end of the step.
+                        current[ids] = std::make_pair(rigidbody1, rigidbody2);
+                        if (this->touching.find(ids) == this->touching.end()) {events.push_back({EventKind::Enter, rigidbody1, rigidbody2, results[0]});}
+                        for (CollisionManifold manifold : results) {events.push_back({EventKind::Contact, rigidbody1, rigidbody2, manifold});}
 
                         // Visualise the contacts.
                         if (this->debug) {
@@ -326,6 +351,47 @@ namespace Pancake {
             correctPositions(collisions[i].first, collisions[i].second, manifolds[i]);
         }
 
+        // Pairs that touched last step but not this one have separated. New pairs join the touching set as their
+        // enter events are sent, so a body removed by a listener only sends exits for enters that were delivered.
+        for (auto it = this->touching.begin(); it != this->touching.end();) {
+            if (current.find(it->first) == current.end()) {
+                events.push_back({EventKind::Exit, it->second.first, it->second.second, CollisionManifold()});
+                it = this->touching.erase(it);
+            } else {it++;}
+        }
+
+        // Notify listeners now the step is done, in id order so it doesn't depend on the grid's iteration order.
+        // A listener may remove bodies, which sends their exits right away, so skip events for removed bodies.
+        std::stable_sort(events.begin(), events.end(), [](const CollisionEvent& x, const CollisionEvent& y) {
+            return std::make_pair(x.a->getId(), x.b->getId()) < std::make_pair(y.a->getId(), y.b->getId());
+        });
+        for (CollisionEvent& event : events) {
+            if (event.kind == EventKind::Exit) {notifyExit(event.a, event.b); continue;}
+            if (!this->has(event.a) || !this->has(event.b)) {continue;}
+            Entity* ea = event.a->getEntity();
+            Entity* eb = event.b->getEntity();
+            CollisionManifold flipped = event.manifold.flip();
+            if (event.kind == EventKind::Enter) {
+                std::pair<int, int> ids = std::make_pair(event.a->getId(), event.b->getId());
+                this->touching[ids] = std::make_pair(event.a, event.b);
+                notify(event.a, [&](CollisionListener* l) {l->collisionEnter(eb, event.manifold);});
+                notify(event.b, [&](CollisionListener* l) {l->collisionEnter(ea, flipped);});
+            } else {
+                notify(event.a, [&](CollisionListener* l) {l->collision(eb, event.manifold);});
+                notify(event.b, [&](CollisionListener* l) {l->collision(ea, flipped);});
+            }
+        }
+
+    }
+
+    bool World::isTouching(Rigidbody* a, Rigidbody* b) {
+        std::pair<int, int> ids = std::make_pair(std::min(a->getId(), b->getId()), std::max(a->getId(), b->getId()));
+        return this->touching.find(ids) != this->touching.end();
+    }
+
+    void World::clearContacts() {
+        this->touching.clear();
+        this->contactCache.clear();
     }
 
     void World::render() {
@@ -397,6 +463,14 @@ namespace Pancake {
 
         // Remove the rigidbody from the index and the spatial hash grid.
         if (!this->has(rigidbody)) {return;}
+
+        // Bodies it was touching get exit events once it is gone.
+        std::vector<std::pair<Rigidbody*, Rigidbody*>> ended;
+        for (auto it = this->touching.begin(); it != this->touching.end();) {
+            if (it->second.first == rigidbody || it->second.second == rigidbody) {ended.push_back(it->second); it = this->touching.erase(it);}
+            else {it++;}
+        }
+
         rigidbody->setWorld(nullptr);
         this->rigidbodiesIndex.erase(rigidbody);
         this->grid->remove(rigidbody);
@@ -413,29 +487,32 @@ namespace Pancake {
                 }
 
                 this->rigidbodies.erase(this->rigidbodies.begin() + i);
-                return;
+                break;
 
             }
         
         }
 
+        for (auto& pair : ended) {notifyExit(pair.first, pair.second);}
+
     }
 
     RaycastResult World::raycast(Ray ray) {
-
-        // An unbounded ray could cross any number of cells, so test every body.
-        RaycastResult best;
-        for (Rigidbody* rigidbody : this->rigidbodies) {
-            RaycastResult current = Raycast::raycast(rigidbody, ray);
-            if (current.hit != nullptr && current.distance < best.distance) {best = current;}
-        }
-
-        return best;
+        return this->raycast(ray, INFINITY);
     }
 
-    RaycastResult World::raycast(Ray ray, float maxDistance) {
+    RaycastResult World::raycast(Ray ray, float maxDistance, uint32_t mask) {
 
-        if (!std::isfinite(maxDistance)) {return this->raycast(ray);}
+        // An unbounded ray could cross any number of cells, so test every body.
+        if (!std::isfinite(maxDistance)) {
+            RaycastResult best;
+            for (Rigidbody* rigidbody : this->rigidbodies) {
+                if ((rigidbody->getCollisionLayer() & mask) == 0) {continue;}
+                RaycastResult current = Raycast::raycast(rigidbody, ray);
+                if (current.hit != nullptr && current.distance < best.distance) {best = current;}
+            }
+            return best;
+        }
 
         // Walk the spatial hash grid cells along the ray (Amanatides & Woo), testing the bodies in each cell.
         float size = (float) this->grid->getGridSize();
@@ -458,6 +535,7 @@ namespace Pancake {
 
             for (Rigidbody* rigidbody : this->grid->get(x, y)) {
                 if (!tested.insert(rigidbody).second) {continue;}
+                if ((rigidbody->getCollisionLayer() & mask) == 0) {continue;}
                 RaycastResult current = Raycast::raycast(rigidbody, ray);
                 if (current.hit != nullptr && current.distance <= maxDistance && current.distance < best.distance) {best = current;}
             }

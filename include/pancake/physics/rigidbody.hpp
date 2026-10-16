@@ -3,6 +3,7 @@
 #include <string>
 #include <vector>
 #include <utility>
+#include <cstdint>
 #include <unordered_set>
 
 #include <glm/glm.hpp>
@@ -42,6 +43,10 @@ namespace Pancake {
             bool massDirty;
             bool momentDirty;
             
+            // Two bodies collide only if each one's layer bits are in the other's mask.
+            uint32_t collisionLayer;
+            uint32_t collisionMask;
+
             bool sensor;
             bool infiniteMass;
             bool fixedOrientation;
@@ -72,6 +77,9 @@ namespace Pancake {
             float getMomentOfInertia();
             float getInverseMomentOfInertia();
             bool isSensor();
+            uint32_t getCollisionLayer();
+            uint32_t getCollisionMask();
+            bool canCollideWith(Rigidbody* other);
             bool hasForceGenerator(std::string type);
             bool hasFixedOrientation();
             bool hasInfiniteMass();
@@ -102,6 +110,8 @@ namespace Pancake {
             Rigidbody* setFriction(float cof);
             Rigidbody* setGravityScale(float scale);
             Rigidbody* setSensor(bool sensor);
+            Rigidbody* setCollisionLayer(uint32_t layer); // Usually a single bit, e.g. 1 << 2.
+            Rigidbody* setCollisionMask(uint32_t mask);   // The layers this body collides with.
             Rigidbody* setFixedOrientation(bool orientation);
             Rigidbody* setCentroidDirty();
             Rigidbody* setBoundsDirty();

@@ -52,16 +52,18 @@ There is no external test framework. `tests/test.hpp` provides `TEST("name") {..
 - `World::fixedUpdate` runs at 1/60 s, at most 5 steps per frame:
   1. Force generators add forces.
   2. `integrateVelocity` adds forces and world gravity × `gravityScale`.
-  3. Pairs are found through the `SpatialHashGrid<Rigidbody*>` and ordered by id.
-  4. Narrow phase runs (`collision.cpp`) and `CollisionListener` components are notified.
+  3. Bodies moved by game code update their grid cells. Pairs are found through the `SpatialHashGrid<Rigidbody*>`, ordered by id, and skipped unless `canCollideWith` (each layer is in the other's mask).
+  4. Narrow phase runs (`collision.cpp`). Listener events (enter, contact) are queued, not sent.
   5. Velocities are solved with warm-started sequential impulses, using a contact cache keyed by body id pair.
   6. `integratePosition` moves the bodies.
   7. Positions are corrected once.
+  8. Exits are found by comparing against `touching` (pairs touching after the last step), then events are sent in body-id-pair order. A pair joins `touching` only when its enter is sent, and `World::remove` sends exits for the removed body's pairs. So a listener can kill bodies mid-dispatch, and exits always match delivered enters.
 
   This order matters: integrating positions before solving made stacks jitter and collapse.
 - Collision features use one convention: the normal points from the first collider to the second, depth is the full penetration, and the point lies midway between the surfaces.
+- `Scene::~Scene` calls `World::clearContacts()` before killing entities, so teardown sends no exits. `Entity::kill` and `~Entity` mark the entity dead before ending components, and listeners on dead entities or dead components are skipped.
 - Forces are opt-in per body: `rigidbody->addForceGenerator("Gravity")` subscribes the body to the generator component of that type name.
-- `World::raycast(ray, maxDistance)` walks grid cells along the ray.
+- `World::raycast(ray, maxDistance, mask)` walks grid cells along the ray, skipping bodies whose layer isn't in the mask.
 - Physics debug drawing is off by default (`World::setDebugDraw`, console `debug`).
 
 **Rendering** (`graphics/`). `Renderer` groups `SpriteRenderer`s into `RenderBatch`es by z-index (max 1000 quads and 7 textures per batch). `TextRenderer` and `Animation` create child `SpriteRenderer`s. Shader sources are constants in `asset/shaders.hpp`, and the default font (Pixellari) is embedded in `asset/fonts.hpp`. Assets are cached by name in the namespaces in `asset/assetpool.hpp`. `DebugDraw` draws immediate-mode lines with a lifetime in frames.
