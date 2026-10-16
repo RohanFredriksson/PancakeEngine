@@ -18,9 +18,19 @@ namespace Pancake {
         public: virtual void collision(Entity* with, CollisionManifold manifold) {}
     };
 
+    // The impulses applied at a contact point, kept between steps to warm start the solver.
+    struct CachedContact {
+        glm::vec2 point;
+        glm::vec2 normal;
+        float normalImpulse;
+        float tangentImpulse;
+    };
+
     class World {
 
         private:
+
+            std::unordered_map<std::pair<int, int>, std::vector<CachedContact>, IntPairHash, IntPairEqual> contactCache;
 
             ForceRegistry registry;
             

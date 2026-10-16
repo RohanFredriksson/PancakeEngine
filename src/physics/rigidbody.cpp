@@ -1,6 +1,7 @@
 #include <cmath>
 #include <limits>
 #include <iostream>
+#include <imgui.h>
 #include "pancake/physics/rigidbody.hpp"
 #include "pancake/core/window.hpp"
 
@@ -148,6 +149,44 @@ namespace Pancake {
         }
 
         return true;
+
+    }
+
+    void Rigidbody::imgui() {
+
+        ImGui::Text("Mass:           %s", this->hasInfiniteMass() ? "infinite" : std::to_string(this->getMass()).c_str());
+        ImGui::Text("Colliders:      %d", (int) this->colliders.size());
+
+        glm::vec2 velocity = this->getVelocity();
+        ImGui::Text("Velocity:       ");
+        ImGui::SameLine();
+        if (ImGui::DragFloat2("##Velocity", &velocity[0], 0.1f)) {this->setVelocity(velocity);}
+
+        float angularVelocity = this->getAngularVelocity();
+        ImGui::Text("Spin:           ");
+        ImGui::SameLine();
+        if (ImGui::DragFloat("##AngularVelocity", &angularVelocity, 0.1f)) {this->setAngularVelocity(angularVelocity);}
+
+        float friction = this->friction;
+        ImGui::Text("Friction:       ");
+        ImGui::SameLine();
+        if (ImGui::DragFloat("##Friction", &friction, 0.01f, 0.0f, 10.0f)) {this->setFriction(friction);}
+
+        float restitution = this->restitution;
+        ImGui::Text("Restitution:    ");
+        ImGui::SameLine();
+        if (ImGui::DragFloat("##Restitution", &restitution, 0.01f, 0.0f, 1.0f)) {this->setRestitution(restitution);}
+
+        float gravityScale = this->gravityScale;
+        ImGui::Text("Gravity Scale:  ");
+        ImGui::SameLine();
+        if (ImGui::DragFloat("##GravityScale", &gravityScale, 0.01f)) {this->setGravityScale(gravityScale);}
+
+        bool sensor = this->sensor;
+        if (ImGui::Checkbox("Sensor", &sensor)) {this->setSensor(sensor);}
+        ImGui::SameLine();
+        bool fixedOrientation = this->fixedOrientation;
+        if (ImGui::Checkbox("Fixed Orientation", &fixedOrientation)) {this->setFixedOrientation(fixedOrientation);}
 
     }
 
@@ -534,28 +573,44 @@ namespace Pancake {
     }
 
     void Rigidbody::physicsUpdate(float dt) {
-        
-        // Static bodies are not integrated, but may still be moved by game code.
+        this->integrateVelocity(dt);
+        this->integratePosition(dt);
+    }
+
+    void Rigidbody::integrateVelocity(float dt) {
+
+        // Static bodies don't move.
         if (this->hasInfiniteMass()) {
             this->clearAccumulators();
+            return;
+        }
+
+        // Apply forces, torque and gravity.
+        glm::vec2 gravity = this->world != nullptr ? this->world->getGravity() * this->gravityScale : glm::vec2(0.0f, 0.0f);
+        this->velocity += (this->force * this->getInverseMass() + gravity) * dt;
+        if (!this->fixedOrientation) {this->angularVelocity += this->torque * dt * this->getInverseMomentOfInertia();}
+
+        // Clear the force and torque accumulators.
+        this->clearAccumulators();
+
+    }
+
+    void Rigidbody::integratePosition(float dt) {
+
+        // Static bodies are not integrated, but may still be moved by game code.
+        if (this->hasInfiniteMass()) {
             this->updateGridRegistration(false);
             return;
         }
 
-        // Required variables
-        glm::vec2 displacement = glm::vec2(0.0f, 0.0f);
-        float rotation = 0.0f;
-
         // Update linear
-        glm::vec2 gravity = this->world != nullptr ? this->world->getGravity() * this->gravityScale : glm::vec2(0.0f, 0.0f);
-        this->velocity += (this->force * this->getInverseMass() + gravity) * dt;
-        displacement = this->velocity * dt;
+        glm::vec2 displacement = this->velocity * dt;
         this->getEntity()->addPosition(displacement);
 
         // Update the rotation if allowed to.
+        float rotation = 0.0f;
         if (!this->fixedOrientation) {
 
-            this->angularVelocity += this->torque * dt * this->getInverseMomentOfInertia();
             rotation = this->angularVelocity * dt;
             this->getEntity()->addRotationAround(rotation, this->getCentroid());
 
@@ -572,9 +627,6 @@ namespace Pancake {
 
             // Note: There is no need to update collider rotation offsets since they are updated in the entity.
         }
-
-        // Clear the force and torque accumulators.
-        this->clearAccumulators();
 
         // Update the spatial hash grid if the bounding box has changed.
         this->updateGridRegistration(displacement != glm::vec2(0.0f, 0.0f) || rotation != 0.0f);

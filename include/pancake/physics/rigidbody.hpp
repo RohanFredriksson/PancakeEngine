@@ -54,6 +54,7 @@ namespace Pancake {
             void end() override;
             json serialise() override;
             bool load(json j) override;
+            void imgui() override;
 
             World* getWorld();
             void setWorld(World* world);
@@ -108,6 +109,8 @@ namespace Pancake {
             Rigidbody* setMomentDirty();
 
             void physicsUpdate(float dt);
+            void integrateVelocity(float dt);
+            void integratePosition(float dt);
             void updateGridRegistration(bool moved);
 
             void clearAccumulators();

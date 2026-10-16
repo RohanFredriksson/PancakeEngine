@@ -284,7 +284,8 @@ namespace Pancake {
         // If we don't need to perform expensive computations, don't.
         if (radians == 0.0f) {return;}
 
-        if (around.x == 0.0f && around.y == 0.0f) {
+        // Rotating around the entity's own position doesn't move it.
+        if (around == this->position) {
             this->addRotation(radians);
             return;
         }
