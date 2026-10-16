@@ -29,6 +29,10 @@ namespace Pancake {
             Renderer* renderer;
             World* physics;
             SpatialHashGrid<Entity*>* grid;
+            std::unordered_map<Entity*, std::pair<glm::vec2, glm::vec2>> gridBounds;
+
+            std::pair<glm::vec2, glm::vec2> computeBounds(Entity* entity);
+            void updateGrid(Entity* entity);
 
         public:
 
@@ -55,6 +59,13 @@ namespace Pancake {
             Entity* getEntity(int id);
             Component* getComponent(int id);
             std::unordered_map<int, Component*>* getComponents();
+            std::vector<Entity*> getEntities();
+
+            // Spatial queries. An entity's bounds cover its transform and its rigidbody, if it has one.
+            std::pair<glm::vec2, glm::vec2> getBounds(Entity* entity);
+            std::vector<Entity*> getEntitiesIn(glm::vec2 min, glm::vec2 max);
+            std::vector<Entity*> getEntitiesNear(glm::vec2 position, float radius);
+            std::vector<Entity*> getEntitiesAt(glm::vec2 position);
 
     };
 

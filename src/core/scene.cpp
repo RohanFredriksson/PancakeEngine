@@ -7,6 +7,7 @@
 
 #include "pancake/core/scene.hpp"
 #include "pancake/core/listener.hpp"
+#include "pancake/physics/rigidbody.hpp"
 #include "pancake/asset/assetpool.hpp"
 #include "pancake/asset/spritesheet.hpp"
 
@@ -37,6 +38,8 @@ namespace Pancake {
             delete e;
         }
 
+        this->gridBounds.clear();
+
         // Delete all scene elements.
         delete this->camera;
         delete this->renderer;
@@ -59,6 +62,7 @@ namespace Pancake {
         this->camera->adjustProjection();
         this->camera->update(dt);
         this->physics->update(dt); // This will update colliding components
+        this->physics->render();   // Queue physics debug lines, if enabled.
 
         // Update all the entities.
         std::deque<int> dead;
@@ -72,14 +76,20 @@ namespace Pancake {
             Entity* e = this->entities[i];
             this->entityIndex.erase(e->getId());
             this->entities.erase(this->entities.begin() + i);
+            this->grid->remove(e);
+            this->gridBounds.erase(e);
             delete e;
+        }
+
+        // Keep the spatial hash grid in sync with entities that have moved.
+        for (Entity* e : this->entities) {
+            if (!e->isDead()) {this->updateGrid(e);}
         }
 
     }
 
     void Scene::render() {
         this->renderer->render();
-        this->physics->render();
     }
 
     nlohmann::json Scene::serialise() {
@@ -87,6 +97,7 @@ namespace Pancake {
         nlohmann::json j;
         j.emplace("name", this->name);
         j.emplace("camera", this->camera->serialise());
+        j.emplace("gravity", nlohmann::json::array({this->physics->getGravity().x, this->physics->getGravity().y}));
         j.emplace("fonts", FontPool::serialise());
         j.emplace("spritesheets", Spritesheet::serialise());
         j.emplace("sprites", SpritePool::serialise());
@@ -113,21 +124,29 @@ namespace Pancake {
     void Scene::load(std::string filename) {
 
         std::ifstream f(filename);
-        nlohmann::json j;
-
-        try {
-            std::ifstream f(filename);
-            j = nlohmann::json::parse(f);
-        } 
-        
-        catch (const std::ifstream::failure& e) {
+        if (!f.is_open()) {
             std::cout << "ERROR::SCENE::LOAD::FILE_NOT_FOUND\n";
             return;
         }
 
+        nlohmann::json j;
+        try {
+            j = nlohmann::json::parse(f);
+        } 
+
         catch (const nlohmann::json::exception& e) {
             std::cout << "ERROR::SCENE::LOAD::JSON_PARSE_ERROR\n";
             return;
+        }
+
+        // Load the scene name.
+        if (j.contains("name") && j["name"].is_string()) {
+            this->name = j["name"];
+        }
+
+        // Load the world gravity.
+        if (j.contains("gravity") && j["gravity"].is_array() && j["gravity"].size() == 2 && j["gravity"][0].is_number() && j["gravity"][1].is_number()) {
+            this->physics->setGravity(glm::vec2(j["gravity"][0], j["gravity"][1]));
         }
 
         // Load camera settings into the camera.
@@ -146,7 +165,7 @@ namespace Pancake {
 
         // Load audio into the audio pool
         if (j.contains("audio") && j["audio"].is_array()) {
-            for (auto element : j["fonts"]) {
+            for (auto element : j["audio"]) {
                 if (element.is_object()) {
                     AudioWave::load(element);
                 }
@@ -212,6 +231,86 @@ namespace Pancake {
         std::pair<int, Entity*> p(entity->getId(), entity);
         this->entityIndex.insert(p);
         if (this->started) {entity->start();}
+        this->updateGrid(entity);
+    }
+
+    std::vector<Entity*> Scene::getEntities() {
+        return this->entities;
+    }
+
+    std::pair<glm::vec2, glm::vec2> Scene::computeBounds(Entity* entity) {
+
+        // The entity's transform, as an axis aligned box around its rotated size.
+        glm::vec2 size = glm::abs(entity->getSize());
+        float c = std::abs(cosf(entity->getRotation()));
+        float s = std::abs(sinf(entity->getRotation()));
+        glm::vec2 half = 0.5f * glm::vec2(size.x * c + size.y * s, size.x * s + size.y * c);
+        glm::vec2 min = entity->getPosition() - half;
+        glm::vec2 max = entity->getPosition() + half;
+
+        // Grow the box to cover the rigidbody's colliders.
+        Rigidbody* rigidbody = dynamic_cast<Rigidbody*>(entity->getComponent("Rigidbody"));
+        if (rigidbody != nullptr && !rigidbody->getColliders().empty()) {
+            std::pair<glm::vec2, glm::vec2> bounds = rigidbody->getBounds();
+            min = glm::min(min, bounds.first);
+            max = glm::max(max, bounds.second);
+        }
+
+        return std::make_pair(min, max);
+
+    }
+
+    void Scene::updateGrid(Entity* entity) {
+
+        std::pair<glm::vec2, glm::vec2> bounds = this->computeBounds(entity);
+        auto it = this->gridBounds.find(entity);
+        if (it != this->gridBounds.end() && it->second == bounds) {return;}
+
+        this->gridBounds[entity] = bounds;
+        this->grid->update(entity, bounds.first, bounds.second);
+
+    }
+
+    std::pair<glm::vec2, glm::vec2> Scene::getBounds(Entity* entity) {
+        auto it = this->gridBounds.find(entity);
+        if (it != this->gridBounds.end()) {return it->second;}
+        return this->computeBounds(entity);
+    }
+
+    std::vector<Entity*> Scene::getEntitiesIn(glm::vec2 min, glm::vec2 max) {
+
+        std::vector<Entity*> result;
+        glm::vec2 centre = 0.5f * (min + max);
+        glm::vec2 size = max - min;
+
+        for (Entity* e : this->grid->get(centre.x, centre.y, size.x, size.y)) {
+            if (e->isDead()) {continue;}
+            std::pair<glm::vec2, glm::vec2> b = this->getBounds(e);
+            bool overlaps = b.first.x <= max.x && b.second.x >= min.x && b.first.y <= max.y && b.second.y >= min.y;
+            if (overlaps) {result.push_back(e);}
+        }
+
+        return result;
+
+    }
+
+    std::vector<Entity*> Scene::getEntitiesNear(glm::vec2 position, float radius) {
+
+        std::vector<Entity*> result;
+        glm::vec2 extent = glm::vec2(radius, radius);
+
+        for (Entity* e : this->getEntitiesIn(position - extent, position + extent)) {
+            std::pair<glm::vec2, glm::vec2> b = this->getBounds(e);
+            glm::vec2 closest = glm::clamp(position, b.first, b.second);
+            if (glm::distance(closest, position) <= radius) {result.push_back(e);}
+        }
+
+        return result;
+
+    }
+
+    std::vector<Entity*> Scene::getEntitiesAt(glm::vec2 position) {
+        return this->getEntitiesIn(position, position);
     }
 
     Entity* Scene::getEntity(int id) {

@@ -2,6 +2,7 @@
 #include "pancake/core/engine.hpp"
 #include "pancake/audio/audioengine.hpp"
 #include "pancake/core/window.hpp"
+#include "pancake/core/inspector.hpp"
 
 #include "pancake/core/factory.hpp"
 #include "pancake/core/component.hpp"
@@ -64,12 +65,28 @@ namespace Pancake {
         Window::setProjectionHeight(height);
     }
 
+    void gravity(vec2 gravity) {
+        if (Window::getScene() != nullptr) {Window::getScene()->getPhysics()->setGravity(gravity);}
+    }
+
+    void debug(bool state) {
+        if (Window::getScene() != nullptr) {Window::getScene()->getPhysics()->setDebugDraw(state);}
+    }
+
     void console(bool state) {
         Console::set(state);
     }
     
     void console() {
         Console::toggle();
+    }
+
+    void inspector(bool state) {
+        Inspector::set(state);
+    }
+
+    void inspector() {
+        Inspector::toggle();
     }
 
     Scene* getScene() {

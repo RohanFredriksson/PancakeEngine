@@ -13,6 +13,7 @@
 #include <imgui_impl_opengl3.h>
 
 #include "pancake/core/window.hpp"
+#include "pancake/core/inspector.hpp"
 #include "pancake/core/listener.hpp"
 #include "pancake/graphics/shader.hpp"
 #include "pancake/graphics/framebuffer.hpp"
@@ -89,6 +90,7 @@ namespace Pancake {
             ImGui_ImplGlfw_NewFrame();
             ImGui::NewFrame();
             Console::render();
+            Inspector::render();
             ImGui::Render();
             ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
