@@ -43,20 +43,23 @@ class ImpactFlash : public Component, public CollisionListener {
     private:
 
         float flash;
+        float speed; // Last frame's speed. Collision events arrive after the step has resolved the impact.
 
     public:
 
         ImpactFlash() : Component("ImpactFlash") {
             this->flash = 0.0f;
+            this->speed = 0.0f;
             this->setImguiable(false);
         }
 
-        void collision(Entity* with, CollisionManifold manifold) override {
-            Rigidbody* r = this->getEntity()->getComponent<Rigidbody>();
-            if (r != nullptr && glm::length(r->getVelocity()) > 6.0f) {this->flash = 0.15f;}
+        void collisionEnter(Entity* with, CollisionManifold manifold) override {
+            if (this->speed > 6.0f) {this->flash = 0.15f;}
         }
 
         void update(float dt) override {
+            Rigidbody* r = this->getEntity()->getComponent<Rigidbody>();
+            if (r != nullptr) {this->speed = glm::length(r->getVelocity());}
             SpriteRenderer* sprite = this->getEntity()->getComponent<SpriteRenderer>();
             if (sprite == nullptr) {return;}
             if (this->flash > 0.0f) {

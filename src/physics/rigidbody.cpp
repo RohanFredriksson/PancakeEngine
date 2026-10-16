@@ -33,6 +33,8 @@ namespace Pancake {
         this->momentDirty = true;
 
         this->sensor = false;
+        this->collisionLayer = 1;
+        this->collisionMask = 0xFFFFFFFF;
         this->fixedOrientation = false;
 
     }
@@ -78,6 +80,8 @@ namespace Pancake {
         j.emplace("friction", this->friction);
         j.emplace("gravityScale", this->gravityScale);
         j.emplace("sensor", this->sensor);
+        j.emplace("collisionLayer", this->collisionLayer);
+        j.emplace("collisionMask", this->collisionMask);
         j.emplace("fixedOrientation", this->fixedOrientation);
 
         j.emplace("colliders", json::array());
@@ -139,6 +143,8 @@ namespace Pancake {
 
         // Optional, as older save files predate world gravity.
         if (j.contains("gravityScale") && j["gravityScale"].is_number()) {this->setGravityScale(j["gravityScale"]);}
+        if (j.contains("collisionLayer") && j["collisionLayer"].is_number_unsigned()) {this->setCollisionLayer(j["collisionLayer"]);}
+        if (j.contains("collisionMask") && j["collisionMask"].is_number_unsigned()) {this->setCollisionMask(j["collisionMask"]);}
 
         if (j.contains("forceGenerators") && j["forceGenerators"].is_array()) {
             for (auto element : j["forceGenerators"]) {
@@ -187,6 +193,16 @@ namespace Pancake {
         ImGui::SameLine();
         bool fixedOrientation = this->fixedOrientation;
         if (ImGui::Checkbox("Fixed Orientation", &fixedOrientation)) {this->setFixedOrientation(fixedOrientation);}
+
+        uint32_t layer = this->collisionLayer;
+        ImGui::Text("Layer:          ");
+        ImGui::SameLine();
+        if (ImGui::InputScalar("##CollisionLayer", ImGuiDataType_U32, &layer, nullptr, nullptr, "%08X", ImGuiInputTextFlags_CharsHexadecimal)) {this->setCollisionLayer(layer);}
+
+        uint32_t mask = this->collisionMask;
+        ImGui::Text("Mask:           ");
+        ImGui::SameLine();
+        if (ImGui::InputScalar("##CollisionMask", ImGuiDataType_U32, &mask, nullptr, nullptr, "%08X", ImGuiInputTextFlags_CharsHexadecimal)) {this->setCollisionMask(mask);}
 
     }
 
@@ -352,6 +368,18 @@ namespace Pancake {
 
     bool Rigidbody::isSensor() {
         return this->sensor;
+    }
+
+    uint32_t Rigidbody::getCollisionLayer() {
+        return this->collisionLayer;
+    }
+
+    uint32_t Rigidbody::getCollisionMask() {
+        return this->collisionMask;
+    }
+
+    bool Rigidbody::canCollideWith(Rigidbody* other) {
+        return (this->collisionLayer & other->collisionMask) != 0 && (other->collisionLayer & this->collisionMask) != 0;
     }
 
     bool Rigidbody::hasForceGenerator(std::string type) {
@@ -538,6 +566,16 @@ namespace Pancake {
 
     Rigidbody* Rigidbody::setSensor(bool sensor) {
         this->sensor = sensor;
+        return this;
+    }
+
+    Rigidbody* Rigidbody::setCollisionLayer(uint32_t layer) {
+        this->collisionLayer = layer;
+        return this;
+    }
+
+    Rigidbody* Rigidbody::setCollisionMask(uint32_t mask) {
+        this->collisionMask = mask;
         return this;
     }
 

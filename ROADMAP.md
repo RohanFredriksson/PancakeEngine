@@ -18,8 +18,8 @@ Tick an item off in the same branch that implements it.
 
 ## Batch 3: physics for gameplay
 
-- [ ] Collision enter and exit events (`collisionEnter` / `collisionExit`), from diffing contact pairs between steps.
-- [ ] Collision layers and masks on `Rigidbody`, checked in the broad phase, serialised and shown in the inspector.
+- [x] Collision enter and exit events (`collisionEnter` / `collisionExit`), from diffing contact pairs between steps. Exits are also sent when a body is removed.
+- [x] Collision layers and masks on `Rigidbody`, checked in the broad phase, serialised and shown in the inspector. Raycasts take a mask.
 
 ## Batch 4: camera and input devices
 

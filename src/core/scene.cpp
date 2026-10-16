@@ -32,6 +32,8 @@ namespace Pancake {
     Scene::~Scene() {
         
         // Kill all entities, so components unregister while the scene systems still exist.
+        // Forget contacts first, so no collision exits are sent to entities that are about to be deleted.
+        this->physics->clearContacts();
         for (Entity* e : this->entities) {
             e->kill();
         }
