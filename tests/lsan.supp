@@ -1,0 +1,16 @@
+# Leaks inside third party audio and graphics drivers that the engine cannot free.
+leak:ma_context_init
+leak:ma_device_init
+leak:libpulse
+leak:libasound
+leak:libjack
+leak:libdbus
+leak:libLLVM
+leak:libgallium
+leak:swrast_dri
+leak:libGLX
+leak:libEGL
+leak:libX11
+leak:libxcb
+leak:_dl_open
+leak:_dl_init

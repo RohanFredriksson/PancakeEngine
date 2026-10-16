@@ -1,0 +1,40 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  linux:
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: asan
+            flags: -DPANCAKE_ASAN=ON
+          - name: release
+            flags: -DCMAKE_BUILD_TYPE=Release
+    name: linux (${{ matrix.name }})
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libxrandr-dev libxinerama-dev libxcursor-dev libxi-dev \
+            libgl1-mesa-dev libgl1-mesa-dri libasound2-dev xvfb
+
+      - name: Configure
+        # The bundled dependencies declare old CMake minimums, which newer CMake rejects without this.
+        run: cmake -S . -B build -DGLFW_BUILD_WAYLAND=OFF -DCMAKE_POLICY_VERSION_MINIMUM=3.5 ${{ matrix.flags }}
+
+      - name: Build
+        run: cmake --build build -j
+
+      - name: Test
+        env:
+          LIBGL_ALWAYS_SOFTWARE: "1"
+        run: ctest --test-dir build --output-on-failure
