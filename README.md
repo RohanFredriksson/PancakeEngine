@@ -146,8 +146,9 @@ The engine provides the following features:
 - Resource loading from file system.
 - JSON serialization and deserialization for game data, including custom components.
 - Time scale, pause and single stepping, with timers (`scene->after`, `scene->every`) and tweens with easing that follow them.
-- An in-game console with built-in commands (`help`, `save`, `load`, `reset`, `debug`, `gravity`, `entities`, `inspector`, `pause`, `step`, `timescale`, `spawn`, `kill`, `tp`, `fps`, `vsync`, `fullscreen`, `shake`, `gamepads`) and support for your own.
-- An entity inspector: click an entity to view and edit its components.
+- An in-game console with built-in commands (`help`, `save`, `load`, `reset`, `debug`, `gravity`, `entities`, `inspector`, `pause`, `step`, `timescale`, `spawn`, `kill`, `tp`, `fps`, `vsync`, `fullscreen`, `shake`, `gamepads`, `clone`, `prefab`, `saveprefab`, `hotreload`, `reload`) and support for your own.
+- An entity inspector: click an entity to view and edit its components, drag it to move it, duplicate or delete it, and pause, step, save and load from its toolbar.
+- Entity cloning and prefabs, and hot reloading of textures and audio when their files change.
 - Debug drawing for collision shapes and other debugging purposes.
 
 ## Working with Entities
@@ -225,6 +226,18 @@ Tween::position(entity, vec2(0.0f, 5.0f), 0.5f, Ease::outQuad)
 Tween::colour(sprite, vec4(1.0f, 0.0f, 0.0f, 1.0f), 0.2f);
 Tween::value(entity, 1.0f, [](float t) { /* t eases from 0 to 1 */ }, Ease::inOutSine);
 ```
+
+## Prefabs and Hot Reload
+```c++
+Entity* copy = entity->clone();                  // New ids, not yet in a scene.
+scene->addEntity(copy);
+
+Prefab::save(entity, "assets/prefabs/crate.json");
+Entity* crate = Pancake::spawn("assets/prefabs/crate.json", vec2(3.0f, 4.0f)); // Read again whenever the file changes.
+
+Pancake::hotReload(true); // Reload textures and audio when their files change, while the game runs.
+```
+Prefabs don't include assets, so load any sprites or spritesheets they use first.
 
 ## Debugging Tools
 ```c++

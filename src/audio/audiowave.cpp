@@ -57,4 +57,12 @@ namespace Pancake {
         this->source.stop();
     }
 
+    bool AudioWave::reload() {
+        this->source.stop();
+        if (this->source.load(this->filename.c_str()) == SoLoud::SO_NO_ERROR) {return true;}
+        std::cout << "ERROR::AUDIOWAVE::RELOAD_FAILED: '" << this->filename << "'\n";
+        this->source.loadMem(AUDIO_EMPTY, AUDIO_EMPTY_LEN);
+        return false;
+    }
+
 }

@@ -5,7 +5,7 @@
 //   Right drag        pan the camera
 //   Scroll            zoom
 //   D                 toggle physics debug drawing
-//   I                 toggle the inspector
+//   I                 toggle the inspector (drag to move, Delete, Ctrl+D to duplicate)
 //   `                 toggle the console (try "help")
 //   P                 pause or resume
 //   N                 step one physics frame (pauses)
@@ -164,7 +164,8 @@ class Sandbox : public Component {
             // Keyboard shortcuts are ignored while typing into an ImGui window, such as the console.
             if (!ImGui::GetIO().WantCaptureKeyboard) {
                 if (KeyListener::isKeyBeginDown(GLFW_KEY_ESCAPE)) {Pancake::stop();}
-                if (KeyListener::isKeyBeginDown(GLFW_KEY_D)) {Console::execute("debug");}
+                bool control = KeyListener::isKeyDown(GLFW_KEY_LEFT_CONTROL) || KeyListener::isKeyDown(GLFW_KEY_RIGHT_CONTROL);
+                if (KeyListener::isKeyBeginDown(GLFW_KEY_D) && !control) {Console::execute("debug");} // Ctrl+D duplicates in the inspector.
                 if (KeyListener::isKeyBeginDown(GLFW_KEY_I)) {Pancake::inspector();}
                 if (KeyListener::isKeyBeginDown(GLFW_KEY_R)) {Pancake::reset(); Pancake::load(build);}
                 if (KeyListener::isKeyBeginDown(GLFW_KEY_P)) {Pancake::pause();}

@@ -8,6 +8,8 @@
 #include "pancake/core/inspector.hpp"
 #include "pancake/core/window.hpp"
 #include "pancake/core/listener.hpp"
+#include "pancake/core/prefab.hpp"
+#include "pancake/asset/assetpool.hpp"
 #include "pancake/graphics/debugdraw.hpp"
 #include "pancake/graphics/spriterenderer.hpp"
 #include "pancake/physics/rigidbody.hpp"
@@ -208,6 +210,47 @@ namespace Pancake {
                 e->setPosition(glm::vec2(x, y));
                 Rigidbody* r = e->getComponent<Rigidbody>();
                 if (r != nullptr) {r->setVelocity(0.0f, 0.0f)->setAngularVelocity(0.0f);}
+            });
+
+            Console::registerCommand("clone", "clone <id|name> [x y]: Copy an entity, at a position or on top of it.", [](std::vector<std::string> args) {
+                Scene* scene = Window::getScene();
+                if (scene == nullptr) {return;}
+                float x, y;
+                bool positioned = args.size() == 3 && parseFloat(args[1], &x) && parseFloat(args[2], &y);
+                if (args.size() != 1 && !positioned) {Console::print("Usage: clone <id|name> [x y]"); return;}
+                Entity* e = findEntity(args[0]);
+                if (e == nullptr) {Console::print("No entity " + args[0]); return;}
+                Entity* copy = e->clone();
+                if (copy == nullptr) {Console::print("Could not clone entity " + args[0]); return;}
+                if (positioned) {copy->setPosition(glm::vec2(x, y));}
+                scene->addEntity(copy);
+                Console::print("Cloned entity " + std::to_string(copy->getId()));
+            });
+
+            Console::registerCommand("prefab", "prefab <file> <x> <y>: Spawn a prefab.", [](std::vector<std::string> args) {
+                float x, y;
+                if (args.size() != 3 || !parseFloat(args[1], &x) || !parseFloat(args[2], &y)) {Console::print("Usage: prefab <file> <x> <y>"); return;}
+                Entity* e = Prefab::spawn(args[0], glm::vec2(x, y));
+                if (e == nullptr) {Console::print("Could not load prefab " + args[0]); return;}
+                Console::print("Spawned entity " + std::to_string(e->getId()));
+            });
+
+            Console::registerCommand("saveprefab", "saveprefab <id|name> <file>: Save an entity as a prefab.", [](std::vector<std::string> args) {
+                if (args.size() != 2) {Console::print("Usage: saveprefab <id|name> <file>"); return;}
+                Entity* e = findEntity(args[0]);
+                if (e == nullptr) {Console::print("No entity " + args[0]); return;}
+                if (Prefab::save(e, args[1])) {Console::print("Saved prefab " + args[1]);}
+                else {Console::print("Could not save prefab " + args[1]);}
+            });
+
+            Console::registerCommand("hotreload", "hotreload [on|off]: Reload textures and audio when their files change.", [](std::vector<std::string> args) {
+                bool state = parseState(args, AssetPool::hasHotReload());
+                AssetPool::setHotReload(state);
+                Console::print(std::string("Hot reload ") + (state ? "on" : "off"));
+            });
+
+            Console::registerCommand("reload", "Reload textures and audio whose files have changed.", [](std::vector<std::string> args) {
+                Console::print("Reloaded " + std::to_string(AssetPool::reloadChanged()) + " assets");
             });
 
             Console::registerCommand("fps", "fps [on|off]: Show the frame rate.", [](std::vector<std::string> args) {

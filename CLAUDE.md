@@ -47,6 +47,8 @@ There is no external test framework. `tests/test.hpp` provides `TEST("name") {..
 - `Camera::shake` offsets the view only (`getView`). `getPosition` stays the logical position, which `CameraFollow` and mouse world coordinates use. `CameraFollow` (`components/camerafollow.hpp`) is serialised; its logic is in `apply(camera, target, dt)` so it can be tested without a window.
 - `TransformableComponent` adds a position/size/rotation offset relative to the entity.
 
+**Prefabs and copies** (`core/prefab.cpp`). `Entity::load(json)` keeps the ids in the json. `Entity::instantiate(json)` and `Entity::clone()` give the entity and its components new ids (a component keeps the id its constructor gave it). `Prefab::load/spawn` cache each file's json and read it again when its modified time changes.
+
 **Serialisation / reflection** (`core/factory.hpp`). `REGISTER(Base, Derived)` registers a default constructor under the class name. `FACTORY(Component).create(type)` is used by `Entity::load`, and `FACTORY(Collider)` by `Rigidbody::load`. Every serialisable component needs a default constructor, a `serialise()`/`load(json)` pair that chains to its base class, and a `REGISTER` line. New fields added to existing components should be optional on load, so older save files keep loading (see `gravityScale`). `Scene::serialise` also writes gravity and the asset pools (fonts, spritesheets, sprites, audio).
 
 **Physics** (`physics/`). `Rigidbody` is a component holding non-component `Collider`s (`BoxCollider`, `CircleCollider`), which it owns. Mass, centroid, moment and bounds are lazily recomputed via dirty flags. A body with zero total collider mass is static.
@@ -70,7 +72,9 @@ There is no external test framework. `tests/test.hpp` provides `TEST("name") {..
 
 **Rendering** (`graphics/`). `Renderer` groups `SpriteRenderer`s into `RenderBatch`es by z-index (max 1000 quads and 7 textures per batch). `TextRenderer` and `Animation` create child `SpriteRenderer`s. Shader sources are constants in `asset/shaders.hpp`, and the default font (Pixellari) is embedded in `asset/fonts.hpp`. Assets are cached by name in the namespaces in `asset/assetpool.hpp`. `DebugDraw` draws immediate-mode lines with a lifetime in frames.
 
-**Tools** (`core/console.cpp`, `core/inspector.cpp`). The console has a command registry (`Console::registerCommand`, `Console::execute`). The inspector picks the clicked entity with the picking texture, falling back to scene bounds for entities without sprites. It stores the selection as an id so it never dereferences a deleted entity, and it draws each component's `imgui()`.
+**Hot reload** (`asset/assetpool.cpp`). `TexturePool::get` and `AudioPool::get` record each file's modified time. `AssetPool::reloadChanged()` reloads changed files in place (`Texture::reload` keeps the GL texture id, so sprites keep working), and `AssetPool::update` calls it twice a second of real time when `setHotReload(true)`.
+
+**Tools** (`core/console.cpp`, `core/inspector.cpp`). The console has a command registry (`Console::registerCommand`, `Console::execute`). The inspector picks the clicked entity with the picking texture, falling back to scene bounds for entities without sprites. It stores the selection as an id so it never dereferences a deleted entity, and it draws each component's `imgui()`. Dragging moves the selection and stops its body. The editing actions are public (`Inspector::duplicateSelected`, `deleteSelected`, `moveSelected`) so tests can call them.
 
 **Audio** (`audio/`). A SoLoud wrapper. `AudioEngine::init/destroy` wraps `Window::start()` in `Pancake::start()`.
 

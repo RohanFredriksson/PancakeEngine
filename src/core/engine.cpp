@@ -3,6 +3,8 @@
 #include "pancake/audio/audioengine.hpp"
 #include "pancake/core/window.hpp"
 #include "pancake/core/inspector.hpp"
+#include "pancake/core/prefab.hpp"
+#include "pancake/asset/assetpool.hpp"
 
 #include "pancake/core/factory.hpp"
 #include "pancake/core/component.hpp"
@@ -135,6 +137,14 @@ namespace Pancake {
 
     bool isFullscreen() {
         return Window::isFullscreen();
+    }
+
+    void hotReload(bool state) {
+        AssetPool::setHotReload(state);
+    }
+
+    Entity* spawn(std::string filename, vec2 position) {
+        return Prefab::spawn(filename, position);
     }
 
     Scene* getScene() {

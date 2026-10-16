@@ -125,6 +125,18 @@ namespace Pancake {
     }
 
     Entity* Entity::load(nlohmann::json j) {
+        return Entity::load(j, true);
+    }
+
+    Entity* Entity::instantiate(nlohmann::json j) {
+        return Entity::load(j, false);
+    }
+
+    Entity* Entity::clone() {
+        return Entity::instantiate(this->serialise());
+    }
+
+    Entity* Entity::load(nlohmann::json j, bool keepIds) {
 
         if (!j.contains("id") || !j["id"].is_number_integer()) {return nullptr;}
 
@@ -142,7 +154,8 @@ namespace Pancake {
         if (j.contains("name") && !j["name"].is_string()) {return nullptr;}
 
         Entity* e = new Entity();
-        e->init(j["id"], glm::vec2(j["position"][0], j["position"][1]), glm::vec2(j["size"][0], j["size"][1]), j["rotation"], true);
+        int id = keepIds ? (int) j["id"] : e->getId();
+        e->init(id, glm::vec2(j["position"][0], j["position"][1]), glm::vec2(j["size"][0], j["size"][1]), j["rotation"], true); // Loading only moves the id counter forwards.
         if (j.contains("name")) {e->name = j["name"];}
 
         if (j.contains("components") && j["components"].is_array()) {
@@ -151,8 +164,10 @@ namespace Pancake {
                     if (!element.contains("type") || !element["type"].is_string()) {continue;}
                     Component* c = FACTORY(Component).create(element["type"]);
                     if (c == nullptr) {continue;}
+                    int fresh = c->getId(); // The id the constructor gave it, kept for new copies.
                     if (!c->load(element)) {delete c; continue;}
-                    else {e->addComponent(c);}
+                    if (!keepIds) {c->setId(fresh);}
+                    e->addComponent(c);
                 }
             }
         }

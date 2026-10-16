@@ -25,6 +25,7 @@ namespace Pancake {
             bool dead;
 
             void init(int id, glm::vec2 position, glm::vec2 size, float radians, bool load);
+            static Entity* load(nlohmann::json j, bool keepIds);
 
         public:
 
@@ -40,7 +41,9 @@ namespace Pancake {
             void start();
             void update(float dt);
             nlohmann::json serialise();
-            static Entity* load(nlohmann::json j);
+            static Entity* load(nlohmann::json j);        // Keeps the ids in the json, as when loading a scene.
+            static Entity* instantiate(nlohmann::json j); // Gives the entity and its components new ids, as for a prefab.
+            Entity* clone();                              // A copy of the serialisable parts, with new ids, not yet in a scene.
             void imgui();
             void kill();
 
