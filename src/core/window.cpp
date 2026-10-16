@@ -299,6 +299,7 @@ namespace Pancake {
                 }
 
                 glfwPollEvents();
+                GamepadListener::poll();
 
                 if (saveFlag) {
                     scene->save(saveFilename);

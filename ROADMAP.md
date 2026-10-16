@@ -23,9 +23,9 @@ Tick an item off in the same branch that implements it.
 
 ## Batch 4: camera and input devices
 
-- [ ] `CameraFollow` component: target entity, smoothing, dead zone, bounds clamp.
-- [ ] Camera shake: `shake(intensity, duration)`.
-- [ ] Gamepad input through `glfwGetGamepadState`, with begin, down and end semantics.
+- [x] `CameraFollow` component: target entity, smoothing, dead zone, bounds clamp, offset.
+- [x] Camera shake: `shake(intensity, duration)`, and a `shake` console command.
+- [x] Gamepad input through `glfwGetGamepadState`, with begin, down and end semantics, dead zones, and a `gamepads` console command.
 
 ## Batch 5: editor tooling
 

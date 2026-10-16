@@ -11,6 +11,7 @@
 //   N                 step one physics frame (pauses)
 //   F                 toggle the frame rate overlay
 //   R                 reset the sandbox
+//   Gamepad           left stick pans, A drops a box
 //   Escape            quit
 //
 // Run with --frames N to quit automatically after N frames.
@@ -55,6 +56,7 @@ class ImpactFlash : public Component, public CollisionListener {
 
         void collisionEnter(Entity* with, CollisionManifold manifold) override {
             if (this->speed > 6.0f) {this->flash = 0.15f;}
+            if (this->speed > 12.0f) {Pancake::getScene()->getCamera()->shake(0.15f, 0.25f);}
         }
 
         void update(float dt) override {
@@ -170,6 +172,13 @@ class Sandbox : public Component {
                 if (KeyListener::isKeyBeginDown(GLFW_KEY_F)) {Console::execute("fps");}
             }
             if (KeyListener::isKeyBeginDown(GLFW_KEY_GRAVE_ACCENT)) {Pancake::console();}
+
+            // Gamepad: the left stick pans, even while paused, and A drops a box at the centre of the view.
+            Camera* view = Pancake::getScene()->getCamera();
+            view->addPosition(GamepadListener::getLeftStick() * 10.0f * Pancake::getUnscaledDeltaTime());
+            if (GamepadListener::isButtonBeginDown(GLFW_GAMEPAD_BUTTON_A)) {
+                spawnBox(Pancake::getScene(), view->getPosition(), vec2(0.8f, 0.8f), 1.0f, randomColour());
+            }
 
             if (ImGui::GetIO().WantCaptureMouse) {return;}
             Camera* camera = Pancake::getScene()->getCamera();

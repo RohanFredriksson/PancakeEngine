@@ -34,6 +34,7 @@ There is no external test framework. `tests/test.hpp` provides `TEST("name") {..
 **Engine/Window loop** (`core/engine.cpp`, `core/window.cpp`). `Pancake::*` free functions are a thin facade over the `Window` namespace, which holds all global state (GLFW window, current `Scene*`, shaders, entity-picking framebuffer).
 - Calls such as `load`, `save`, `reset`, `title`, and `size` only **set flags**, which the main loop applies at the top of the next frame. `load(fn)` runs the init function against the current scene, and `reset()` replaces the scene with an empty one.
 - A component that resets the scene deletes itself, so tests and demos must `load` a new driver in the same frame.
+- Gamepads are polled after `glfwPollEvents` each frame (`GamepadListener::poll`). Begin and end down compare against the previous poll, so they need no `endFrame`, and `setState` lets tests fake a pad.
 - Each frame does `scene->update(dt)`, where `dt` is the frame time × time scale, zero while paused, or exactly one physics step for each `step()` while paused. Components keep updating while paused. Then the frame renders twice: once into an RGB32F framebuffer with the entity shader (sprite entity IDs for `Window::readPixel`) and once to the screen. Then `DebugDraw::render()` runs, followed by ImGui (`Console::render`, `Inspector::render`).
 - Shutdown deletes the scene, then the GL resources, then ImGui.
 
@@ -43,6 +44,7 @@ There is no external test framework. `tests/test.hpp` provides `TEST("name") {..
 - `Scene::after`/`every` timers run after entity updates, advance with the scene `dt`, and are cancelled when their owner entity dies. They aren't serialised. `Tween` (`components/tween.hpp`) is a non-serialised component that kills itself when done, and reads its start value when it begins, after its delay.
 - `kill()` marks a component dead and calls `end()`. The owning update loop deletes dead entities and components afterwards.
 - `Scene::~Scene` kills every entity before deleting any systems, so components can unregister while the systems still exist.
+- `Camera::shake` offsets the view only (`getView`). `getPosition` stays the logical position, which `CameraFollow` and mouse world coordinates use. `CameraFollow` (`components/camerafollow.hpp`) is serialised; its logic is in `apply(camera, target, dt)` so it can be tested without a window.
 - `TransformableComponent` adds a position/size/rotation offset relative to the entity.
 
 **Serialisation / reflection** (`core/factory.hpp`). `REGISTER(Base, Derived)` registers a default constructor under the class name. `FACTORY(Component).create(type)` is used by `Entity::load`, and `FACTORY(Collider)` by `Rigidbody::load`. Every serialisable component needs a default constructor, a `serialise()`/`load(json)` pair that chains to its base class, and a `REGISTER` line. New fields added to existing components should be optional on load, so older save files keep loading (see `gravityScale`). `Scene::serialise` also writes gravity and the asset pools (fonts, spritesheets, sprites, audio).
