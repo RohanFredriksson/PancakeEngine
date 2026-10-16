@@ -362,7 +362,6 @@ namespace Pancake {
 
             // Rebuffer the data if we removed it.
             for (int i = 0; i < this->sprites.size(); i++) {
-                SpriteRenderer* current = this->sprites[i];
                 this->loadVertexProperties(i);
             }
 

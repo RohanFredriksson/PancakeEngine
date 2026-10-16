@@ -24,8 +24,14 @@ namespace Pancake {
     void projection(vec2 size);
     void projection(float height);
 
+    void gravity(vec2 gravity);
+    void debug(bool state);
+
     void console(bool state);
     void console();
+
+    void inspector(bool state);
+    void inspector();
     
     Scene* getScene();
     Entity* getEntity(int id);

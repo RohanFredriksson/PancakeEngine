@@ -1,6 +1,7 @@
 #include <cmath>
 #include <limits>
 #include <algorithm>
+#include <cfloat>
 #include "pancake/physics/raycast.hpp"
 #include "pancake/physics/collider.hpp"
 
@@ -45,35 +46,52 @@ namespace Pancake {
 
         RaycastResult raycastBoxCollider(BoxCollider* box, Ray ray) {
 
-            // Rotate the ray into the box's local space.
+            // Transform the ray into the box's local space, where the box is axis aligned and centred at the origin.
             vec2 centre = box->getPosition();
             float radians = box->getRotation();
             float rCos = cosf(radians);
             float rSin = sinf(radians);
-            ray.rotate(centre, rCos, rSin);
+            vec2 origin = ray.origin;
+            vec2 direction = ray.direction;
+            rotateVector(origin, centre, rCos, -rSin);
+            rotateVector(direction, vec2(0.0f, 0.0f), rCos, -rSin);
+            origin -= centre;
+            vec2 half = box->getSize() * 0.5f;
 
-            // Perform the ray cast in local space.
-            vec2 unitVector = glm::normalize(ray.direction);
-            vec2 min = box->getPosition() - box->getSize() * 0.5f;
-            vec2 max = box->getPosition() + box->getSize() * 0.5f;
+            // Slab test against both axes.
+            float tEnter = -FLT_MAX;
+            float tExit = FLT_MAX;
+            vec2 enterNormal = vec2(0.0f, 0.0f);
+            vec2 exitNormal = vec2(0.0f, 0.0f);
 
-            float tMin = std::max(std::min(min.x, max.x), std::min(min.y, max.y));
-            float tMax = std::min(std::max(min.x, max.x), std::max(min.y, max.y));
+            for (int axis = 0; axis < 2; axis++) {
 
-            if (tMax < 0 || tMin > tMax) {return RaycastResult();}
+                if (std::abs(direction[axis]) < 1e-8f) {
+                    if (std::abs(origin[axis]) > half[axis]) {return RaycastResult();}
+                    continue;
+                }
 
-            float t = (tMin < 0.0f) ? tMax : tMin;
-            bool hit = t > 0.0f;
-            if (!hit) {return RaycastResult();}
+                float t1 = (-half[axis] - origin[axis]) / direction[axis];
+                float t2 = ( half[axis] - origin[axis]) / direction[axis];
+                float sign = direction[axis] > 0.0f ? 1.0f : -1.0f;
 
-            // Get the point and normal in the box's local space.
-            vec2 point = ray.direction * t + ray.origin;
-            vec2 normal = glm::normalize(ray.origin - point);
+                // t1 is always the face the ray enters through on this axis.
+                if (t1 > t2) {std::swap(t1, t2);}
+                if (t1 > tEnter) {tEnter = t1; enterNormal = vec2(0.0f, 0.0f); enterNormal[axis] = -sign;}
+                if (t2 < tExit) {tExit = t2; exitNormal = vec2(0.0f, 0.0f); exitNormal[axis] = sign;}
 
-            // Rotate the result back into global space.
-            rotateVector(point, centre, rCos, -rSin);
-            rotateVector(normal, vec2(0.0f, 0.0f), rCos, -rSin);
+            }
 
+            if (tEnter > tExit || tExit < 0.0f) {return RaycastResult();}
+
+            // If the ray starts inside the box, report where it leaves.
+            float t = tEnter;
+            vec2 normal = enterNormal;
+            if (tEnter < 0.0f) {t = tExit; normal = exitNormal;}
+
+            // Rotate the normal back into global space.
+            rotateVector(normal, vec2(0.0f, 0.0f), rCos, rSin);
+            vec2 point = ray.origin + ray.direction * t;
             return RaycastResult(point, normal, t, box->getRigidbody()->getEntity());
 
         }
@@ -90,13 +108,17 @@ namespace Pancake {
             float b2 = originToCircleColliderLengthSquared - (a * a);
             if (radiusSquared - b2 < 0.0f) {return RaycastResult();}
 
+            // If the ray starts inside the circle, report where it leaves.
             float f = sqrtf(radiusSquared - b2);
             float t = 0;
             if (originToCircleColliderLengthSquared < radiusSquared) {t = a + f;}
             else {t = a - f;}
 
+            // The circle is behind the ray.
+            if (t < 0.0f) {return RaycastResult();}
+
             vec2 point = ray.direction * t + ray.origin;
-            vec2 normal = glm::normalize(ray.origin - point);
+            vec2 normal = glm::normalize(point - position);
             return RaycastResult(point, normal, t, circle->getRigidbody()->getEntity());
 
         }

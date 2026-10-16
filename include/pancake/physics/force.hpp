@@ -11,11 +11,20 @@
 
 namespace Pancake {
 
+    class World;
+
     class ForceGenerator : public Component {
+
+        private:
+
+            World* world; // The physics world this generator has been added to.
 
         public:
 
             ForceGenerator(std::string type);
+            ~ForceGenerator() override;
+            World* getWorld();
+            void setWorld(World* world);
             void start() override;
             void end() override;
 

@@ -1,12 +1,15 @@
 #include <cmath>
 #include <limits>
 #include <iostream>
+#include <imgui.h>
 #include "pancake/physics/rigidbody.hpp"
 #include "pancake/core/window.hpp"
 
 namespace Pancake {
 
     Rigidbody::Rigidbody() : Component("Rigidbody") {
+
+        this->world = nullptr;
 
         this->force = glm::vec2(0.0f, 0.0f);
         this->velocity = glm::vec2(0.0f, 0.0f);
@@ -15,6 +18,7 @@ namespace Pancake {
 
         this->restitution = 1.0f;
         this->friction = 0.0f;
+        this->gravityScale = 1.0f;
 
         this->lastPosition = glm::vec2(0.0f, 0.0f);
         this->lastRotation = 0.0f;
@@ -33,13 +37,27 @@ namespace Pancake {
 
     }
 
+    Rigidbody::~Rigidbody() {
+        if (this->world != nullptr) {this->world->remove(this);}
+        for (Collider* c : this->colliders) {delete c;}
+    }
+
     void Rigidbody::start() {
-        Window::getScene()->getPhysics()->add(this);
+        Scene* scene = Window::getScene();
+        if (scene != nullptr) {scene->getPhysics()->add(this);}
     }
 
     void Rigidbody::end() {
-        Window::getScene()->getPhysics()->remove(this);
+        if (this->world != nullptr) {this->world->remove(this);}
         this->clearColliders();
+    }
+
+    World* Rigidbody::getWorld() {
+        return this->world;
+    }
+
+    void Rigidbody::setWorld(World* world) {
+        this->world = world;
     }
 
     json Rigidbody::serialise() {
@@ -58,6 +76,7 @@ namespace Pancake {
         j.emplace("angularVelocity", this->angularVelocity);
         j.emplace("restitution", this->restitution);
         j.emplace("friction", this->friction);
+        j.emplace("gravityScale", this->gravityScale);
         j.emplace("sensor", this->sensor);
         j.emplace("fixedOrientation", this->fixedOrientation);
 
@@ -96,15 +115,7 @@ namespace Pancake {
         if (!j.contains("sensor") || !j["sensor"].is_boolean()) {return false;}
         if (!j.contains("fixedOrientation") || !j["fixedOrientation"].is_boolean()) {return false;}
 
-        this->setForce(glm::vec2(j["force"][0], j["force"][1]));
-        this->setVelocity(glm::vec2(j["velocity"][0], j["velocity"][1]));
-        this->setTorque(j["torque"]);
-        this->setAngularVelocity(j["angularVelocity"]);
-        this->setRestitution(j["restitution"]);
-        this->setFriction(j["friction"]);
-        this->setSensor(j["sensor"]);
-        this->setFixedOrientation(j["fixedOrientation"]);
-
+        // Load the colliders first, as setting velocities and forces is ignored for bodies without mass.
         if (j.contains("colliders") && j["colliders"].is_array()) {
             for (auto element : j["colliders"]) {
                 if (element.is_object()) {
@@ -117,6 +128,18 @@ namespace Pancake {
             }
         }
 
+        this->setForce(glm::vec2(j["force"][0], j["force"][1]));
+        this->setVelocity(glm::vec2(j["velocity"][0], j["velocity"][1]));
+        this->setTorque(j["torque"]);
+        this->setAngularVelocity(j["angularVelocity"]);
+        this->setRestitution(j["restitution"]);
+        this->setFriction(j["friction"]);
+        this->setSensor(j["sensor"]);
+        this->setFixedOrientation(j["fixedOrientation"]);
+
+        // Optional, as older save files predate world gravity.
+        if (j.contains("gravityScale") && j["gravityScale"].is_number()) {this->setGravityScale(j["gravityScale"]);}
+
         if (j.contains("forceGenerators") && j["forceGenerators"].is_array()) {
             for (auto element : j["forceGenerators"]) {
                 if (element.is_string()) {
@@ -126,6 +149,44 @@ namespace Pancake {
         }
 
         return true;
+
+    }
+
+    void Rigidbody::imgui() {
+
+        ImGui::Text("Mass:           %s", this->hasInfiniteMass() ? "infinite" : std::to_string(this->getMass()).c_str());
+        ImGui::Text("Colliders:      %d", (int) this->colliders.size());
+
+        glm::vec2 velocity = this->getVelocity();
+        ImGui::Text("Velocity:       ");
+        ImGui::SameLine();
+        if (ImGui::DragFloat2("##Velocity", &velocity[0], 0.1f)) {this->setVelocity(velocity);}
+
+        float angularVelocity = this->getAngularVelocity();
+        ImGui::Text("Spin:           ");
+        ImGui::SameLine();
+        if (ImGui::DragFloat("##AngularVelocity", &angularVelocity, 0.1f)) {this->setAngularVelocity(angularVelocity);}
+
+        float friction = this->friction;
+        ImGui::Text("Friction:       ");
+        ImGui::SameLine();
+        if (ImGui::DragFloat("##Friction", &friction, 0.01f, 0.0f, 10.0f)) {this->setFriction(friction);}
+
+        float restitution = this->restitution;
+        ImGui::Text("Restitution:    ");
+        ImGui::SameLine();
+        if (ImGui::DragFloat("##Restitution", &restitution, 0.01f, 0.0f, 1.0f)) {this->setRestitution(restitution);}
+
+        float gravityScale = this->gravityScale;
+        ImGui::Text("Gravity Scale:  ");
+        ImGui::SameLine();
+        if (ImGui::DragFloat("##GravityScale", &gravityScale, 0.01f)) {this->setGravityScale(gravityScale);}
+
+        bool sensor = this->sensor;
+        if (ImGui::Checkbox("Sensor", &sensor)) {this->setSensor(sensor);}
+        ImGui::SameLine();
+        bool fixedOrientation = this->fixedOrientation;
+        if (ImGui::Checkbox("Fixed Orientation", &fixedOrientation)) {this->setFixedOrientation(fixedOrientation);}
 
     }
 
@@ -186,8 +247,15 @@ namespace Pancake {
 
         if (!this->boundsDirty) {return this->bounds;}
 
-        glm::vec2 first = glm::vec2(0.0f, 0.0f);
-        glm::vec2 second = glm::vec2(0.0f, 0.0f);
+        glm::vec2 position = this->getEntity()->getPosition();
+        if (this->colliders.empty()) {
+            this->bounds = std::make_pair(position, position);
+            this->boundsDirty = false;
+            return this->bounds;
+        }
+
+        glm::vec2 first = glm::vec2(FLT_MAX, FLT_MAX);
+        glm::vec2 second = glm::vec2(-FLT_MAX, -FLT_MAX);
 
         for (Collider* c : this->colliders) {
 
@@ -204,7 +272,6 @@ namespace Pancake {
 
         }
 
-        glm::vec2 position = this->getEntity()->getPosition();
         this->bounds = std::make_pair(position + first, position + second);
         this->boundsDirty = false;
         return this->bounds;
@@ -222,6 +289,10 @@ namespace Pancake {
 
     float Rigidbody::getFriction() {
         return this->friction;
+    }
+
+    float Rigidbody::getGravityScale() {
+        return this->gravityScale;
     }
 
     float Rigidbody::getMass() {
@@ -262,12 +333,11 @@ namespace Pancake {
         }
         
         float moment = 0.0f;
-        float mass = this->getMass();
         glm::vec2 centroid = this->getCentroid();
         for (Collider* c : this->colliders) {
             glm::vec2 r = c->getPosition() - centroid;
             float rr = r.x * r.x + r.y * r.y;
-            moment += c->getMomentOfInertia() + rr * mass;
+            moment += c->getMomentOfInertia() + rr * c->getMass();
         }
 
         this->moment = moment;
@@ -367,18 +437,10 @@ namespace Pancake {
         // Add the force generator to the local collection.
         this->forceGenerators.insert(type);
 
-        // If the scene exists.
-        Scene* scene = Window::getScene();
-        if (scene == nullptr) {return this;}
-
-        // If the physics engine exists.
-        World* world = scene->getPhysics();
-        if (world == nullptr) {return this;}
-
         // If the rigidbody has already been added, we need to update the registrations.
         // If it hasn't been added, it will be updated when the rigidbody is added to the engine.
-        if (!world->has(this)) {return this;}
-        world->addForceRegistration(type, this);
+        if (this->world == nullptr) {return this;}
+        this->world->addForceRegistration(type, this);
         return this;
 
     }
@@ -393,18 +455,9 @@ namespace Pancake {
         // Remove the force generator name from the local collection.
         this->forceGenerators.erase(type);
 
-        // If the scene exists.
-        Scene* scene = Window::getScene();
-        if (scene == nullptr) {return this;}
-
-        // If the physics engine exists.
-        World* world = scene->getPhysics();
-        if (world == nullptr) {return this;}
-
         // If the rigidbody has already been added, we need to update the registrations.
-        // If it hasn't been added, it will be updated when the rigidbody is added to the engine.
-        if (!world->has(this)) {return this;}
-        world->removeForceRegistration(type, this);
+        if (this->world == nullptr) {return this;}
+        this->world->removeForceRegistration(type, this);
         return this;
 
     }
@@ -427,7 +480,8 @@ namespace Pancake {
     }
     
     Rigidbody* Rigidbody::clearForceGenerators() {
-        this->forceGenerators.clear();
+        std::vector<std::string> types(this->forceGenerators.begin(), this->forceGenerators.end());
+        this->removeForceGenerators(types);
         return this;
     }
 
@@ -477,6 +531,11 @@ namespace Pancake {
         return this;
     }
 
+    Rigidbody* Rigidbody::setGravityScale(float scale) {
+        this->gravityScale = scale;
+        return this;
+    }
+
     Rigidbody* Rigidbody::setSensor(bool sensor) {
         this->sensor = sensor;
         return this;
@@ -514,23 +573,44 @@ namespace Pancake {
     }
 
     void Rigidbody::physicsUpdate(float dt) {
-        
-        // Do not do a physics update if static.
-        if (this->hasInfiniteMass()) {return;}
+        this->integrateVelocity(dt);
+        this->integratePosition(dt);
+    }
 
-        // Required variables
-        glm::vec2 displacement = glm::vec2(0.0f, 0.0f);
-        float rotation = 0.0f;
+    void Rigidbody::integrateVelocity(float dt) {
+
+        // Static bodies don't move.
+        if (this->hasInfiniteMass()) {
+            this->clearAccumulators();
+            return;
+        }
+
+        // Apply forces, torque and gravity.
+        glm::vec2 gravity = this->world != nullptr ? this->world->getGravity() * this->gravityScale : glm::vec2(0.0f, 0.0f);
+        this->velocity += (this->force * this->getInverseMass() + gravity) * dt;
+        if (!this->fixedOrientation) {this->angularVelocity += this->torque * dt * this->getInverseMomentOfInertia();}
+
+        // Clear the force and torque accumulators.
+        this->clearAccumulators();
+
+    }
+
+    void Rigidbody::integratePosition(float dt) {
+
+        // Static bodies are not integrated, but may still be moved by game code.
+        if (this->hasInfiniteMass()) {
+            this->updateGridRegistration(false);
+            return;
+        }
 
         // Update linear
-        this->velocity += this->force * (dt / this->getMass());
-        displacement = this->velocity * dt;
+        glm::vec2 displacement = this->velocity * dt;
         this->getEntity()->addPosition(displacement);
 
         // Update the rotation if allowed to.
+        float rotation = 0.0f;
         if (!this->fixedOrientation) {
 
-            this->angularVelocity += this->torque * (dt / this->getMass());
             rotation = this->angularVelocity * dt;
             this->getEntity()->addRotationAround(rotation, this->getCentroid());
 
@@ -548,20 +628,23 @@ namespace Pancake {
             // Note: There is no need to update collider rotation offsets since they are updated in the entity.
         }
 
-        // Clear the force and torque accumulators.
-        this->clearAccumulators();
+        // Update the spatial hash grid if the bounding box has changed.
+        this->updateGridRegistration(displacement != glm::vec2(0.0f, 0.0f) || rotation != 0.0f);
 
-        // Check if there has been a changed in the bounding box.
-        this->boundsDirty = (this->lastPosition != this->getEntity()->getPosition()) || 
+    }
+
+    void Rigidbody::updateGridRegistration(bool moved) {
+
+        // Check if there has been a change in the bounding box.
+        this->boundsDirty = moved ||
+                            (this->lastPosition != this->getEntity()->getPosition()) || 
                             (this->lastRotation != this->getEntity()->getRotation()) ||
-                            (displacement != glm::vec2(0.0f, 0.0f)) || 
-                            (rotation != 0.0f) || 
                             (this->boundsDirty);
 
         // If the bounding box has changed we need to update the spatial hash grid.
-        if (this->boundsDirty) {
+        if (this->boundsDirty && this->world != nullptr) {
             std::pair<glm::vec2, glm::vec2> bounds = this->getBounds();
-            Window::getScene()->getPhysics()->getGrid()->update(this, bounds.first, bounds.second);
+            this->world->getGrid()->update(this, bounds.first, bounds.second);
         }
     
         // Update last position and rotation

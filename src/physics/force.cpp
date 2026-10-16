@@ -5,7 +5,19 @@
 namespace Pancake {
 
     ForceGenerator::ForceGenerator(std::string type) : Component(type) {
+        this->world = nullptr;
+    }
 
+    ForceGenerator::~ForceGenerator() {
+        if (this->world != nullptr) {this->world->removeForceGenerator(this);}
+    }
+
+    World* ForceGenerator::getWorld() {
+        return this->world;
+    }
+
+    void ForceGenerator::setWorld(World* world) {
+        this->world = world;
     }
 
     void ForceGenerator::updateForce(Rigidbody* rigidbody, float dt) {
@@ -13,11 +25,12 @@ namespace Pancake {
     }
 
     void ForceGenerator::start() {
-         Window::getScene()->getPhysics()->addForceGenerator(this);
+        Scene* scene = Window::getScene();
+        if (scene != nullptr) {scene->getPhysics()->addForceGenerator(this);}
     }
 
     void ForceGenerator::end() {
-        Window::getScene()->getPhysics()->removeForceGenerator(this);
+        if (this->world != nullptr) {this->world->removeForceGenerator(this);}
     }   
 
     ForceRegistration::ForceRegistration(ForceGenerator* generator, Rigidbody* rigidbody) {

@@ -29,7 +29,7 @@ namespace Pancake {
 
     void AudioWave::load(json j) {
         if (!j.contains("filename") || !j["filename"].is_string()) {return;}    
-        AudioWave* a = AudioPool::get(j["filename"]);
+        AudioPool::get(j["filename"]); // Loads the audio into the pool.
     }
             
     Wav& AudioWave::getSource() {

@@ -59,9 +59,10 @@ namespace Pancake {
     }
 
     Entity::~Entity() {
+        Scene* scene = Window::getScene();
         for (Component* c: this->components) {c->kill();} // Delete all the components.
         for (Component* c: this->components) {
-            Window::getScene()->getComponents()->erase(c->getId());
+            if (scene != nullptr) {scene->getComponents()->erase(c->getId());}
             delete c;
         }
     }
@@ -88,7 +89,7 @@ namespace Pancake {
         for (int i : dead) {
             Component* c = this->components[i];
             this->components.erase(this->components.begin() + i);
-            Window::getScene()->getComponents()->erase(c->getId());
+            if (Window::getScene() != nullptr) {Window::getScene()->getComponents()->erase(c->getId());}
             delete c;
         }
 
@@ -195,6 +196,10 @@ namespace Pancake {
         this->dead = true;
     }
 
+    void Entity::setId(int id) {
+        this->id = id;
+    }
+
     int Entity::getId() {
         return this->id;
     }
@@ -279,7 +284,8 @@ namespace Pancake {
         // If we don't need to perform expensive computations, don't.
         if (radians == 0.0f) {return;}
 
-        if (around.x == 0.0f && around.y == 0.0f) {
+        // Rotating around the entity's own position doesn't move it.
+        if (around == this->position) {
             this->addRotation(radians);
             return;
         }

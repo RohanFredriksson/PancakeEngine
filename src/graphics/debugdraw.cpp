@@ -39,6 +39,7 @@ namespace Pancake {
         Shader* shader;
         unsigned int vao;
         unsigned int vbo;
+        bool enabled = true;
 
         vec2 rotate(vec2 vector, float degrees, vec2 origin) {
 
@@ -75,7 +76,7 @@ namespace Pancake {
             // Allocate space for vertices
             glGenBuffers(1, &vbo);
             glBindBuffer(GL_ARRAY_BUFFER, vbo);
-            glBufferData(GL_ARRAY_BUFFER, MAX_LINES * VERTEX_ARRAY_LENGTH * sizeof(float), nullptr, GL_DYNAMIC_DRAW);
+            glBufferData(GL_ARRAY_BUFFER, VERTEX_ARRAY_LENGTH * sizeof(float), nullptr, GL_DYNAMIC_DRAW);
 
             // Enable the vertex array attributes
             glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*) 0);
@@ -131,7 +132,7 @@ namespace Pancake {
             }      
 
             glBindBuffer(GL_ARRAY_BUFFER, vbo);
-            glBufferData(GL_ARRAY_BUFFER, VERTEX_ARRAY_LENGTH * sizeof(float), vertices, GL_DYNAMIC_DRAW);
+            glBufferSubData(GL_ARRAY_BUFFER, 0, index * sizeof(float), vertices);
 
             shader->bind();
             shader->uploadMat4("uProjection", Window::getScene()->getCamera()->getProjection());
@@ -153,16 +154,33 @@ namespace Pancake {
 
         void destroy() {
             delete shader;
+            shader = nullptr;
             free(vertices);
-            int n = lines.size();
-            for (int i = 0; i < n; i++) {
-                delete lines[i];
-            }
+            vertices = nullptr;
+            for (Line* line : lines) {delete line;}
+            lines.clear();
+            glDeleteBuffers(1, &vbo);
+            glDeleteVertexArrays(1, &vao);
+        }
+
+        void clear() {
+            for (Line* line : lines) {delete line;}
+            lines.clear();
+        }
+
+        void setEnabled(bool state) {
+            enabled = state;
+            if (!enabled) {clear();}
+        }
+
+        bool isEnabled() {
+            return enabled;
         }
 
         void drawLine(vec2 from, vec2 to, vec3 colour, int lifetime) {
 
-            if (lines.size() >= MAX_LINES) {return;}
+            if (!enabled || lines.size() >= MAX_LINES) {return;}
+            if (Window::getScene() == nullptr) {return;}
 
             Camera* camera = Window::getScene()->getCamera();
             

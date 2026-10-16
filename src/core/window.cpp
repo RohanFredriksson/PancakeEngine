@@ -13,6 +13,7 @@
 #include <imgui_impl_opengl3.h>
 
 #include "pancake/core/window.hpp"
+#include "pancake/core/inspector.hpp"
 #include "pancake/core/listener.hpp"
 #include "pancake/graphics/shader.hpp"
 #include "pancake/graphics/framebuffer.hpp"
@@ -24,9 +25,11 @@ namespace Pancake {
 
     namespace {
 
-        GLFWwindow* window;
+        GLFWwindow* window = nullptr;
         int width = 800;
         int height = 800;
+        int framebufferWidth = 800;  // In pixels, which differs from the window size on high DPI displays.
+        int framebufferHeight = 800;
         Scene* scene = nullptr;
 
         bool loadFlag = false;
@@ -89,6 +92,7 @@ namespace Pancake {
             ImGui_ImplGlfw_NewFrame();
             ImGui::NewFrame();
             Console::render();
+            Inspector::render();
             ImGui::Render();
             ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
@@ -99,10 +103,16 @@ namespace Pancake {
         void resizeCallback(GLFWwindow* window, int screenWidth, int screenHeight) {
             width = screenWidth;
             height = screenHeight;
+            if (scene != nullptr) {scene->getCamera()->adjustProjection();}
+        }
+
+        void framebufferResizeCallback(GLFWwindow* window, int pixelWidth, int pixelHeight) {
+            if (pixelWidth <= 0 || pixelHeight <= 0) {return;} // Minimised.
+            framebufferWidth = pixelWidth;
+            framebufferHeight = pixelHeight;
             delete entityTexture;
-            entityTexture = new Framebuffer(GL_RGB32F, width, height, GL_RGB, GL_FLOAT);
-            scene->getCamera()->adjustProjection();
-            glViewport(0, 0, screenWidth, screenHeight);
+            entityTexture = new Framebuffer(GL_RGB32F, framebufferWidth, framebufferHeight, GL_RGB, GL_FLOAT);
+            glViewport(0, 0, framebufferWidth, framebufferHeight);
         }
 
     }
@@ -130,6 +140,9 @@ namespace Pancake {
 
         void start() {
 
+            // Allow the engine to be started again after a previous stop.
+            stopFlag = false;
+
             // Initialise GLFW
             if (!glfwInit()) {
                 std::cout << "ERROR::WINDOW::GLFW_INITIALIZATION_FAILED\n";
@@ -154,6 +167,7 @@ namespace Pancake {
             // Manage callbacks
             glfwSetKeyCallback(window, KeyListener::keyCallback);
             glfwSetWindowSizeCallback(window, resizeCallback);
+            glfwSetFramebufferSizeCallback(window, framebufferResizeCallback);
             glfwSetCursorPosCallback(window, MouseListener::mousePosCallback);
             glfwSetMouseButtonCallback(window, MouseListener::mouseButtonCallback);
             glfwSetScrollCallback(window, MouseListener::mouseScrollCallback);
@@ -187,7 +201,9 @@ namespace Pancake {
             AssetPool::init();
             defaultShader = new Shader("default", "default", DEFAULT_VERTEX, DEFAULT_FRAGMENT);
             entityShader = new Shader("default", "entity", DEFAULT_VERTEX, ENTITY_FRAGMENT);
-            entityTexture = new Framebuffer(GL_RGB32F, width, height, GL_RGB, GL_FLOAT);
+            glfwGetFramebufferSize(window, &framebufferWidth, &framebufferHeight);
+            glViewport(0, 0, framebufferWidth, framebufferHeight);
+            entityTexture = new Framebuffer(GL_RGB32F, framebufferWidth, framebufferHeight, GL_RGB, GL_FLOAT);
             DebugDraw::init();
             scene = new Scene();
             scene->start();
@@ -226,13 +242,10 @@ namespace Pancake {
 
                 }
 
-                if (widthFlag) {
-                    glfwSetWindowSize(window, widthValue, height);
+                // Apply both dimensions at once, as the resize callback that updates them arrives later.
+                if (widthFlag || heightFlag) {
+                    glfwSetWindowSize(window, widthFlag ? widthValue : width, heightFlag ? heightValue : height);
                     widthFlag = false;
-                }
-
-                if (heightFlag) {
-                    glfwSetWindowSize(window, width, heightValue);
                     heightFlag = false;
                 }
 
@@ -269,8 +282,8 @@ namespace Pancake {
                     render();
                 }
 
+                KeyListener::endFrame();
                 MouseListener::endFrame();
-                Window::readPixel(0, 0);
 
                 endTime = (float)glfwGetTime();
                 dt = endTime - beginTime;
@@ -278,10 +291,26 @@ namespace Pancake {
 
             }
 
+            // Destroy the scene first, as its components release resources held by other systems.
+            delete scene;
+            scene = nullptr;
+
             // Destroy
+            delete entityTexture;
+            delete entityShader;
+            delete defaultShader;
+            entityTexture = nullptr;
+            entityShader = nullptr;
+            defaultShader = nullptr;
             DebugDraw::destroy();
             AssetPool::destroy();
+
+            ImGui_ImplOpenGL3_Shutdown();
+            ImGui_ImplGlfw_Shutdown();
+            ImGui::DestroyContext();
+
             glfwDestroyWindow(window);
+            window = nullptr;
             glfwTerminate();
 
         }
@@ -317,11 +346,13 @@ namespace Pancake {
         }
 
         void setWidth(int w) {
+            if (window == nullptr) {width = w; return;} // Not created yet, so create it at this size.
             widthValue = w;
             widthFlag = true;
         }
 
         void setHeight(int h) {
+            if (window == nullptr) {height = h; return;}
             heightValue = h;
             heightFlag = true;
         }
@@ -346,9 +377,14 @@ namespace Pancake {
             // Create a buffer to store pixel data.
             float pixel;
 
+            // Convert from window coordinates to framebuffer pixels.
+            int px = (int) (x * (float) framebufferWidth / width);
+            int py = (int) (y * (float) framebufferHeight / height);
+            if (px < 0 || py < 0 || px >= framebufferWidth || py >= framebufferHeight) {return -1;}
+
             // Bind the framebuffer and read the corresponding pixel.
             entityTexture->bind();
-            glReadPixels(x, height-y-1, 1, 1, GL_RED, GL_FLOAT, &pixel);
+            glReadPixels(px, framebufferHeight - py - 1, 1, 1, GL_RED, GL_FLOAT, &pixel);
             entityTexture->unbind();
 
             // Return the value of this pixel.
