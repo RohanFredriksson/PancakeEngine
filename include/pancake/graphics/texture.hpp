@@ -29,6 +29,8 @@ namespace Pancake {
             Texture(GLint internal, int width, int height, GLenum format, GLenum type);
             ~Texture();
 
+            bool reload(); // Read the image file again into this texture, keeping its id. False if it can't be read.
+
             void bind();
             void unbind();
             

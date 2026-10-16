@@ -334,6 +334,7 @@ namespace Pancake {
                 }
 
                 if (dt > 0) {
+                    AssetPool::update(dt); // Real time, so hot reload works while paused.
                     unscaledDeltaTime = dt;
                     fps = fps <= 0.0f ? 1.0f / dt : 0.95f * fps + 0.05f / dt;
                     update(sceneDeltaTime(dt));

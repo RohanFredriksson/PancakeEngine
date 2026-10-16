@@ -29,6 +29,6 @@ Tick an item off in the same branch that implements it.
 
 ## Batch 5: editor tooling
 
-- [ ] `Entity::clone()` and prefabs: `Pancake::spawn("prefab.json", position)`.
-- [ ] Inspector edit mode: drag to move, delete, duplicate, play/pause, save and load buttons.
-- [ ] Hot reload of textures and audio when their files change.
+- [x] `Entity::clone()` and prefabs: `Pancake::spawn("prefab.json", position)`, `Prefab::save`, console `clone` / `prefab` / `saveprefab`.
+- [x] Inspector edit mode: drag to move, delete, duplicate (buttons, Delete, Ctrl+D), play/pause/step, save and load buttons.
+- [x] Hot reload of textures and audio when their files change (`Pancake::hotReload`, console `hotreload` / `reload`). Prefabs are always read again when they change.

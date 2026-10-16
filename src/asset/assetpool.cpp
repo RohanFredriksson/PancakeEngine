@@ -1,4 +1,5 @@
 #include <tuple>
+#include <filesystem>
 #include <utility>
 #include <iostream>
 #include <unordered_map>
@@ -27,6 +28,37 @@ namespace Pancake {
         std::unordered_map<std::tuple<std::string, float>, Font*, TupleHash, TupleEqual> fonts;
         std::unordered_map<std::string, AudioWave*> audio;
 
+        // When each file-backed asset's file was last modified, or the minimum if it didn't exist.
+        std::unordered_map<std::string, std::filesystem::file_time_type> textureTimes;
+        std::unordered_map<std::string, std::filesystem::file_time_type> audioTimes;
+        bool hotReload = false;
+        float hotReloadTimer = 0.0f;
+        const float HOT_RELOAD_INTERVAL = 0.5f;
+
+        std::filesystem::file_time_type modifiedTime(const std::string& filename) {
+            std::error_code error;
+            std::filesystem::file_time_type time = std::filesystem::last_write_time(filename, error);
+            return error ? std::filesystem::file_time_type::min() : time;
+        }
+
+        // Reloads assets whose files have changed, with reload returning whether it worked.
+        template<class T>
+        int reloadChangedIn(std::unordered_map<std::string, T*>& assets, std::unordered_map<std::string, std::filesystem::file_time_type>& times) {
+            int reloaded = 0;
+            for (auto& entry : times) {
+                std::filesystem::file_time_type now = modifiedTime(entry.first);
+                if (now == entry.second || now == std::filesystem::file_time_type::min()) {continue;}
+                entry.second = now;
+                auto asset = assets.find(entry.first);
+                if (asset == assets.end()) {continue;}
+                if (asset->second->reload()) {
+                    std::cout << "Reloaded '" << entry.first << "'\n";
+                    reloaded++;
+                }
+            }
+            return reloaded;
+        }
+
     }
 
     void AssetPool::init() {
@@ -50,6 +82,27 @@ namespace Pancake {
         AudioPool::destroy();
     }
 
+    int AssetPool::reloadChanged() {
+        return reloadChangedIn(textures, textureTimes) + reloadChangedIn(audio, audioTimes);
+    }
+
+    void AssetPool::setHotReload(bool enabled) {
+        hotReload = enabled;
+        hotReloadTimer = 0.0f;
+    }
+
+    bool AssetPool::hasHotReload() {
+        return hotReload;
+    }
+
+    void AssetPool::update(float dt) {
+        if (!hotReload) {return;}
+        hotReloadTimer += dt;
+        if (hotReloadTimer < HOT_RELOAD_INTERVAL) {return;}
+        hotReloadTimer = 0.0f;
+        AssetPool::reloadChanged();
+    }
+
     void TexturePool::init() {
 
         // Add the missing texture to the pool.
@@ -70,6 +123,7 @@ namespace Pancake {
             delete t;
         }
         textures.clear();
+        textureTimes.clear();
     }
 
     Texture* TexturePool::get(std::string name) {
@@ -82,6 +136,7 @@ namespace Pancake {
         Texture* texture = new Texture(name);
         std::pair<std::string, Texture*> p(texture->getName(), texture);
         textures.insert(p);
+        textureTimes[name] = modifiedTime(name);
         return texture;
 
     }
@@ -238,6 +293,7 @@ namespace Pancake {
             delete a;
         }
         audio.clear();
+        audioTimes.clear();
     }
 
     nlohmann::json AudioPool::serialise() {
@@ -259,6 +315,7 @@ namespace Pancake {
         AudioWave* audioWave = new AudioWave(name);
         std::pair<std::string, AudioWave*> p(audioWave->getFilename(), audioWave);
         audio.insert(p);
+        audioTimes[name] = modifiedTime(name);
         return audioWave;
 
     }

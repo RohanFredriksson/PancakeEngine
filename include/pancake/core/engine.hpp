@@ -51,6 +51,11 @@ namespace Pancake {
     void fullscreen();
     bool isFullscreen();
 
+    void hotReload(bool state); // Reload textures and audio when their files change. Off by default.
+
+    // Copy a prefab file into the current scene at a position. Returns nullptr if the file can't be loaded.
+    Entity* spawn(std::string filename, vec2 position);
+
     Scene* getScene();
     Entity* getEntity(int id);
     Component* getComponent(int id);

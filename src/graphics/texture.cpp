@@ -131,6 +131,34 @@ namespace Pancake {
         glDeleteTextures(1, &this->id);
     }
 
+    bool Texture::reload() {
+
+        int width;
+        int height;
+        int channels;
+        stbi_set_flip_vertically_on_load(1);
+        unsigned char* image = stbi_load(this->name.c_str(), &width, &height, &channels, 0);
+        if (image == nullptr || (channels != 3 && channels != 4)) {
+            std::cout << "ERROR::TEXTURE::RELOAD_FAILED '" << this->name << "'\n";
+            if (image != nullptr) {stbi_image_free(image);}
+            return false;
+        }
+
+        // Rows of 3 channel images aren't always 4 byte aligned, which is OpenGL's default.
+        glBindTexture(GL_TEXTURE_2D, this->id);
+        glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+        GLenum format = channels == 3 ? GL_RGB : GL_RGBA;
+        glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, image);
+        glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
+        stbi_image_free(image);
+
+        this->width = width;
+        this->height = height;
+        this->missingFlag = false;
+        return true;
+
+    }
+
     void Texture::bind() {
         glBindTexture(GL_TEXTURE_2D, this->id);
     }

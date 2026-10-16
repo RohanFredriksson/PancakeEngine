@@ -16,6 +16,13 @@ namespace Pancake {
         void clear();
         void destroy();
 
+        // Hot reload: textures and audio loaded from files are read again when the files change.
+        // Prefabs are always read again when they change. Sprites and players keep using the same objects.
+        int reloadChanged();            // Reload now. Returns how many assets were reloaded.
+        void setHotReload(bool enabled);
+        bool hasHotReload();
+        void update(float dt);          // Checks twice a second while hot reload is on. Called by the main loop.
+
     }
 
     namespace TexturePool {

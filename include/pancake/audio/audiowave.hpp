@@ -30,6 +30,7 @@ namespace Pancake {
             void setLooping(bool looping);
 
             void stop();
+            bool reload(); // Stop playback and read the file again. False if it can't be read.
 
     };
 
