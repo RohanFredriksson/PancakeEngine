@@ -1,4 +1,5 @@
 #include <cmath>
+#include <cfloat>
 #include <limits>
 #include <vector>
 #include <algorithm>
@@ -30,289 +31,139 @@ namespace Pancake {
 
     namespace {
 
-        void rotate(vec2& vec, vec2 origin, float rCos, float rSin) {
-            float x = vec.x - origin.x;
-            float y = vec.y - origin.y;
-            vec.x = origin.x + ((x * rCos) - (y * rSin));
-            vec.y = origin.y + ((x * rSin) + (y * rCos));
+        // All features use the same conventions: the normal points from the first collider towards the second,
+        // the depth is the full penetration depth, and the point lies midway between the two surfaces.
+
+        vec2 rotate(vec2 v, float rCos, float rSin) {
+            return vec2(v.x * rCos - v.y * rSin, v.x * rSin + v.y * rCos);
         }
 
-        void rotate(vector<vec2>& vertices, vec2 origin, float rCos, float rSin) {
-            int n = vertices.size();
-            for (int i = 0; i < n; i++) {
-                float x = vertices[i].x - origin.x;
-                float y = vertices[i].y - origin.y;
-                vertices[i].x = origin.x + ((x * rCos) - (y * rSin));
-                vertices[i].y = origin.y + ((x * rSin) + (y * rCos));
+        struct OrientedBox {
+            vec2 centre;
+            vec2 axes[2];      // Local x and y axes in world space.
+            vec2 half;         // Half extents along each axis.
+            vec2 vertices[4];  // Counter clockwise, starting bottom left.
+            vec2 normals[4];   // Outward face normals, normals[i] belongs to the edge vertices[i] -> vertices[i + 1].
+        };
+
+        OrientedBox orient(BoxCollider* box) {
+            OrientedBox o;
+            float r = box->getRotation();
+            float c = cosf(r);
+            float s = sinf(r);
+            o.centre = box->getPosition();
+            o.axes[0] = vec2(c, s);
+            o.axes[1] = vec2(-s, c);
+            o.half = glm::abs(box->getSize()) * 0.5f;
+            vec2 x = o.axes[0] * o.half.x;
+            vec2 y = o.axes[1] * o.half.y;
+            o.vertices[0] = o.centre - x - y;
+            o.vertices[1] = o.centre + x - y;
+            o.vertices[2] = o.centre + x + y;
+            o.vertices[3] = o.centre - x + y;
+            o.normals[0] = -o.axes[1];
+            o.normals[1] =  o.axes[0];
+            o.normals[2] =  o.axes[1];
+            o.normals[3] = -o.axes[0];
+            return o;
+        }
+
+        // The largest separation of b from any face of a, and which face it is.
+        float findMaxSeparation(const OrientedBox& a, const OrientedBox& b, int& face) {
+            float best = -FLT_MAX;
+            for (int i = 0; i < 4; i++) {
+                float separation = FLT_MAX;
+                for (int j = 0; j < 4; j++) {separation = std::min(separation, glm::dot(a.normals[i], b.vertices[j] - a.vertices[i]));}
+                if (separation > best) {best = separation; face = i;}
             }
+            return best;
         }
 
-        vec2 project(const vec2& v, const vec2& target) {
-            vec2 targetUnit = glm::normalize(target);
-            float projection = glm::dot(v, targetUnit);
-            return projection * targetUnit;
-        }
-
-        bool intersects(vec2 aStart, vec2 aEnd, vec2 bStart, vec2 bEnd) {
-            float dx0 = aEnd.x - aStart.x;
-            float dx1 = bEnd.x - bStart.x;
-            float dy0 = aEnd.y - aStart.y;
-            float dy1 = bEnd.y - bStart.y;
-            float p0 = dy1 * (bEnd.x - aStart.x) - dx1 *(bEnd.y - aStart.y);
-            float p1 = dy1 * (bEnd.x - aEnd.x)   - dx1 *(bEnd.y - aEnd.y);
-            float p2 = dy0 * (aEnd.x - bStart.x) - dx0 *(aEnd.y - bStart.y);
-            float p3 = dy0 * (aEnd.x - bEnd.x)   - dx0 *(aEnd.y - bEnd.y);
-            return (p0 * p1 <= 0) && (p2 * p3 <= 0);
-        }
-
-        float distance(vec2 aStart, vec2 aEnd, vec2 bStart, vec2 bEnd) {
-
-            // If either line is vertical, rotate the problem 45 degrees.
-            // Since we are solving for distance, direction does not need to be preserved.
-            if (aStart.x == aEnd.x || bStart.x == bEnd.x) {
-                rotate(aStart, vec2(0.0f, 0.0f), 0.70710678118f, 0.70710678118f);
-                rotate(aEnd,   vec2(0.0f, 0.0f), 0.70710678118f, 0.70710678118f);
-                rotate(bStart, vec2(0.0f, 0.0f), 0.70710678118f, 0.70710678118f);
-                rotate(bEnd,   vec2(0.0f, 0.0f), 0.70710678118f, 0.70710678118f);
-            }
-
-            // y = ax + b
-            float a = (aEnd.y - aStart.y) / (aEnd.x - aStart.x);
-            float b = aStart.y - a * aStart.x;
-            
-            // y = cx + d
-            float c = (bEnd.y - bStart.y) / (bEnd.x - bStart.x);
-            float d = bStart.y - c * bStart.x;
-
-            // ax + b = cx + d: solve for x
-            float x = (d - b) / (a - c);
-
-            // plug x into ax + b
-            float y = a * x + b;
-
-            // Now that we have the point, compute the distance between points.
-            vec2 point = vec2(x, y);
-            return glm::distance(aStart, point);
-
-        }
-
-        float distance(vec2 start, vec2 end, vec2 point) {
-
-            // If the line is vertical, rotate the problem 45 degrees.
-            if (start.x == end.x) {
-                rotate(start, vec2(0.0f, 0.0f), 0.70710678118f, 0.70710678118f);
-                rotate(end,   vec2(0.0f, 0.0f), 0.70710678118f, 0.70710678118f);
-                rotate(point, vec2(0.0f, 0.0f), 0.70710678118f, 0.70710678118f);
-            }
-
-            // y = ax + b
-            float a = (end.y - start.y) / (end.x - start.x);
-            float b = start.y - a * start.x;
-
-            // Perpendicular distance formula
-            float distance = fabsf(a * point.x + -1.0f * point.y + b) / glm::distance(start, end);
-            return distance;
-
+        // Clip the segment to the side of the plane dot(normal, x) <= offset.
+        int clipSegment(vec2 in[2], vec2 out[2], vec2 normal, float offset) {
+            int count = 0;
+            float d0 = glm::dot(normal, in[0]) - offset;
+            float d1 = glm::dot(normal, in[1]) - offset;
+            if (d0 <= 0.0f) {out[count++] = in[0];}
+            if (d1 <= 0.0f) {out[count++] = in[1];}
+            if (d0 * d1 < 0.0f) {out[count++] = in[0] + (d0 / (d0 - d1)) * (in[1] - in[0]);}
+            return count;
         }
 
         std::vector<CollisionManifold> findCollisionFeaturesCircleColliderAndCircleCollider(CircleCollider* a, CircleCollider* b) {
 
             std::vector<CollisionManifold> result;
 
-            vec2 aPosition = a->getPosition();
-            vec2 bPosition = b->getPosition();
-
-            // Determine if the two circles are colliding.
+            vec2 difference = b->getPosition() - a->getPosition();
             float sumRadii = a->getRadius() + b->getRadius();
-            vec2 distance = bPosition - aPosition;
-            if (glm::dot(distance, distance) - (sumRadii * sumRadii) > 0) {return result;}
+            float distanceSquared = glm::dot(difference, difference);
+            if (distanceSquared >= sumRadii * sumRadii) {return result;}
 
-            // Find the depth and normal of the collision
-            float depth = fabsf(glm::length(distance) - sumRadii) * 0.5f;
-            vec2 normal = glm::normalize(distance);
-
-            // Find the contact point of the collision
-            float distanceToPoint = a->getRadius() - depth;
-            vec2 point = distanceToPoint * normal + aPosition;
+            float distance = sqrtf(distanceSquared);
+            vec2 normal = distance > 1e-6f ? difference / distance : vec2(0.0f, 1.0f);
+            float depth = sumRadii - distance;
+            vec2 point = a->getPosition() + normal * (a->getRadius() - 0.5f * depth);
 
             result.push_back(CollisionManifold(normal, point, depth));
             return result;
 
         }
 
-        std::vector<CollisionManifold> findCollisionFeaturesBoxColliderAndBoxCollider(BoxCollider* a, BoxCollider* b) {
+        std::vector<CollisionManifold> findCollisionFeaturesBoxColliderAndBoxCollider(BoxCollider* boxA, BoxCollider* boxB) {
 
             std::vector<CollisionManifold> result;
+            OrientedBox a = orient(boxA);
+            OrientedBox b = orient(boxB);
 
-            // Store all the information that is required.
-            float aRotation = a->getRotation();
-            vec2 aSize = a->getSize();
-            vec2 aPos = a->getPosition();
-            vec2 aMin = aPos - aSize * 0.5f;
-            vec2 aMax = aPos + aSize * 0.5f;
+            // Separating axis test on the face normals of both boxes.
+            int faceA = 0;
+            int faceB = 0;
+            float separationA = findMaxSeparation(a, b, faceA);
+            if (separationA > 0.0f) {return result;}
+            float separationB = findMaxSeparation(b, a, faceB);
+            if (separationB > 0.0f) {return result;}
 
-            float bRotation = b->getRotation();
-            vec2 bSize = b->getSize();
-            vec2 bPos = b->getPosition();
-            vec2 bMin = bPos - bSize * 0.5f;
-            vec2 bMax = bPos + bSize * 0.5f;
-
-            // Cache the trig ratios for rotational use.
-            float aCos = cosf(aRotation);
-            float aSin = sinf(aRotation);
-            float bCos = cosf(bRotation);
-            float bSin = sinf(bRotation);
-
-            // Get the vertices of a.
-            vector<vec2> aVertices;
-            aVertices.push_back(vec2(aMin.x, aMin.y)); // Bottom Left
-            aVertices.push_back(vec2(aMin.x, aMax.y)); // Top Left
-            aVertices.push_back(vec2(aMax.x, aMax.y)); // Top Right
-            aVertices.push_back(vec2(aMax.x, aMin.y)); // Bottom Right
-            rotate(aVertices, aPos, aCos, aSin);
-            rotate(aVertices, bPos, bCos, -bSin);
-
-            // Get the vertices of b.
-            vector<vec2> bVertices;
-            bVertices.push_back(vec2(bMin.x, bMin.y)); // Bottom Left
-            bVertices.push_back(vec2(bMin.x, bMax.y)); // Top Left
-            bVertices.push_back(vec2(bMax.x, bMax.y)); // Top Right
-            bVertices.push_back(vec2(bMax.x, bMin.y)); // Bottom Right
-            rotate(bVertices, bPos, bCos, bSin); // B Space -> Global
-            rotate(bVertices, aPos, aCos, -aSin);// Global -> A Space
-
-            // Get the positions of each box in their local spaces.
-            vec2 aPosInB = aPos;
-            vec2 bPosInA = bPos;
-            rotate(aPosInB, bPos, bCos, -bSin);
-            rotate(bPosInA, aPos, aCos, -aSin);
-
-            // Determine which vertices of each box is in each others box.
-            vector<vec2> bInsideA; for (vec2 vertex : bVertices) {if (vertex.x > aMin.x && vertex.x < aMax.x && vertex.y > aMin.y && vertex.y < aMax.y) {bInsideA.push_back(vertex);}}
-            vector<vec2> aInsideB; for (vec2 vertex : aVertices) {if (vertex.x > bMin.x && vertex.x < bMax.x && vertex.y > bMin.y && vertex.y < bMax.y) {aInsideB.push_back(vertex);}}
-
-            // Collision manifold variables.
-            vec2 normal;
-            vec2 point;
-            float depth;
-
-            // Special case for 1 and 1.
-            if (aInsideB.size() == 1 && bInsideA.size() == 1) {
-                
-                // Find which side of a is b.
-                vec2 other = aInsideB[0]; 
-                rotate(other, bPos, bCos, bSin); 
-                rotate(other, aPos, aCos, -aSin);                
-                vec2 difference = 0.5f * (bInsideA[0] + other) - aPos;
-                difference.x /= aSize.x;
-                difference.y /= aSize.y;
-
-                // Determine the normal direction.
-                if (fabsf(difference.x) > fabsf(difference.y)) {if (difference.x >= 0.0f) {normal = vec2(1.0f, 0.0f);} else {normal = vec2(-1.0f, 0.0f);}}
-                else                                           {if (difference.y >= 0.0f) {normal = vec2(0.0f, 1.0f);} else {normal = vec2( 0.0f,-1.0f);}}
-
-                // Determine the depth.
-                vec2 end = bInsideA[0] + std::max(std::max(aSize.x, aSize.y), std::max(bSize.x, bSize.y)) * normal;
-                if      (intersects(bInsideA[0], end, vec2(aMin.x, aMin.y), vec2(aMin.x, aMax.y))) {depth = 0.5f * distance(bInsideA[0], end, vec2(aMin.x, aMin.y), vec2(aMin.x, aMax.y));}
-                else if (intersects(bInsideA[0], end, vec2(aMin.x, aMin.y), vec2(aMax.x, aMin.y))) {depth = 0.5f * distance(bInsideA[0], end, vec2(aMin.x, aMin.y), vec2(aMax.x, aMin.y));}
-                else if (intersects(bInsideA[0], end, vec2(aMin.x, aMax.y), vec2(aMax.x, aMax.y))) {depth = 0.5f * distance(bInsideA[0], end, vec2(aMin.x, aMax.y), vec2(aMax.x, aMax.y));}
-                else                                                                               {depth = 0.5f * distance(bInsideA[0], end, vec2(aMax.x, aMin.y), vec2(aMax.x, aMax.y));}
-                
-                // Determine the contact point.
-                point = bInsideA[0] + depth * normal;
-
-                // Rotate into global space.
-                rotate(normal, vec2(0.0f, 0.0f), aCos, aSin);
-                rotate(point, aPos, aCos, aSin);
-
-                // Add the point to the manifold, if the depth is positive and non-zero.
-                depth *= 0.5f; if (depth > 0.0f) {result.push_back(CollisionManifold(normal, point, depth));}
-                
-                // Find which side of b is a.
-                other = bInsideA[0];
-                rotate(other, aPos, aCos, aSin); 
-                rotate(other, bPos, bCos, -bSin);             
-                difference = 0.5f * (aInsideB[0] + other) - bPos;
-                difference.x /= bSize.x;
-                difference.y /= bSize.y;
-
-                // Determine the normal direction.
-                if (fabsf(difference.x) > fabsf(difference.y)) {if (difference.x >= 0.0f) {normal = vec2(1.0f, 0.0f);} else {normal = vec2(-1.0f, 0.0f);}}
-                else                                           {if (difference.y >= 0.0f) {normal = vec2(0.0f, 1.0f);} else {normal = vec2( 0.0f,-1.0f);}}
-
-                // Determine the depth.
-                end = aInsideB[0] + std::max(std::max(aSize.x, aSize.y), std::max(bSize.x, bSize.y)) * normal;
-                if      (intersects(aInsideB[0], end, vec2(bMin.x, bMin.y), vec2(bMin.x, bMax.y))) {depth = 0.5f * distance(aInsideB[0], end, vec2(bMin.x, bMin.y), vec2(bMin.x, bMax.y));}
-                else if (intersects(aInsideB[0], end, vec2(bMin.x, bMin.y), vec2(bMax.x, bMin.y))) {depth = 0.5f * distance(aInsideB[0], end, vec2(bMin.x, bMin.y), vec2(bMax.x, bMin.y));}
-                else if (intersects(aInsideB[0], end, vec2(bMin.x, bMax.y), vec2(bMax.x, bMax.y))) {depth = 0.5f * distance(aInsideB[0], end, vec2(bMin.x, bMax.y), vec2(bMax.x, bMax.y));}
-                else                                                                               {depth = 0.5f * distance(aInsideB[0], end, vec2(bMax.x, bMin.y), vec2(bMax.x, bMax.y));}
-                
-                // Determine the contact point.
-                point = aInsideB[0] + depth * normal;
-
-                // Rotate into global space.
-                rotate(normal, vec2(0.0f, 0.0f), bCos, bSin);
-                rotate(point, bPos, bCos, bSin);
-
-                // Add the point to the manifold, if the depth is positive and non-zero.
-                depth *= 0.5f; if (depth > 0.0f) {result.push_back(CollisionManifold(-1.0f * normal, point, depth));}
-                return result;
-
+            // Use the face with the least penetration as the reference face, preferring a for stability.
+            const OrientedBox* reference = &a;
+            const OrientedBox* incident = &b;
+            int referenceFace = faceA;
+            bool flipped = false;
+            if (separationB > 0.98f * separationA + 0.001f) {
+                reference = &b;
+                incident = &a;
+                referenceFace = faceB;
+                flipped = true;
             }
 
-            // Flip the problem to reduce number of cases.
-            bool flip = false;
-            if (aInsideB.size() > bInsideA.size()) {
-                flip = true; 
-                vector<vec2> tmp = bInsideA;
-                bInsideA = aInsideB; aInsideB = tmp; bVertices = aVertices;
-                aMax = bMax; aMin = bMin; aPos = bPos; aCos = bCos; aSin = bSin; 
+            // The incident face is the one most anti-parallel to the reference face.
+            vec2 referenceNormal = reference->normals[referenceFace];
+            int incidentFace = 0;
+            float minimum = FLT_MAX;
+            for (int i = 0; i < 4; i++) {
+                float d = glm::dot(referenceNormal, incident->normals[i]);
+                if (d < minimum) {minimum = d; incidentFace = i;}
             }
 
-            if (aInsideB.size() == 0 && bInsideA.size() == 1) {
+            vec2 incidentEdge[2] = {incident->vertices[incidentFace], incident->vertices[(incidentFace + 1) % 4]};
+            vec2 v1 = reference->vertices[referenceFace];
+            vec2 v2 = reference->vertices[(referenceFace + 1) % 4];
+            vec2 tangent = glm::normalize(v2 - v1);
 
-                // Find the side that minimises the distance
-                float best = FLT_MAX;
-                float current;
-                current = aMax.y - bInsideA[0].y; if (current < best) {normal = vec2( 0.0f,  1.0f); depth = current * 0.5f; point = bInsideA[0] + normal * depth; best = current;} // Top
-                current = bInsideA[0].y - aMin.y; if (current < best) {normal = vec2( 0.0f, -1.0f); depth = current * 0.5f; point = bInsideA[0] + normal * depth; best = current;} // Bottom
-                current = aMax.x - bInsideA[0].x; if (current < best) {normal = vec2( 1.0f,  0.0f); depth = current * 0.5f; point = bInsideA[0] + normal * depth; best = current;} // Right
-                current = bInsideA[0].x - aMin.x; if (current < best) {normal = vec2(-1.0f,  0.0f); depth = current * 0.5f; point = bInsideA[0] + normal * depth; best = current;} // Left
+            // Clip the incident edge to the sides of the reference face.
+            vec2 clipped1[2];
+            vec2 clipped2[2];
+            if (clipSegment(incidentEdge, clipped1, -tangent, -glm::dot(tangent, v1)) < 2) {return result;}
+            if (clipSegment(clipped1, clipped2, tangent, glm::dot(tangent, v2)) < 2) {return result;}
 
-                // Rotate back into global coordinates.
-                rotate(normal, vec2(0.0f, 0.0f), aCos, aSin);
-                rotate(point, aPos, aCos, aSin);
-                if (flip) {normal = -normal;}
-
-                result.push_back(CollisionManifold(normal, point, depth));
-                return result;
-
-            }
-
-            if (aInsideB.size() == 0 && bInsideA.size() == 2) {
-                
-                // Collision manifold variables.
-                vec2 points[2];
-                float depths[2];
-
-                // Find the side that minimises the distance.
-                float best = FLT_MAX;
-                float current;
-                current = 0.0f; for (vec2 v : bInsideA) {current += aMax.y - v.y;} if (current < best) {normal = vec2( 0.0f,  1.0f); for (int i = 0; i < 2; i++) {depths[i] = (aMax.y - bInsideA[i].y) * 0.5f; points[i] = bInsideA[i] + normal * depths[i]; best = current;}} // Top
-                current = 0.0f; for (vec2 v : bInsideA) {current += v.y - aMin.y;} if (current < best) {normal = vec2( 0.0f, -1.0f); for (int i = 0; i < 2; i++) {depths[i] = (bInsideA[i].y - aMin.y) * 0.5f; points[i] = bInsideA[i] + normal * depths[i]; best = current;}} // Bottom
-                current = 0.0f; for (vec2 v : bInsideA) {current += aMax.x - v.x;} if (current < best) {normal = vec2( 1.0f,  0.0f); for (int i = 0; i < 2; i++) {depths[i] = (aMax.x - bInsideA[i].x) * 0.5f; points[i] = bInsideA[i] + normal * depths[i]; best = current;}} // Right
-                current = 0.0f; for (vec2 v : bInsideA) {current += v.x - aMin.x;} if (current < best) {normal = vec2(-1.0f,  0.0f); for (int i = 0; i < 2; i++) {depths[i] = (bInsideA[i].x - aMin.x) * 0.5f; points[i] = bInsideA[i] + normal * depths[i]; best = current;}} // Left
-
-                // Rotate back into global coordinates.
-                rotate(normal, vec2(0.0f, 0.0f), aCos, aSin);
-                rotate(points[0], aPos, aCos, aSin);
-                rotate(points[1], aPos, aCos, aSin);
-                if (flip) {normal = -normal;}
-
-                result.push_back(CollisionManifold(normal, points[0], depths[0] * 0.5f));
-                result.push_back(CollisionManifold(normal, points[1], depths[1] * 0.5f));
-                return result;
-
+            // Keep the points below the reference face.
+            vec2 normal = flipped ? -referenceNormal : referenceNormal;
+            float offset = glm::dot(referenceNormal, v1);
+            for (int i = 0; i < 2; i++) {
+                float separation = glm::dot(referenceNormal, clipped2[i]) - offset;
+                if (separation <= 0.0f) {
+                    float depth = -separation;
+                    result.push_back(CollisionManifold(normal, clipped2[i] + referenceNormal * (0.5f * depth), depth));
+                }
             }
 
             return result;
@@ -322,153 +173,55 @@ namespace Pancake {
 
             std::vector<CollisionManifold> result;
 
-            // Get the circle's properties.
-            vec2 cPos = c->getPosition();
-            float cRadius = c->getRadius();
-
-            // Get the box's properties.
-            float bRot = b->getRotation();
+            // Move the circle into the box's local space.
             vec2 bPos = b->getPosition();
-            vec2 bHalf = b->getSize() *  0.5f;
-            vec2 bMin = bPos - bHalf;
-            vec2 bMax = bPos + bHalf;
+            vec2 half = glm::abs(b->getSize()) * 0.5f;
+            float rCos = cosf(b->getRotation());
+            float rSin = sinf(b->getRotation());
+            vec2 local = rotate(c->getPosition() - bPos, rCos, -rSin);
+            float radius = c->getRadius();
 
-            // If we need to rotate, we need to store these variables.
-            vec2 offset;
-            float rCos;
-            float rSin;
-            
-            // Rotate the circle into the box's space.
-            if (bRot != 0.0f) {
-                rCos = cosf(-bRot);
-                rSin = sinf(-bRot);
-                rotate(cPos, bPos, rCos, rSin);
-            }
-
+            vec2 normal; // From the box towards the circle, in local space.
+            vec2 surface;
             float depth;
-            vec2 normal;
-            vec2 point;
 
-            // Colliding with the top face of the box.
-            if (cPos.x >= bMin.x && cPos.x <= bMax.x && cPos.y >= bMax.y && cPos.y < bMax.y + cRadius) {
+            vec2 closest = glm::clamp(local, -half, half);
+            if (closest == local) {
 
-                depth = (bMax.y - (cPos.y - cRadius)) * 0.5f;
-                normal = vec2(0.0f, -1.0f);
-                point = vec2(cPos.x, bMax.y - depth);
-                if (bRot != 0.0f) {rotate(normal, vec2(0.0f, 0.0f), rCos, -rSin); rotate(point, bPos, rCos, -rSin);}
-                if (flip) {normal = -normal;}
+                // The centre is inside the box, so push it out through the nearest face.
+                float dx = half.x - std::abs(local.x);
+                float dy = half.y - std::abs(local.y);
+                if (dx < dy) {
+                    float sign = local.x < 0.0f ? -1.0f : 1.0f;
+                    normal = vec2(sign, 0.0f);
+                    surface = vec2(sign * half.x, local.y);
+                    depth = radius + dx;
+                } else {
+                    float sign = local.y < 0.0f ? -1.0f : 1.0f;
+                    normal = vec2(0.0f, sign);
+                    surface = vec2(local.x, sign * half.y);
+                    depth = radius + dy;
+                }
 
-                result.push_back(CollisionManifold(normal, point, depth));
-                return result;
-                
-            }
+            } else {
 
-            // Colliding with the bottom face of the box.
-            if (cPos.x >= bMin.x && cPos.x <= bMax.x && cPos.y > bMin.y - cRadius && cPos.y <= bMin.y) {
-
-                depth = ((cPos.y + cRadius) - bMin.y) * 0.5f;
-                normal = vec2(0.0f, 1.0f);
-                point = vec2(cPos.x, bMin.y + depth);
-                if (bRot != 0.0f) {rotate(normal, vec2(0.0f, 0.0f), rCos, -rSin); rotate(point, bPos, rCos, -rSin);}
-                if (flip) {normal = -normal;}
-
-                result.push_back(CollisionManifold(normal, point, depth));
-                return result;
-                
-            }
-
-            // Colliding with the right face of the box
-            if (cPos.y >= bMin.y && cPos.y <= bMax.y && cPos.x >= bMax.x && cPos.x < bMax.x + cRadius) {
-
-                depth = (bMax.x - (cPos.x - cRadius)) * 0.5f;
-                normal = vec2(-1.0f, 0.0f);
-                point = vec2(bMax.x - depth, cPos.y);
-                if (bRot != 0.0f) {rotate(normal, vec2(0.0f, 0.0f), rCos, -rSin); rotate(point, bPos, rCos, -rSin);}
-                if (flip) {normal = -normal;}
-
-                result.push_back(CollisionManifold(normal, point, depth));
-                return result;
-                
-            }
-
-            // Colliding with the left face of the box.
-            if (cPos.y >= bMin.y && cPos.y <= bMax.y && cPos.x > bMin.x - cRadius && cPos.x <= bMin.x) {
-
-                depth = ((cPos.x + cRadius) - bMin.x) * 0.5f;
-                normal = vec2(1.0f, 0.0f);
-                point = vec2(bMin.x + depth, cPos.y);
-                if (bRot != 0.0f) {rotate(normal, vec2(0.0f, 0.0f), rCos, -rSin); rotate(point, bPos, rCos, -rSin);}
-                if (flip) {normal = -normal;}
-
-                result.push_back(CollisionManifold(normal, point, depth));
-                return result;
-                
-            }
-
-            // Colliding with the top left corner of the box.
-            if (glm::dot(vec2(cPos.x - bMin.x, cPos.y - bMax.y), vec2(cPos.x - bMin.x, cPos.y - bMax.y)) < cRadius * cRadius) {
-
-                vec2 difference = vec2(bMin.x, bMax.y) - cPos;
-                normal = glm::normalize(difference);
-                vec2 depthVector = ((normal * cRadius) - difference) * 0.5f;            
-                depth = glm::length(depthVector);
-                point = vec2(bMin.x, bMax.y) + depthVector;
-                if (bRot != 0.0f) {rotate(normal, vec2(0.0f, 0.0f), rCos, -rSin); rotate(point, bPos, rCos, -rSin);}
-                if (flip) {normal = -normal;}
-
-                result.push_back(CollisionManifold(normal, point, depth));
-                return result;
-                
-            }
-
-            // Colliding with the top right corner of the box.
-            if (glm::dot(vec2(cPos.x - bMax.x, cPos.y - bMax.y), vec2(cPos.x - bMax.x, cPos.y - bMax.y)) < cRadius * cRadius) {
-
-                vec2 difference = vec2(bMax.x, bMax.y) - cPos;
-                normal = glm::normalize(difference);
-                vec2 depthVector = ((normal * cRadius) - difference) * 0.5f;            
-                depth = glm::length(depthVector);
-                point = vec2(bMax.x, bMax.y) + depthVector;
-                if (bRot != 0.0f) {rotate(normal, vec2(0.0f, 0.0f), rCos, -rSin); rotate(point, bPos, rCos, -rSin);}
-                if (flip) {normal = -normal;}
-
-                result.push_back(CollisionManifold(normal, point, depth));
-                return result;
-                
-            }
-
-            // Colliding with the bottom left corner of the box.
-            if (glm::dot(vec2(cPos.x - bMin.x, cPos.y - bMin.y), vec2(cPos.x - bMin.x, cPos.y - bMin.y)) < cRadius * cRadius) {
-
-                vec2 difference = vec2(bMin.x, bMin.y) - cPos;
-                normal = glm::normalize(difference);
-                vec2 depthVector = ((normal * cRadius) - difference) * 0.5f;            
-                depth = glm::length(depthVector);
-                point = vec2(bMin.x, bMin.y) + depthVector;
-                if (bRot != 0.0f) {rotate(normal, vec2(0.0f, 0.0f), rCos, -rSin); rotate(point, bPos, rCos, -rSin);}
-                if (flip) {normal = -normal;}
-
-                result.push_back(CollisionManifold(normal, point, depth));
-                return result;
-                
-            }
-
-            // Colliding with the bottom right corner of the box.
-            if (glm::dot(vec2(cPos.x - bMax.x, cPos.y - bMin.y), vec2(cPos.x - bMax.x, cPos.y - bMin.y)) < cRadius * cRadius) {
-
-                vec2 difference = vec2(bMax.x, bMin.y) - cPos;
-                normal = glm::normalize(difference);
-                vec2 depthVector = ((normal * cRadius) - difference) * 0.5f;            
-                depth = glm::length(depthVector);
-                point = vec2(bMax.x, bMin.y) + depthVector;
-                if (bRot != 0.0f) {rotate(normal, vec2(0.0f, 0.0f), rCos, -rSin); rotate(point, bPos, rCos, -rSin);}
-                if (flip) {normal = -normal;}
-
-                result.push_back(CollisionManifold(normal, point, depth));
-                return result;
+                vec2 difference = local - closest;
+                float distanceSquared = glm::dot(difference, difference);
+                if (distanceSquared >= radius * radius) {return result;}
+                float distance = sqrtf(distanceSquared);
+                normal = difference / distance;
+                surface = closest;
+                depth = radius - distance;
 
             }
-            
+
+            // Back into world space. The midpoint lies half the depth outward from the box surface.
+            vec2 point = bPos + rotate(surface + normal * (0.5f * depth), rCos, rSin);
+            normal = rotate(normal, rCos, rSin);
+
+            // Unflipped, the circle is the first collider, so the normal must point from the circle to the box.
+            if (!flip) {normal = -normal;}
+            result.push_back(CollisionManifold(normal, point, depth));
             return result;
         }
 

@@ -11,11 +11,13 @@
 namespace Pancake {
 
     class Collider;
+    class World;
 
     class Rigidbody : public Component {
 
         private:
 
+            World* world;                                    // The physics world this rigidbody has been added to.
             std::vector<Collider*> colliders;                // Gives a rigidbody shape.
             std::unordered_set<std::string> forceGenerators; // Allows specific force generators to act on the rigidbody.
 
@@ -26,6 +28,7 @@ namespace Pancake {
 
             float restitution;
             float friction;
+            float gravityScale;
 
             glm::vec2 lastPosition;
             float lastRotation;
@@ -46,11 +49,14 @@ namespace Pancake {
         public:
 
             Rigidbody();
+            ~Rigidbody() override;
             void start() override;
             void end() override;
             json serialise() override;
             bool load(json j) override;
 
+            World* getWorld();
+            void setWorld(World* world);
             std::vector<Collider*> getColliders();
             std::unordered_set<std::string> getForceGenerators();
             glm::vec2 getVelocity();
@@ -59,6 +65,7 @@ namespace Pancake {
             float getAngularVelocity();
             float getRestitution();
             float getFriction();
+            float getGravityScale();
             float getMass();
             float getInverseMass();
             float getMomentOfInertia();
@@ -92,6 +99,7 @@ namespace Pancake {
             Rigidbody* setAngularVelocity(float angularVelocity);
             Rigidbody* setRestitution(float cor);
             Rigidbody* setFriction(float cof);
+            Rigidbody* setGravityScale(float scale);
             Rigidbody* setSensor(bool sensor);
             Rigidbody* setFixedOrientation(bool orientation);
             Rigidbody* setCentroidDirty();

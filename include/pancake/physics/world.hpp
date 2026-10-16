@@ -32,8 +32,10 @@ namespace Pancake {
 
             SpatialHashGrid<Rigidbody*>* grid;
 
+            glm::vec2 gravity;
             float timeStep;
             float time;
+            bool debug;
 
             void fixedUpdate();
 
@@ -44,6 +46,10 @@ namespace Pancake {
 
             void update(float dt);
             void render();
+            glm::vec2 getGravity();
+            void setGravity(glm::vec2 gravity);
+            bool hasDebugDraw();
+            void setDebugDraw(bool debug);
             void add(Rigidbody* rigidbody);
             bool has(Rigidbody* rigidbody);
             void remove(Rigidbody* rigidbody);
@@ -58,6 +64,7 @@ namespace Pancake {
 
             SpatialHashGrid<Rigidbody*>* getGrid();
             RaycastResult raycast(Ray ray);
+            RaycastResult raycast(Ray ray, float maxDistance);
 
     };
 

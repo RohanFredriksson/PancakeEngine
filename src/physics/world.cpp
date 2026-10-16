@@ -1,6 +1,7 @@
 #include <cmath>
 #include <limits>
 #include <algorithm>
+#include <cfloat>
 #include <glm/glm.hpp>
 #include <glm/geometric.hpp>
 #include <glm/gtx/rotate_vector.hpp>
@@ -17,8 +18,6 @@ namespace Pancake {
             
             public:
 
-                glm::vec2 aPosition;
-                glm::vec2 bPosition;
                 glm::vec2 aVelocity;
                 glm::vec2 bVelocity;
                 float aAngularVelocity;
@@ -29,8 +28,6 @@ namespace Pancake {
                 float bAngularOrbitalSpeed;
 
                 ImpulseResult() {
-                    this->aPosition = glm::vec2(0.0f, 0.0f);
-                    this->bPosition = glm::vec2(0.0f, 0.0f);
                     this->aVelocity = glm::vec2(0.0f, 0.0f);
                     this->bVelocity = glm::vec2(0.0f, 0.0f);
                     this->aAngularVelocity = 0.0f;
@@ -43,8 +40,6 @@ namespace Pancake {
 
                 ImpulseResult operator*(float scalar) const {
                     ImpulseResult result;
-                    result.aPosition = this->aPosition * scalar;
-                    result.bPosition = this->bPosition * scalar;
                     result.aVelocity = this->aVelocity * scalar;
                     result.bVelocity = this->bVelocity * scalar;
                     result.aAngularVelocity = this->aAngularVelocity * scalar;
@@ -57,8 +52,6 @@ namespace Pancake {
                 }
 
                 ImpulseResult& operator+=(const ImpulseResult& rhs) {
-                    this->aPosition += rhs.aPosition;
-                    this->bPosition += rhs.bPosition;
                     this->aVelocity += rhs.aVelocity;
                     this->bVelocity += rhs.bVelocity;
                     this->aAngularVelocity += rhs.aAngularVelocity;
@@ -73,6 +66,7 @@ namespace Pancake {
         };
         
         const int IMPULSE_ITERATIONS = 6;
+        const int MAX_STEPS_PER_UPDATE = 5;
         
         inline glm::vec2 perp(glm::vec2 v) {
             return glm::rotate(v, glm::half_pi<float>());
@@ -87,9 +81,6 @@ namespace Pancake {
             // Check for infinite mass objects.
             ImpulseResult result;
             if (a->hasInfiniteMass() && b->hasInfiniteMass()) {return result;}
-
-            DebugDraw::drawBox(m.point, glm::vec2(0.1f, 0.1f), 0.0f, vec3(1.0f, 0.0f, 0.0f), 10);
-            DebugDraw::drawLine(m.point, m.point + m.normal * 0.3f, vec3(0.0f, 0.0f, 1.0f), 10);
 
             float invMassA = a->getInverseMass();
             float invMassB = b->getInverseMass();
@@ -144,40 +135,67 @@ namespace Pancake {
 
             }
 
-            // Position correction.
-            if (!a->hasInfiniteMass() && !b->hasInfiniteMass()) {
-                const float slop = 0.01f;
-                const float percent = 0.4f;
-                glm::vec2 correction = std::max(m.depth - slop, 0.0f) / (invMassA + invMassB) * percent * m.normal;
-                result.aPosition -= correction * invMassA;
-                result.bPosition += correction * invMassB;
-            }
-            
-            if (b->hasInfiniteMass()) {result.aPosition -= m.depth * m.normal;}
-            if (a->hasInfiniteMass()) {result.bPosition += m.depth * m.normal;}
-
             return result;
+        }
+
+        // Push overlapping bodies apart, in proportion to their inverse masses, to stop them sinking into each other.
+        void correctPositions(Rigidbody* a, Rigidbody* b, const std::vector<CollisionManifold>& manifolds) {
+
+            const float slop = 0.005f;
+            const float percent = 0.8f;
+
+            float invMassA = a->getInverseMass();
+            float invMassB = b->getInverseMass();
+            if (invMassA + invMassB <= 0.0f) {return;}
+
+            // Weight each contact by its depth, as with the impulses.
+            float depthTotal = 0.0f;
+            for (const CollisionManifold& m : manifolds) {depthTotal += m.depth;}
+            if (depthTotal <= 0.0f) {return;}
+
+            glm::vec2 correction = glm::vec2(0.0f, 0.0f);
+            for (const CollisionManifold& m : manifolds) {
+                float magnitude = std::max(m.depth - slop, 0.0f) * percent / (invMassA + invMassB);
+                correction += m.normal * magnitude * (m.depth / depthTotal);
+            }
+
+            a->getEntity()->addPosition(-correction * invMassA);
+            b->getEntity()->addPosition(correction * invMassB);
+
         }
 
     }
 
     World::World(float timeStep, glm::vec2 gravity) {
         this->grid = new SpatialHashGrid<Rigidbody*>(4);
+        this->gravity = gravity;
         this->timeStep = timeStep;
         this->time = 0.0f;
+        this->debug = false;
     }
 
     World::~World() {
-        // Force generators are components, so they are owned and deleted by their entities.
+
+        // Rigidbodies and force generators are components, so they are owned and deleted by their entities.
+        // Detach any that are still registered so they don't reference this world after it is gone.
+        for (Rigidbody* rigidbody : this->rigidbodies) {rigidbody->setWorld(nullptr);}
+        for (ForceGenerator* force : this->forces) {force->setWorld(nullptr);}
         delete this->grid;
+
     }
 
     void World::update(float dt) {
+
+        // Step at a fixed rate. If we fall too far behind, drop the excess time rather than spiralling.
         this->time += dt;
-        while (this->time >= 0.0f) {
+        int steps = 0;
+        while (this->time >= this->timeStep && steps < MAX_STEPS_PER_UPDATE) {
             this->fixedUpdate();
             this->time -= this->timeStep;
+            steps++;
         }
+        if (steps == MAX_STEPS_PER_UPDATE) {this->time = 0.0f;}
+
     }
 
     void World::fixedUpdate() {
@@ -256,6 +274,14 @@ namespace Pancake {
 
                         }
 
+                        // Visualise the contacts.
+                        if (this->debug) {
+                            for (CollisionManifold manifold : results) {
+                                DebugDraw::drawBox(manifold.point, glm::vec2(0.1f, 0.1f), 0.0f, vec3(1.0f, 0.0f, 0.0f), 10);
+                                DebugDraw::drawLine(manifold.point, manifold.point + manifold.normal * 0.3f, vec3(0.0f, 0.0f, 1.0f), 10);
+                            }
+                        }
+
                         // Add the bodies to the impulse list if they are not sensors.
                         if (!rigidbody1->isSensor() && !rigidbody2->isSensor()) {
                             collisions.push_back(std::make_pair(rigidbody1, rigidbody2));
@@ -282,12 +308,15 @@ namespace Pancake {
                 Rigidbody* r2 = collisions[i].second;
                 ImpulseResult sum;
 
+                // Weight each contact by its depth, or equally if they are only touching.
+                int count = manifolds[i].size();
                 float depthTotal = 0.0f;
-                for (int j = 0; j < manifolds[i].size(); j++) {depthTotal += manifolds[i][j].depth;}
-                for (int j = 0; j < manifolds[i].size(); j++) {sum += applyImpulse(r1, r2, manifolds[i][j]) * (manifolds[i][j].depth / depthTotal);}
+                for (int j = 0; j < count; j++) {depthTotal += manifolds[i][j].depth;}
+                for (int j = 0; j < count; j++) {
+                    float weight = depthTotal > 0.0f ? manifolds[i][j].depth / depthTotal : 1.0f / count;
+                    sum += applyImpulse(r1, r2, manifolds[i][j]) * weight;
+                }
 
-                r1->getEntity()->addPosition(sum.aPosition);
-                r2->getEntity()->addPosition(sum.bPosition);
                 r1->addVelocity(sum.aVelocity);
                 r2->addVelocity(sum.bVelocity);
                 r1->addAngularVelocity(sum.aAngularVelocity);
@@ -300,22 +329,56 @@ namespace Pancake {
             
         }
 
+        // Correct positions once, after the velocities have been resolved.
+        for (int i = 0; i < collisions.size(); i++) {
+            correctPositions(collisions[i].first, collisions[i].second, manifolds[i]);
+        }
+
     }
 
     void World::render() {
 
-        int n = this->rigidbodies.size();
-        for (int i = 0; i < n; i++) {
+        if (!this->debug) {return;}
 
-            Rigidbody* rigidbody = this->rigidbodies[i];
+        // Draw the bounding box and colliders of every rigidbody.
+        for (Rigidbody* rigidbody : this->rigidbodies) {
+
             std::pair<glm::vec2, glm::vec2> bounds = rigidbody->getBounds();
             DebugDraw::drawAABB(bounds.first, bounds.second, vec3(0.5f, 0.0f, 1.0f), 1);
+
+            for (Collider* collider : rigidbody->getColliders()) {
+                BoxCollider* box = dynamic_cast<BoxCollider*>(collider);
+                CircleCollider* circle = dynamic_cast<CircleCollider*>(collider);
+                if (box != nullptr) {DebugDraw::drawBox(box->getPosition(), box->getSize(), box->getRotation(), vec3(0.0f, 1.0f, 0.0f), 1);}
+                if (circle != nullptr) {DebugDraw::drawCircleCollider(circle->getPosition(), circle->getRadius(), vec3(0.0f, 1.0f, 0.0f), 1);}
+            }
 
         }
 
     }
 
+    glm::vec2 World::getGravity() {
+        return this->gravity;
+    }
+
+    void World::setGravity(glm::vec2 gravity) {
+        this->gravity = gravity;
+    }
+
+    bool World::hasDebugDraw() {
+        return this->debug;
+    }
+
+    void World::setDebugDraw(bool debug) {
+        this->debug = debug;
+    }
+
     void World::add(Rigidbody* rigidbody) {
+
+        // A rigidbody can only belong to one world at a time.
+        if (this->has(rigidbody)) {return;}
+        if (rigidbody->getWorld() != nullptr) {rigidbody->getWorld()->remove(rigidbody);}
+        rigidbody->setWorld(this);
         
         // Insert the rigidbody in the index and the vector.
         this->rigidbodies.push_back(rigidbody);
@@ -341,6 +404,8 @@ namespace Pancake {
     void World::remove(Rigidbody* rigidbody) {
 
         // Remove the rigidbody from the index and the spatial hash grid.
+        if (!this->has(rigidbody)) {return;}
+        rigidbody->setWorld(nullptr);
         this->rigidbodiesIndex.erase(rigidbody);
         this->grid->remove(rigidbody);
 
@@ -366,10 +431,53 @@ namespace Pancake {
 
     RaycastResult World::raycast(Ray ray) {
 
+        // An unbounded ray could cross any number of cells, so test every body.
         RaycastResult best;
         for (Rigidbody* rigidbody : this->rigidbodies) {
             RaycastResult current = Raycast::raycast(rigidbody, ray);
             if (current.hit != nullptr && current.distance < best.distance) {best = current;}
+        }
+
+        return best;
+    }
+
+    RaycastResult World::raycast(Ray ray, float maxDistance) {
+
+        if (!std::isfinite(maxDistance)) {return this->raycast(ray);}
+
+        // Walk the spatial hash grid cells along the ray (Amanatides & Woo), testing the bodies in each cell.
+        float size = (float) this->grid->getGridSize();
+        int x = (int) std::floor(ray.origin.x / size);
+        int y = (int) std::floor(ray.origin.y / size);
+        int stepX = ray.direction.x > 0.0f ? 1 : -1;
+        int stepY = ray.direction.y > 0.0f ? 1 : -1;
+
+        float nextX = (x + (stepX > 0 ? 1 : 0)) * size;
+        float nextY = (y + (stepY > 0 ? 1 : 0)) * size;
+        float tMaxX = ray.direction.x != 0.0f ? (nextX - ray.origin.x) / ray.direction.x : FLT_MAX;
+        float tMaxY = ray.direction.y != 0.0f ? (nextY - ray.origin.y) / ray.direction.y : FLT_MAX;
+        float tDeltaX = ray.direction.x != 0.0f ? size / std::abs(ray.direction.x) : FLT_MAX;
+        float tDeltaY = ray.direction.y != 0.0f ? size / std::abs(ray.direction.y) : FLT_MAX;
+
+        RaycastResult best;
+        std::unordered_set<Rigidbody*> tested;
+
+        while (true) {
+
+            for (Rigidbody* rigidbody : this->grid->get(x, y)) {
+                if (!tested.insert(rigidbody).second) {continue;}
+                RaycastResult current = Raycast::raycast(rigidbody, ray);
+                if (current.hit != nullptr && current.distance <= maxDistance && current.distance < best.distance) {best = current;}
+            }
+
+            // A hit closer than the far edge of this cell cannot be beaten by bodies in later cells.
+            float tCellExit = std::min(tMaxX, tMaxY);
+            if (best.hit != nullptr && best.distance <= tCellExit) {break;}
+            if (tCellExit > maxDistance) {break;}
+
+            if (tMaxX < tMaxY) {x += stepX; tMaxX += tDeltaX;}
+            else {y += stepY; tMaxY += tDeltaY;}
+
         }
 
         return best;
@@ -396,6 +504,7 @@ namespace Pancake {
         // Add the force to the index.
         this->forcesIndex.insert({type, force});
         this->forces.push_back(force);
+        force->setWorld(this);
 
         // See if any rigidbodies require this force generator.
         for (Rigidbody* rigidbody : this->rigidbodies) {
@@ -417,7 +526,9 @@ namespace Pancake {
         if (it == this->forcesIndex.end()) {return;}
 
         // Remove all registrations that use this force.
-        this->registry.remove(this->getForceGenerator(type));
+        ForceGenerator* force = it->second;
+        this->registry.remove(force);
+        if (force->getWorld() == this) {force->setWorld(nullptr);}
 
         // Remove the force from the index.
         this->forcesIndex.erase(type);

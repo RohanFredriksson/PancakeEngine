@@ -39,6 +39,7 @@ namespace Pancake {
         Shader* shader;
         unsigned int vao;
         unsigned int vbo;
+        bool enabled = true;
 
         vec2 rotate(vec2 vector, float degrees, vec2 origin) {
 
@@ -162,9 +163,24 @@ namespace Pancake {
             glDeleteVertexArrays(1, &vao);
         }
 
+        void clear() {
+            for (Line* line : lines) {delete line;}
+            lines.clear();
+        }
+
+        void setEnabled(bool state) {
+            enabled = state;
+            if (!enabled) {clear();}
+        }
+
+        bool isEnabled() {
+            return enabled;
+        }
+
         void drawLine(vec2 from, vec2 to, vec3 colour, int lifetime) {
 
-            if (lines.size() >= MAX_LINES) {return;}
+            if (!enabled || lines.size() >= MAX_LINES) {return;}
+            if (Window::getScene() == nullptr) {return;}
 
             Camera* camera = Window::getScene()->getCamera();
             

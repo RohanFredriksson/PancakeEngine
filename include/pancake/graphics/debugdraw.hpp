@@ -12,6 +12,11 @@ namespace Pancake {
         void init();
         void render();
         void destroy();
+        void clear();
+
+        // Disabling debug drawing discards all draw calls until it is enabled again.
+        void setEnabled(bool enabled);
+        bool isEnabled();
 
         void drawLine(vec2 from, vec2 to, vec3 colour, int lifetime);
         void drawLine(vec2 from, vec2 to, vec3 colour);
