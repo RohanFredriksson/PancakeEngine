@@ -89,6 +89,54 @@ namespace Pancake {
         Inspector::toggle();
     }
 
+    void timeScale(float scale) {
+        Window::setTimeScale(scale);
+    }
+
+    float getTimeScale() {
+        return Window::getTimeScale();
+    }
+
+    void pause(bool state) {
+        Window::setPaused(state);
+    }
+
+    void pause() {
+        Window::setPaused(!Window::isPaused());
+    }
+
+    bool isPaused() {
+        return Window::isPaused();
+    }
+
+    void step(int frames) {
+        Window::step(frames);
+    }
+
+    float getFps() {
+        return Window::getFps();
+    }
+
+    float getUnscaledDeltaTime() {
+        return Window::getUnscaledDeltaTime();
+    }
+
+    void vsync(bool state) {
+        Window::setVsync(state);
+    }
+
+    void fullscreen(bool state) {
+        Window::setFullscreen(state);
+    }
+
+    void fullscreen() {
+        Window::setFullscreen(!Window::isFullscreen());
+    }
+
+    bool isFullscreen() {
+        return Window::isFullscreen();
+    }
+
     Scene* getScene() {
         return Window::getScene();
     }

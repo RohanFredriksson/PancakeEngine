@@ -31,6 +31,21 @@ namespace Pancake {
         void setProjectionHeight(float height);
         int readPixel(int x, int y);
 
+        // Time. The scene is updated with the frame time multiplied by the time scale, or zero while paused.
+        void setTimeScale(float scale);
+        float getTimeScale();
+        void setPaused(bool paused);
+        bool isPaused();
+        void step(int frames);
+        float getFps();
+        float getUnscaledDeltaTime();
+
+        // Display.
+        void setVsync(bool vsync);
+        bool hasVsync();
+        void setFullscreen(bool fullscreen);
+        bool isFullscreen();
+
         void openConsole();
         void closeConsole();
 

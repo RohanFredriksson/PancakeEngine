@@ -58,6 +58,19 @@ namespace Pancake {
         bool heightFlag = false;
         int heightValue;
 
+        float timeScale = 1.0f;
+        bool paused = false;
+        int stepFrames = 0;
+        float fps = 0.0f;
+        float unscaledDeltaTime = 0.0f;
+
+        bool vsync = true;
+        bool vsyncFlag = false;
+
+        bool fullscreen = false;
+        bool fullscreenFlag = false;
+        int windowedX, windowedY, windowedWidth, windowedHeight; // Restored when leaving fullscreen.
+
         Shader* defaultShader;
         Shader* entityShader;
         Framebuffer* entityTexture;
@@ -98,6 +111,30 @@ namespace Pancake {
 
             glfwSwapBuffers(window);
 
+        }
+
+        // The time the scene advances by this frame.
+        float sceneDeltaTime(float dt) {
+            if (!paused) {return dt * timeScale;}
+            if (stepFrames <= 0) {return 0.0f;}
+            stepFrames--;
+            return scene->getPhysics()->getTimeStep(); // Exactly one physics step, whatever the frame time.
+        }
+
+        void applyFullscreen() {
+            GLFWmonitor* monitor = glfwGetPrimaryMonitor();
+            if (fullscreen && monitor != nullptr) {
+                glfwGetWindowPos(window, &windowedX, &windowedY);
+                glfwGetWindowSize(window, &windowedWidth, &windowedHeight);
+                const GLFWvidmode* mode = glfwGetVideoMode(monitor);
+                glfwSetWindowMonitor(window, monitor, 0, 0, mode->width, mode->height, mode->refreshRate);
+            } else if (fullscreen) {
+                std::cout << "ERROR::WINDOW::NO_MONITOR_FOR_FULLSCREEN\n";
+                fullscreen = false;
+            } else if (glfwGetWindowMonitor(window) != nullptr) {
+                glfwSetWindowMonitor(window, nullptr, windowedX, windowedY, windowedWidth, windowedHeight, 0);
+            }
+            glfwSwapInterval(vsync ? 1 : 0); // Some platforms reset the swap interval when the monitor changes.
         }
 
         void resizeCallback(GLFWwindow* window, int screenWidth, int screenHeight) {
@@ -175,8 +212,9 @@ namespace Pancake {
             // Make the OpenGl context current
             glfwMakeContextCurrent(window);
 
-            // Enable v-sync
-            glfwSwapInterval(1);
+            // Enable v-sync, unless it was turned off before starting.
+            glfwSwapInterval(vsync ? 1 : 0);
+            vsyncFlag = false;
 
             // Make the window visible
             glfwShowWindow(window);
@@ -207,6 +245,7 @@ namespace Pancake {
             DebugDraw::init();
             scene = new Scene();
             scene->start();
+            if (fullscreen) {fullscreenFlag = true;}
             
             // Loop
             float beginTime = (float)glfwGetTime();
@@ -249,6 +288,16 @@ namespace Pancake {
                     heightFlag = false;
                 }
 
+                if (vsyncFlag) {
+                    glfwSwapInterval(vsync ? 1 : 0);
+                    vsyncFlag = false;
+                }
+
+                if (fullscreenFlag) {
+                    applyFullscreen();
+                    fullscreenFlag = false;
+                }
+
                 glfwPollEvents();
 
                 if (saveFlag) {
@@ -284,7 +333,9 @@ namespace Pancake {
                 }
 
                 if (dt > 0) {
-                    update(dt);
+                    unscaledDeltaTime = dt;
+                    fps = fps <= 0.0f ? 1.0f / dt : 0.95f * fps + 0.05f / dt;
+                    update(sceneDeltaTime(dt));
                     render();
                 }
 
@@ -396,6 +447,55 @@ namespace Pancake {
             // Return the value of this pixel.
             return (int)pixel - 1;
 
+        }
+
+        void setTimeScale(float scale) {
+            timeScale = scale < 0.0f ? 0.0f : scale;
+        }
+
+        float getTimeScale() {
+            return timeScale;
+        }
+
+        void setPaused(bool state) {
+            paused = state;
+            if (!paused) {stepFrames = 0;}
+        }
+
+        bool isPaused() {
+            return paused;
+        }
+
+        void step(int frames) {
+            paused = true;
+            if (frames > 0) {stepFrames += frames;}
+        }
+
+        float getFps() {
+            return fps;
+        }
+
+        float getUnscaledDeltaTime() {
+            return unscaledDeltaTime;
+        }
+
+        void setVsync(bool state) {
+            vsync = state;
+            vsyncFlag = true;
+        }
+
+        bool hasVsync() {
+            return vsync;
+        }
+
+        void setFullscreen(bool state) {
+            if (state == fullscreen) {return;}
+            fullscreen = state;
+            if (window != nullptr) {fullscreenFlag = true;} // Otherwise applied when the window is created.
+        }
+
+        bool isFullscreen() {
+            return fullscreen;
         }
 
         void openConsole() {

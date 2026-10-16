@@ -144,7 +144,8 @@ The engine provides the following features:
 - Entity-component system for managing game objects, with typed component access and named entities.
 - Resource loading from file system.
 - JSON serialization and deserialization for game data, including custom components.
-- An in-game console with built-in commands (`help`, `save`, `load`, `reset`, `debug`, `gravity`, `entities`, `inspector`) and support for your own.
+- Time scale, pause and single stepping, with timers (`scene->after`, `scene->every`) and tweens with easing that follow them.
+- An in-game console with built-in commands (`help`, `save`, `load`, `reset`, `debug`, `gravity`, `entities`, `inspector`, `pause`, `step`, `timescale`, `spawn`, `kill`, `tp`, `fps`, `vsync`, `fullscreen`) and support for your own.
 - An entity inspector: click an entity to view and edit its components.
 - Debug drawing for collision shapes and other debugging purposes.
 
@@ -167,11 +168,34 @@ int level = 2;
 Pancake::load([level](Scene* scene) { /* build the level */ });
 ```
 
+## Time, Timers and Tweens
+```c++
+Pancake::timeScale(0.25f);  // Slow motion. Components get the scaled delta time.
+Pancake::pause(true);       // Components keep updating with a delta time of zero, so a pause menu can still read input.
+Pancake::step();            // While paused, advance one physics step on the next frame.
+float real = Pancake::getUnscaledDeltaTime();
+
+// Timers follow the time scale. With an owner, a timer is cancelled when the owner dies.
+int timer = scene->after(2.0f, []() { /* ... */ }, entity);
+scene->every(0.5f, []() { /* ... */ });
+scene->cancel(timer);
+
+// Tweens are components, so they die with their entity. Start values are read after the delay.
+Tween::position(entity, vec2(0.0f, 5.0f), 0.5f, Ease::outQuad)
+    ->setDelay(1.0f)
+    ->onComplete([entity]() { Tween::rotation(entity, 3.14f, 0.25f); });
+Tween::colour(sprite, vec4(1.0f, 0.0f, 0.0f, 1.0f), 0.2f);
+Tween::value(entity, 1.0f, [](float t) { /* t eases from 0 to 1 */ }, Ease::inOutSine);
+```
+
 ## Debugging Tools
 ```c++
 Pancake::console(true);    // Open the console. Pancake::console() toggles it.
 Pancake::inspector(true);  // Open the inspector. Pancake::inspector() toggles it.
 Pancake::debug(true);      // Draw physics colliders, bounds and contacts.
+Pancake::vsync(false);     // Uncap the frame rate.
+Pancake::fullscreen(true); // Fill the primary monitor. Pancake::fullscreen() toggles it.
+Console::execute("fps on"); // Show the frame rate overlay.
 
 // Add a console command.
 Console::registerCommand("spawn", "spawn <x> <y>: Spawn a crate.", [](std::vector<std::string> args) {
@@ -184,6 +208,7 @@ Console::registerCommand("spawn", "spawn <x> <y>: Spawn a crate.", [](std::vecto
 - The collision solver was rewritten, so restitution and friction may feel slightly different. Bounces below 1 unit per second are no longer applied, so resting bodies don't jitter.
 - `KeyListener::isKeyBeginDown` and `MouseListener::isMouseBeginDown` are now true for the whole frame a key or button was pressed in, rather than only for the first caller.
 - A key or mouse button pressed and released within one frame now still reports `isKeyBeginDown`/`isMouseBeginDown` for that frame, along with the new `isKeyEndDown`/`isMouseEndDown`.
+- Components added to an entity during its update now first update on the next frame, instead of the same frame.
 - `Pancake::load` and `Window::load` take a `std::function<void(Scene*)>` instead of a function pointer. Existing calls still compile.
 
 ## Contributions
