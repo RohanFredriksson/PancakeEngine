@@ -7,6 +7,9 @@
 #include "pancake/core/inspector.hpp"
 #include "pancake/core/window.hpp"
 #include "pancake/graphics/debugdraw.hpp"
+#include "pancake/graphics/spriterenderer.hpp"
+#include "pancake/physics/rigidbody.hpp"
+#include "pancake/physics/collider.hpp"
 
 namespace Pancake {
 
@@ -18,6 +21,7 @@ namespace Pancake {
         };
 
         bool active = false;
+        bool fpsOverlay = false;
         bool scrollToBottom = false;
         std::vector<std::string> output;
         std::map<std::string, Entry> commands;
@@ -35,6 +39,44 @@ namespace Pancake {
         bool parseState(std::vector<std::string>& args, bool current) {
             if (args.empty()) {return !current;}
             return args[0] == "on" || args[0] == "true" || args[0] == "1";
+        }
+
+        bool parseFloat(std::string text, float* value) {
+            try {
+                size_t used;
+                *value = std::stof(text, &used);
+                return used == text.size();
+            } catch (const std::exception& e) {return false;}
+        }
+
+        // Finds a live entity by id, or by name when the argument isn't a number.
+        Entity* findEntity(std::string idOrName) {
+            Scene* scene = Window::getScene();
+            if (scene == nullptr) {return nullptr;}
+            Entity* e = nullptr;
+            try {
+                size_t used;
+                int id = std::stoi(idOrName, &used);
+                if (used == idOrName.size()) {e = scene->getEntity(id);}
+            } catch (const std::exception& ex) {}
+            if (e == nullptr) {e = scene->findEntity(idOrName);}
+            if (e != nullptr && e->isDead()) {return nullptr;}
+            return e;
+        }
+
+        void renderOverlay() {
+            if (!fpsOverlay) {return;}
+            ImGuiWindowFlags flags = ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoSavedSettings
+                                   | ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoNav | ImGuiWindowFlags_NoMove;
+            ImGui::SetNextWindowPos(ImVec2(ImGui::GetIO().DisplaySize.x - 10.0f, 10.0f), ImGuiCond_Always, ImVec2(1.0f, 0.0f));
+            ImGui::SetNextWindowBgAlpha(0.5f);
+            if (ImGui::Begin("##FPS", nullptr, flags)) {
+                float fps = Window::getFps();
+                ImGui::Text("%.0f FPS (%.2f ms)", fps, fps > 0.0f ? 1000.0f / fps : 0.0f);
+                if (Window::isPaused()) {ImGui::Text("Paused");}
+                if (Window::getTimeScale() != 1.0f) {ImGui::Text("Time scale %.2f", Window::getTimeScale());}
+            }
+            ImGui::End();
         }
 
         void registerDefaults() {
@@ -105,6 +147,81 @@ namespace Pancake {
                 Inspector::set(parseState(args, Inspector::opened()));
             });
 
+            Console::registerCommand("pause", "pause [on|off]: Pause or resume the scene.", [](std::vector<std::string> args) {
+                bool state = parseState(args, Window::isPaused());
+                Window::setPaused(state);
+                Console::print(state ? "Paused" : "Resumed");
+            });
+
+            Console::registerCommand("step", "step [frames]: Pause, then advance one physics step per frame.", [](std::vector<std::string> args) {
+                int frames = 1;
+                if (!args.empty()) {
+                    try {frames = std::stoi(args[0]);}
+                    catch (const std::exception& e) {Console::print("Usage: step [frames]"); return;}
+                }
+                Window::step(frames);
+            });
+
+            Console::registerCommand("timescale", "timescale [scale]: Show or set how fast the scene runs.", [](std::vector<std::string> args) {
+                float scale;
+                if (args.size() == 1) {
+                    if (!parseFloat(args[0], &scale) || scale < 0.0f) {Console::print("Usage: timescale <scale>"); return;}
+                    Window::setTimeScale(scale);
+                }
+                Console::print("Time scale: " + std::to_string(Window::getTimeScale()));
+            });
+
+            Console::registerCommand("spawn", "spawn <x> <y> [w h]: Spawn a dynamic box.", [](std::vector<std::string> args) {
+                Scene* scene = Window::getScene();
+                if (scene == nullptr) {return;}
+                float x, y;
+                float w = 1.0f, h = 1.0f;
+                bool valid = (args.size() == 2 || args.size() == 4) && parseFloat(args[0], &x) && parseFloat(args[1], &y);
+                if (valid && args.size() == 4) {valid = parseFloat(args[2], &w) && parseFloat(args[3], &h) && w > 0.0f && h > 0.0f;}
+                if (!valid) {Console::print("Usage: spawn <x> <y> [w h]"); return;}
+
+                Entity* e = new Entity(glm::vec2(x, y), glm::vec2(w, h), 0.0f);
+                e->addComponent<SpriteRenderer>();
+                BoxCollider* box = new BoxCollider();
+                box->setSize(w, h);
+                box->setMass(w * h);
+                e->addComponent<Rigidbody>()->addCollider(box);
+                scene->addEntity(e);
+                Console::print("Spawned entity " + std::to_string(e->getId()));
+            });
+
+            Console::registerCommand("kill", "kill <id|name>: Remove an entity.", [](std::vector<std::string> args) {
+                if (args.size() != 1) {Console::print("Usage: kill <id|name>"); return;}
+                Entity* e = findEntity(args[0]);
+                if (e == nullptr) {Console::print("No entity " + args[0]); return;}
+                e->kill();
+                Console::print("Killed entity " + std::to_string(e->getId()));
+            });
+
+            Console::registerCommand("tp", "tp <id|name> <x> <y>: Move an entity and stop it.", [](std::vector<std::string> args) {
+                float x, y;
+                if (args.size() != 3 || !parseFloat(args[1], &x) || !parseFloat(args[2], &y)) {Console::print("Usage: tp <id|name> <x> <y>"); return;}
+                Entity* e = findEntity(args[0]);
+                if (e == nullptr) {Console::print("No entity " + args[0]); return;}
+                e->setPosition(glm::vec2(x, y));
+                Rigidbody* r = e->getComponent<Rigidbody>();
+                if (r != nullptr) {r->setVelocity(0.0f, 0.0f)->setAngularVelocity(0.0f);}
+            });
+
+            Console::registerCommand("fps", "fps [on|off]: Show the frame rate.", [](std::vector<std::string> args) {
+                fpsOverlay = parseState(args, fpsOverlay);
+            });
+
+            Console::registerCommand("vsync", "vsync [on|off]: Limit the frame rate to the display.", [](std::vector<std::string> args) {
+                bool state = parseState(args, Window::hasVsync());
+                Window::setVsync(state);
+                Console::print(std::string("Vsync ") + (state ? "on" : "off"));
+            });
+
+            Console::registerCommand("fullscreen", "fullscreen [on|off]: Fill the primary monitor.", [](std::vector<std::string> args) {
+                Window::setFullscreen(parseState(args, Window::isFullscreen()));
+            });
+
         }
 
     }
@@ -128,6 +245,8 @@ namespace Pancake {
         }
 
         void render() {
+
+            renderOverlay();
             
             // If not active, don't render the terminal.
             if (!active) {return;}

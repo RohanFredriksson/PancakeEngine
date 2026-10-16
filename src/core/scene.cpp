@@ -1,4 +1,5 @@
 #include <deque>
+#include <algorithm>
 #include <string>
 #include <vector>
 #include <fstream>
@@ -24,6 +25,8 @@ namespace Pancake {
         this->renderer = new Renderer();
         this->physics = new World(1.0f / 60.0f, glm::vec2(0.0f, -10.0f));
         this->grid = new SpatialHashGrid<Entity*>(4);
+        this->updatingTimers = false;
+        this->nextTimerId = 1;
     }
 
     Scene::~Scene() {
@@ -71,6 +74,9 @@ namespace Pancake {
             else {dead.push_front(i);}
         }
 
+        // Run timers after entities, so a timer owned by an entity killed this frame doesn't fire.
+        this->updateTimers(dt);
+
         // Delete all dead elements
         for (int i : dead) {
             Entity* e = this->entities[i];
@@ -86,6 +92,66 @@ namespace Pancake {
             if (!e->isDead()) {this->updateGrid(e);}
         }
 
+    }
+
+    void Scene::updateTimers(float dt) {
+
+        this->updatingTimers = true;
+
+        // Callbacks can cancel timers but not add to this vector, so references into it stay valid.
+        for (Timer& t : this->timers) {
+            if (t.cancelled) {continue;}
+            if (t.owner >= 0) {
+                Entity* owner = this->getEntity(t.owner);
+                if (owner == nullptr || owner->isDead()) {t.cancelled = true; continue;}
+            }
+            t.remaining -= dt;
+            if (t.remaining > 0.0f) {continue;}
+            if (!t.repeat) {t.cancelled = true;}
+            else {t.remaining = std::max(t.remaining + t.interval, 0.0f);} // Fires at most once a frame.
+            t.callback();
+        }
+
+        this->updatingTimers = false;
+        this->timers.erase(std::remove_if(this->timers.begin(), this->timers.end(), [](const Timer& t) {return t.cancelled;}), this->timers.end());
+        for (Timer& t : this->addedTimers) {
+            if (!t.cancelled) {this->timers.push_back(std::move(t));}
+        }
+        this->addedTimers.clear();
+
+    }
+
+    int Scene::addTimer(float seconds, bool repeat, std::function<void()> callback, Entity* owner) {
+        Timer t;
+        t.id = this->nextTimerId++;
+        t.remaining = seconds;
+        t.interval = std::max(seconds, 0.0f);
+        t.repeat = repeat;
+        t.owner = owner == nullptr ? -1 : owner->getId();
+        t.cancelled = false;
+        t.callback = callback;
+        if (this->updatingTimers) {this->addedTimers.push_back(std::move(t));}
+        else {this->timers.push_back(std::move(t));}
+        return this->nextTimerId - 1;
+    }
+
+    int Scene::after(float seconds, std::function<void()> callback, Entity* owner) {
+        return this->addTimer(seconds, false, callback, owner);
+    }
+
+    int Scene::every(float seconds, std::function<void()> callback, Entity* owner) {
+        return this->addTimer(seconds, true, callback, owner);
+    }
+
+    void Scene::cancel(int timer) {
+        for (Timer& t : this->timers) {if (t.id == timer) {t.cancelled = true;}}
+        for (Timer& t : this->addedTimers) {if (t.id == timer) {t.cancelled = true;}}
+    }
+
+    bool Scene::hasTimer(int timer) {
+        for (Timer& t : this->timers) {if (t.id == timer && !t.cancelled) {return true;}}
+        for (Timer& t : this->addedTimers) {if (t.id == timer && !t.cancelled) {return true;}}
+        return false;
     }
 
     void Scene::render() {

@@ -152,6 +152,10 @@ namespace Pancake {
 
     }
 
+    float World::getTimeStep() {
+        return this->timeStep;
+    }
+
     World::World(float timeStep, glm::vec2 gravity) {
         this->grid = new SpatialHashGrid<Rigidbody*>(4);
         this->gravity = gravity;

@@ -80,9 +80,11 @@ namespace Pancake {
 
     void Entity::update(float dt) {
 
-        // Update all the components.
+        // Update all the components. Components added during the update, such as a tween chained from
+        // another tween finishing, first update next frame, so they don't consume this frame's time.
         std::deque<int> dead;
-        for (int i = 0; i < this->components.size(); i++) {
+        int n = this->components.size();
+        for (int i = 0; i < n; i++) {
             if (!this->components[i]->isDead()) {this->components[i]->update(dt);} 
             else {dead.push_front(i);}
         }

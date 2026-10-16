@@ -3,6 +3,7 @@
 #include <string>
 #include <vector>
 #include <unordered_map>
+#include <functional>
 #include <nlohmann/json.hpp>
 
 #include "pancake/core/camera.hpp"
@@ -18,6 +19,16 @@ namespace Pancake {
 
         private:
 
+            struct Timer {
+                int id;
+                float remaining;
+                float interval;
+                bool repeat;
+                int owner;      // The entity the timer belongs to, or -1.
+                bool cancelled;
+                std::function<void()> callback;
+            };
+
             std::string name;
             std::vector<Entity*> entities;
             std::unordered_map<int, Entity*> entityIndex;
@@ -31,7 +42,14 @@ namespace Pancake {
             SpatialHashGrid<Entity*>* grid;
             std::unordered_map<Entity*, std::pair<glm::vec2, glm::vec2>> gridBounds;
 
+            std::vector<Timer> timers;
+            std::vector<Timer> addedTimers; // Timers added by timer callbacks, merged in after the callbacks run.
+            bool updatingTimers;
+            int nextTimerId;
+
             std::pair<glm::vec2, glm::vec2> computeBounds(Entity* entity);
+            void updateTimers(float dt);
+            int addTimer(float seconds, bool repeat, std::function<void()> callback, Entity* owner);
             void updateGrid(Entity* entity);
 
         public:
@@ -65,6 +83,13 @@ namespace Pancake {
             Entity* findEntity(std::string name);
             std::vector<Entity*> findEntities(std::string name);
             template<class T> std::vector<Entity*> getEntitiesWith();
+
+            // Timers advance with the scene's delta time, so they follow the time scale and stop while paused.
+            // A timer with an owner is cancelled when the owner dies. Timers are not saved with the scene.
+            int after(float seconds, std::function<void()> callback, Entity* owner = nullptr);
+            int every(float seconds, std::function<void()> callback, Entity* owner = nullptr);
+            void cancel(int timer);
+            bool hasTimer(int timer);
 
             // Spatial queries. An entity's bounds cover its transform and its rigidbody, if it has one.
             std::pair<glm::vec2, glm::vec2> getBounds(Entity* entity);

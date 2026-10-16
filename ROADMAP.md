@@ -12,9 +12,9 @@ Tick an item off in the same branch that implements it.
 
 ## Batch 2: time and debugging
 
-- [ ] Time scale and pause: `Pancake::timeScale(float)`, `Pancake::pause(bool)`, single frame step, console `pause` / `timescale`.
-- [ ] More console commands: `spawn`, `kill <id>`, `tp <id> <x> <y>`, `fps` overlay, `vsync on|off`, `fullscreen`.
-- [ ] Timers and tweens: `scene->after(seconds, fn)`, tweening position and colour with easing.
+- [x] Time scale and pause: `Pancake::timeScale(float)`, `Pancake::pause(bool)`, `Pancake::step()`, console `pause` / `step` / `timescale`.
+- [x] More console commands: `spawn`, `kill <id|name>`, `tp <id|name> <x> <y>`, `fps` overlay, `vsync on|off`, `fullscreen`.
+- [x] Timers and tweens: `scene->after` / `every` / `cancel`, `Tween` for position, size, rotation, colour and custom values, with `Ease` functions.
 
 ## Batch 3: physics for gameplay
 

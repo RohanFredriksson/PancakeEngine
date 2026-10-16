@@ -7,6 +7,9 @@
 //   D                 toggle physics debug drawing
 //   I                 toggle the inspector
 //   `                 toggle the console (try "help")
+//   P                 pause or resume
+//   N                 step one physics frame (pauses)
+//   F                 toggle the frame rate overlay
 //   R                 reset the sandbox
 //   Escape            quit
 //
@@ -115,6 +118,10 @@ void spawnBox(Scene* scene, vec2 position, vec2 size, float mass, vec4 colour) {
         ImpactFlash* flash = new ImpactFlash();
         flash->colour = colour;
         e->addComponent(flash);
+
+        // Pop in: the sprite grows to full size while the collider is full size from the start.
+        e->setSize(0.2f * size);
+        Tween::size(e, size, 0.25f, Ease::outBack);
     }
 
     scene->addEntity(e);
@@ -155,6 +162,9 @@ class Sandbox : public Component {
                 if (KeyListener::isKeyBeginDown(GLFW_KEY_D)) {Console::execute("debug");}
                 if (KeyListener::isKeyBeginDown(GLFW_KEY_I)) {Pancake::inspector();}
                 if (KeyListener::isKeyBeginDown(GLFW_KEY_R)) {Pancake::reset(); Pancake::load(build);}
+                if (KeyListener::isKeyBeginDown(GLFW_KEY_P)) {Pancake::pause();}
+                if (KeyListener::isKeyBeginDown(GLFW_KEY_N)) {Pancake::step();}
+                if (KeyListener::isKeyBeginDown(GLFW_KEY_F)) {Console::execute("fps");}
             }
             if (KeyListener::isKeyBeginDown(GLFW_KEY_GRAVE_ACCENT)) {Pancake::console();}
 

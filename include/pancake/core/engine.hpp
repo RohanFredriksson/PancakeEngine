@@ -35,6 +35,22 @@ namespace Pancake {
     void inspector(bool state);
     void inspector();
     
+
+    // Time. Pausing keeps components updating, with a delta time of zero, so physics, timers and tweens stop.
+    void timeScale(float scale);
+    float getTimeScale();
+    void pause(bool state);
+    void pause();
+    bool isPaused();
+    void step(int frames = 1); // Pause if needed, then advance the given number of physics steps, one per frame.
+    float getFps();
+    float getUnscaledDeltaTime();
+
+    void vsync(bool state);
+    void fullscreen(bool state);
+    void fullscreen();
+    bool isFullscreen();
+
     Scene* getScene();
     Entity* getEntity(int id);
     Component* getComponent(int id);

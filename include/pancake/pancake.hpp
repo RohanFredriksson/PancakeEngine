@@ -12,6 +12,7 @@
 
 #include "pancake/components/animation.hpp"
 #include "pancake/components/transition.hpp"
+#include "pancake/components/tween.hpp"
 
 #include "pancake/core/camera.hpp"
 #include "pancake/core/component.hpp"

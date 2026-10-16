@@ -56,6 +56,7 @@ namespace Pancake {
 
             void update(float dt);
             void render();
+            float getTimeStep();
             glm::vec2 getGravity();
             void setGravity(glm::vec2 gravity);
             bool hasDebugDraw();
