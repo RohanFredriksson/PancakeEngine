@@ -1,3 +1,4 @@
+#include <glad/glad.h>
 #include <map>
 #include <sstream>
 #include <cstring>
@@ -6,6 +7,7 @@
 #include "pancake/core/console.hpp"
 #include "pancake/core/inspector.hpp"
 #include "pancake/core/window.hpp"
+#include "pancake/core/listener.hpp"
 #include "pancake/graphics/debugdraw.hpp"
 #include "pancake/graphics/spriterenderer.hpp"
 #include "pancake/physics/rigidbody.hpp"
@@ -216,6 +218,27 @@ namespace Pancake {
                 bool state = parseState(args, Window::hasVsync());
                 Window::setVsync(state);
                 Console::print(std::string("Vsync ") + (state ? "on" : "off"));
+            });
+
+            Console::registerCommand("shake", "shake <intensity> [duration]: Shake the camera.", [](std::vector<std::string> args) {
+                Scene* scene = Window::getScene();
+                if (scene == nullptr) {return;}
+                float intensity;
+                float duration = 0.5f;
+                bool valid = (args.size() == 1 || args.size() == 2) && parseFloat(args[0], &intensity);
+                if (valid && args.size() == 2) {valid = parseFloat(args[1], &duration);}
+                if (!valid) {Console::print("Usage: shake <intensity> [duration]"); return;}
+                scene->getCamera()->shake(intensity, duration);
+            });
+
+            Console::registerCommand("gamepads", "List the connected gamepads.", [](std::vector<std::string> args) {
+                int count = 0;
+                for (int i = 0; i <= GLFW_JOYSTICK_LAST; i++) {
+                    if (!GamepadListener::isConnected(i)) {continue;}
+                    Console::print(std::to_string(i) + ": " + GamepadListener::getName(i));
+                    count++;
+                }
+                if (count == 0) {Console::print("No gamepads connected");}
             });
 
             Console::registerCommand("fullscreen", "fullscreen [on|off]: Fill the primary monitor.", [](std::vector<std::string> args) {

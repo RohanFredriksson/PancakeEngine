@@ -1,5 +1,6 @@
 #include "pancake/core/camera.hpp"
 #include "pancake/core/window.hpp"
+#include <algorithm>
 #include <glm/gtx/transform.hpp>
 
 namespace Pancake {
@@ -19,6 +20,11 @@ namespace Pancake {
         this->timeHalf = 0.0f;
         this->distance = 0.0f;
         this->maxVelocity = 0.0f;
+
+        this->shakeIntensity = 0.0f;
+        this->shakeDuration = 0.0f;
+        this->shakeTime = 0.0f;
+        this->shakeOffset = glm::vec2(0.0f, 0.0f);
         
         this->adjustProjection();
 
@@ -56,6 +62,38 @@ namespace Pancake {
             this->timeCurrent += dt;
         }
 
+        // Shake with a random offset, fading out quadratically. Paused scenes (dt of zero) hold the offset.
+        if (this->shakeTime > 0.0f && dt > 0.0f) {
+            this->shakeTime = std::max(this->shakeTime - dt, 0.0f);
+            float fade = this->shakeTime / this->shakeDuration;
+            float amplitude = this->shakeIntensity * fade * fade;
+            std::uniform_real_distribution<float> unit(-1.0f, 1.0f);
+            this->shakeOffset = amplitude * glm::vec2(unit(this->shakeRandom), unit(this->shakeRandom));
+        }
+
+    }
+
+    void Camera::shake(float intensity, float duration) {
+        if (intensity <= 0.0f || duration <= 0.0f) {return;}
+        // Keep the current shake if it is still stronger than the new one.
+        float fade = this->shakeTime > 0.0f ? this->shakeTime / this->shakeDuration : 0.0f;
+        if (this->shakeIntensity * fade * fade > intensity) {return;}
+        this->shakeIntensity = intensity;
+        this->shakeDuration = duration;
+        this->shakeTime = duration;
+    }
+
+    void Camera::stopShake() {
+        this->shakeTime = 0.0f;
+        this->shakeOffset = glm::vec2(0.0f, 0.0f);
+    }
+
+    bool Camera::isShaking() {
+        return this->shakeTime > 0.0f;
+    }
+
+    vec2 Camera::getShakeOffset() {
+        return this->shakeOffset;
     }
 
     void Camera::move(vec2 to, float t) {
@@ -188,8 +226,9 @@ namespace Pancake {
 
     mat4 Camera::getView() {
 
-        glm::vec3 cameraPosition(this->position.x - this->projectionSize.x / (2 * this->zoom), this->position.y - this->projectionSize.y / (2 * this->zoom), 20.0f);
-        glm::vec3 cameraFront(this->position.x - this->projectionSize.x / (2 * this->zoom), this->position.y - this->projectionSize.y / (2 * this->zoom), -1.0f);
+        vec2 centre = this->position + this->shakeOffset;
+        glm::vec3 cameraPosition(centre.x - this->projectionSize.x / (2 * this->zoom), centre.y - this->projectionSize.y / (2 * this->zoom), 20.0f);
+        glm::vec3 cameraFront(centre.x - this->projectionSize.x / (2 * this->zoom), centre.y - this->projectionSize.y / (2 * this->zoom), -1.0f);
         glm::vec3 cameraUp(0.0f, 1.0f, 0.0f);
 
         this->view = glm::lookAt(cameraPosition, cameraFront, cameraUp);

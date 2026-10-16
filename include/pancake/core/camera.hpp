@@ -1,5 +1,6 @@
 #pragma once
 
+#include <random>
 #include <glm/glm.hpp>
 #include <nlohmann/json.hpp>
 
@@ -31,6 +32,13 @@ namespace Pancake {
             float timeHalf;
             float distance;
             float maxVelocity;
+
+            // Shake moves the view, not the camera's position, so following and picking aren't disturbed.
+            float shakeIntensity;
+            float shakeDuration;
+            float shakeTime;
+            vec2 shakeOffset;
+            std::minstd_rand shakeRandom;
             
         public:
 
@@ -38,6 +46,10 @@ namespace Pancake {
             void adjustProjection();
             void update(float dt);
             void move(vec2 to, float t);
+            void shake(float intensity, float duration); // Up to intensity world units, fading out over duration seconds.
+            void stopShake();
+            bool isShaking();
+            vec2 getShakeOffset();
             json serialise();
             void load(json j);
 

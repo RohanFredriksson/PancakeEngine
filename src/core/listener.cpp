@@ -1,3 +1,4 @@
+#include <cmath>
 #include <glad/glad.h>
 #include "pancake/core/listener.hpp"
 #include "pancake/core/camera.hpp"
@@ -25,6 +26,38 @@ namespace {
     bool mouseEndDown[9] = {0};
     int mouseDownCount = 0;
     bool mouseDragging = 0;
+
+    struct Gamepad {
+        bool connected = false;
+        std::string name;
+        GLFWgamepadstate state = {};
+        GLFWgamepadstate previous = {};
+    };
+
+    Gamepad gamepads[GLFW_JOYSTICK_LAST + 1];
+    float gamepadDeadZone = 0.15f;
+
+    bool validGamepad(int gamepad) {
+        return gamepad >= 0 && gamepad <= GLFW_JOYSTICK_LAST;
+    }
+
+    // Removes the dead zone and rescales, so values start at 0 just outside it and still reach 1.
+    float removeDeadZone(float value) {
+        float magnitude = std::fabs(value);
+        if (magnitude <= gamepadDeadZone) {return 0.0f;}
+        float scaled = std::fmin((magnitude - gamepadDeadZone) / (1.0f - gamepadDeadZone), 1.0f);
+        return value < 0.0f ? -scaled : scaled;
+    }
+
+    // Applies the dead zone to the stick's length, so diagonals aren't snapped to the axes.
+    glm::vec2 stick(int gamepad, int xAxis, int yAxis) {
+        if (!validGamepad(gamepad) || !gamepads[gamepad].connected) {return glm::vec2(0.0f, 0.0f);}
+        glm::vec2 v = glm::vec2(gamepads[gamepad].state.axes[xAxis], -gamepads[gamepad].state.axes[yAxis]);
+        float length = glm::length(v);
+        if (length <= gamepadDeadZone) {return glm::vec2(0.0f, 0.0f);}
+        float scaled = std::fmin((length - gamepadDeadZone) / (1.0f - gamepadDeadZone), 1.0f);
+        return v * (scaled / length);
+    }
     
 }
 
@@ -201,6 +234,70 @@ namespace Pancake {
 
     double MouseListener::getScrollY() {
         return scrollY;
+    }
+
+    void GamepadListener::poll() {
+        for (int i = 0; i <= GLFW_JOYSTICK_LAST; i++) {
+            GLFWgamepadstate state = {};
+            bool connected = glfwJoystickIsGamepad(i) && glfwGetGamepadState(i, &state);
+            const char* name = connected ? glfwGetGamepadName(i) : nullptr;
+            setState(i, connected, state, name == nullptr ? "" : name);
+        }
+    }
+
+    void GamepadListener::setState(int gamepad, bool connected, const GLFWgamepadstate& state, std::string name) {
+        if (!validGamepad(gamepad)) {return;}
+        Gamepad& g = gamepads[gamepad];
+        g.previous = g.state;
+        g.state = connected ? state : GLFWgamepadstate {}; // A disconnected pad releases every button.
+        g.connected = connected;
+        g.name = connected ? name : "";
+    }
+
+    bool GamepadListener::isConnected(int gamepad) {
+        return validGamepad(gamepad) && gamepads[gamepad].connected;
+    }
+
+    std::string GamepadListener::getName(int gamepad) {
+        return validGamepad(gamepad) ? gamepads[gamepad].name : "";
+    }
+
+    bool GamepadListener::isButtonDown(int button, int gamepad) {
+        if (!validGamepad(gamepad) || button < 0 || button > GLFW_GAMEPAD_BUTTON_LAST) {return false;}
+        return gamepads[gamepad].state.buttons[button] == GLFW_PRESS;
+    }
+
+    bool GamepadListener::isButtonBeginDown(int button, int gamepad) {
+        if (!validGamepad(gamepad) || button < 0 || button > GLFW_GAMEPAD_BUTTON_LAST) {return false;}
+        return gamepads[gamepad].state.buttons[button] == GLFW_PRESS && gamepads[gamepad].previous.buttons[button] != GLFW_PRESS;
+    }
+
+    bool GamepadListener::isButtonEndDown(int button, int gamepad) {
+        if (!validGamepad(gamepad) || button < 0 || button > GLFW_GAMEPAD_BUTTON_LAST) {return false;}
+        return gamepads[gamepad].state.buttons[button] != GLFW_PRESS && gamepads[gamepad].previous.buttons[button] == GLFW_PRESS;
+    }
+
+    float GamepadListener::getAxis(int axis, int gamepad) {
+        if (!validGamepad(gamepad) || !gamepads[gamepad].connected || axis < 0 || axis > GLFW_GAMEPAD_AXIS_LAST) {return 0.0f;}
+        float value = gamepads[gamepad].state.axes[axis];
+        if (axis == GLFW_GAMEPAD_AXIS_LEFT_TRIGGER || axis == GLFW_GAMEPAD_AXIS_RIGHT_TRIGGER) {return 0.5f * (value + 1.0f);}
+        return removeDeadZone(value);
+    }
+
+    glm::vec2 GamepadListener::getLeftStick(int gamepad) {
+        return stick(gamepad, GLFW_GAMEPAD_AXIS_LEFT_X, GLFW_GAMEPAD_AXIS_LEFT_Y);
+    }
+
+    glm::vec2 GamepadListener::getRightStick(int gamepad) {
+        return stick(gamepad, GLFW_GAMEPAD_AXIS_RIGHT_X, GLFW_GAMEPAD_AXIS_RIGHT_Y);
+    }
+
+    void GamepadListener::setDeadZone(float deadZone) {
+        gamepadDeadZone = std::fmin(std::fmax(deadZone, 0.0f), 0.95f);
+    }
+
+    float GamepadListener::getDeadZone() {
+        return gamepadDeadZone;
     }
 
     void MouseListener::endFrame() {

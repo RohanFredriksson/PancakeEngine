@@ -11,6 +11,7 @@
 #include "pancake/audio/audiowave.hpp"
 
 #include "pancake/components/animation.hpp"
+#include "pancake/components/camerafollow.hpp"
 #include "pancake/components/transition.hpp"
 #include "pancake/components/tween.hpp"
 
