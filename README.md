@@ -267,3 +267,5 @@ Console::registerCommand("spawn", "spawn <x> <y>: Spawn a crate.", [](std::vecto
 
 ## Contributions
 Contributions are welcome! If you find any bugs or have suggestions for improvements, feel free to open an issue or submit a pull request on GitHub.
+
+Have a question about using it? Ask in [Discussions](https://github.com/RohanFredriksson/PancakeEngine/discussions/categories/q-a).
